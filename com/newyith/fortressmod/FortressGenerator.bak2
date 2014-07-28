@@ -1,0 +1,20 @@
+package com.newyith.fortressmod;
+
+import java.util.Random;
+
+import net.minecraft.block.BlockFurnace;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+
+public class FortressGenerator extends BlockFurnace {
+
+    protected FortressGenerator(boolean isActive) {
+        super(isActive);
+    }
+    
+    @Override
+    public Item getItemDropped(int par1, Random random, int par3) {
+        return Item.getItemFromBlock(FortressMod.fortressGenerator);
+    }
+}
