@@ -1,6 +1,6 @@
 package com.newyith.fortressmod;
 
-public class BasicInfo {
+public class ModInfo {
 
 	public static final String MODID = "fortressmod";
 	public static final String NAME = "Fortress Mod";

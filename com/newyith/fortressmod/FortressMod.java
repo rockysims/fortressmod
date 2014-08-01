@@ -1,8 +1,13 @@
 package com.newyith.fortressmod;
 
+import java.util.Arrays;
+
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockFurnace;
-import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -10,14 +15,21 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.Mod.Instance;
+import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
-@Mod(modid = BasicInfo.MODID, name = BasicInfo.NAME, version = BasicInfo.VERSION)
+//TODO: work on fortress generator gui. see http://www.minecraftforum.net/forums/mapping-and-modding/mapping-and-modding-tutorials/1571074-1-6-2-advanced-minecraft-forge-modding-tutorial-1
+//TODO: work on FortressGeneratorTileEntity class
+
+
+@Mod(modid = ModInfo.MODID, name = ModInfo.NAME, version = ModInfo.VERSION)
 public class FortressMod
 {
+    @Instance(value = ModInfo.MODID)
+    public static FortressMod modInstance;
+	
 	public static Block yourBlock;
 	public static Block testBlock;
 	public static Block fortressGenerator;
@@ -36,7 +48,7 @@ public class FortressMod
 	@EventHandler
 	public void init(FMLInitializationEvent e)
 	{
-        fortressGenerator = new FortressGenerator().setBlockName("FortressGenerator").setHardness(3.5F).setStepSound(Block.soundTypePiston).setCreativeTab(tabName);
+        fortressGenerator = new FortressGenerator().setBlockName("FortressGenerator").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGenerator, "FortressGenerator");
 		
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
