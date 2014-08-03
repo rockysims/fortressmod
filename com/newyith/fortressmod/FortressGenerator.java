@@ -23,6 +23,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
 public class FortressGenerator extends BlockContainer {
+	private Random rand = new Random();
 
     protected IIcon frontIcon;
     protected IIcon topIcon;
@@ -52,19 +53,17 @@ public class FortressGenerator extends BlockContainer {
 	
     @Override
 	public void breakBlock(World world, int x, int y, int z, Block oldblock, int oldMetadata) {
-    	Random rand = new Random();
-    	
     	TileEntityFortressGenerator fgTile = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
     	if (fgTile != null) {
         	for (int i = 0; i < fgTile.getSizeInventory(); i++) {
             	ItemStack itemstack = fgTile.getStackInSlot(i);
             	if(itemstack != null) {
-					float f = rand.nextFloat() * 0.8F + 0.1F;
-					float f1 = rand.nextFloat() * 0.8F + 0.1F;
-					float f2 = rand.nextFloat() * 0.8F + 0.1F;
+					float f = this.rand.nextFloat() * 0.8F + 0.1F;
+					float f1 = this.rand.nextFloat() * 0.8F + 0.1F;
+					float f2 = this.rand.nextFloat() * 0.8F + 0.1F;
 
 					while (itemstack.stackSize > 0) {
-						int j = rand.nextInt(21) + 10;
+						int j = this.rand.nextInt(21) + 10;
 
 						if (j > itemstack.stackSize) {
 							j = itemstack.stackSize;

@@ -18,11 +18,15 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	private int burnTime; //remaining burn time
 
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
+	private int itemBurnTime;
 	
 	private boolean isActive;
 
+
 	public TileEntityFortressGenerator() {
 		inventory = new ItemStack[9];
+		this.burnTime = 0;
+		this.itemBurnTime = 0;
 	}
 	
 	@Override
@@ -30,11 +34,14 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		boolean wasBurning = this.burnTime > 0;
 		if (this.burnTime > 0) {
 			this.burnTime--;
+			System.out.println("burnTime-- " + this.burnTime);
 		}
 		if (!this.worldObj.isRemote) {
 			//consider starting to burn another fuel item
 			if (this.burnTime == 0) {
-				this.burnTime = getItemBurnTime(this.inventory[0]);
+				this.itemBurnTime = getItemBurnTime(this.inventory[0]);
+				this.burnTime = this.itemBurnTime;
+				System.out.println("burnTime reset to " + this.burnTime);
 				if (this.burnTime > 0) {
 					if (this.inventory[0] != null) {
 						this.inventory[0].stackSize--;
@@ -163,6 +170,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		//front = compound.getInteger("FrontDirectionFortressGenerator");
 		this.burnTime = compound.getInteger("BurnTimeFortressGenerator");
+		this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 	}
 	
 	@Override
@@ -197,6 +205,17 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	@Override
 	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
 		return true;
+	}
+
+	public boolean isBurning() {
+		return this.burnTime > 0;
+	}
+
+	public int getBurnTimeRemainingScaled(int max) {
+		if (this.itemBurnTime == 0) {
+			this.itemBurnTime = 200;
+		}
+		return (this.burnTime * max) / this.itemBurnTime;
 	}
 
 	/*
