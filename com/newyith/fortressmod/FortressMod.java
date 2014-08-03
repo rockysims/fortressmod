@@ -6,6 +6,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.newyith.fortressmod.client.GuiHandler;
 
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
@@ -67,6 +68,9 @@ public class FortressMod
         ItemStack lightstoneDustStack64 = new ItemStack(Items.glowstone_dust, 64);
         GameRegistry.addRecipe(lightstoneDustStack64, "d  ", " o ", "   ", 'o', obsidianStack, 'd', dirtStack);
         //*/
+        
+		new GuiHandler();
+		GameRegistry.registerTileEntity(TileEntityFortressGenerator.class, "FortressGenerator" + ModInfo.MODID);
 	}
 	
 	/*
