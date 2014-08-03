@@ -16,11 +16,8 @@ public class ContainerFortressGenerator extends Container {
 		this.fortressGenerator = entity;
 		
 		//custom slots
-		for(int y = 0; y < 3; y++) {
-			for(int x = 0; x < 3; x++) {
-				addSlotToContainer(new Slot(entity, x + y * 3, 62 + x * 18, 17 + y * 18));
-			}
-		}
+		addSlotToContainer(new Slot(entity, 0, 56, 53));
+		addSlotToContainer(new Slot(entity, 1, 56, 17));
 		
 		//player inventory
 		for (int y = 0; y < 3; y++) {

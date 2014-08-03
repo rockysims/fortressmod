@@ -31,9 +31,8 @@ public class FortressMod
     @Instance(value = ModInfo.MODID)
     public static FortressMod modInstance;
 	
-	public static Block yourBlock;
-	public static Block testBlock;
 	public static Block fortressGenerator;
+	public static Block fortressGeneratorOn;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
@@ -49,8 +48,11 @@ public class FortressMod
 	@EventHandler
 	public void init(FMLInitializationEvent e)
 	{
-        fortressGenerator = new FortressGenerator().setBlockName("FortressGenerator").setCreativeTab(tabName);
+        fortressGenerator = new FortressGenerator(false).setBlockName("FortressGenerator").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGenerator, "FortressGenerator");
+		
+        fortressGeneratorOn = new FortressGenerator(true).setBlockName("FortressGeneratorActive");
+		GameRegistry.registerBlock(fortressGeneratorOn, "FortressGeneratorActive");
 		
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
         ItemStack fortressGeneratorStack = new ItemStack(fortressGenerator, 1);

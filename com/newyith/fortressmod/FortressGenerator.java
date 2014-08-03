@@ -10,6 +10,8 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -20,6 +22,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 public class FortressGenerator extends BlockContainer {
@@ -28,18 +31,56 @@ public class FortressGenerator extends BlockContainer {
     protected IIcon frontIcon;
     protected IIcon topIcon;
 
+	private boolean isActive;
+
 	private static boolean keepInventory = false;
 
-	protected FortressGenerator() {
+	protected FortressGenerator(boolean isActive) {
 		super(Material.rock);
 		setHardness(3.5F);
 		setStepSound(Block.soundTypePiston);
 		setResistance(17.5F);
+		
+		this.isActive = isActive;
 	}
 
 	@Override
 	public TileEntity createNewTileEntity(World world, int metadata) {
 		return new TileEntityFortressGenerator();
+	}
+	
+	@Override
+	public void onBlockAdded(World world, int x, int y, int z) {
+		super.onBlockAdded(world, x, y, z);
+		setDefaultDirection(world, x, y, z);
+	}
+
+	private void setDefaultDirection(World world, int x, int y, int z) {
+		if (!world.isRemote) {
+			boolean zNegIsOpaque = world.getBlock(x, y, z - 1).isOpaqueCube();
+			boolean zPosIsOpaque = world.getBlock(x, y, z + 1).isOpaqueCube();
+			boolean xNegIsOpaque = world.getBlock(x - 1, y, z).isOpaqueCube();
+			boolean xPosIsOpaque = world.getBlock(x + 1, y, z).isOpaqueCube();
+			byte meta = 3;
+			
+			if (xNegIsOpaque && !xPosIsOpaque) meta = 5;
+			if (xPosIsOpaque && !xNegIsOpaque) meta = 4;
+			if (zNegIsOpaque && !zPosIsOpaque) meta = 3;
+			if (zPosIsOpaque && !zNegIsOpaque) meta = 2;
+			
+			world.setBlockMetadataWithNotify(x, y, z, meta, 2);
+		}
+	}
+	
+	/** Called when the block is placed in the world. */
+	@Override
+	public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
+		int d = MathHelper.floor_double((double)(entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+		
+		if (d == 0) world.setBlockMetadataWithNotify(x, y, z, 2, 2);
+		if (d == 1) world.setBlockMetadataWithNotify(x, y, z, 5, 2);
+		if (d == 2) world.setBlockMetadataWithNotify(x, y, z, 3, 2);
+		if (d == 3) world.setBlockMetadataWithNotify(x, y, z, 4, 2);
 	}
 	
 	/**
@@ -112,23 +153,19 @@ public class FortressGenerator extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister iconRegister)
     {
-    	String iconStr = ModInfo.MODID + ":" + "fortress_generator_block";
+    	String iconStr = ModInfo.MODID.toLowerCase() + ":" + "fortress_generator_block";
         this.blockIcon = iconRegister.registerIcon(iconStr);
-        //this.frontIcon = p_149651_1_.registerIcon(this.field_149932_b (isBurning?) ? "furnace_front_on" : "furnace_front_off");
-        this.frontIcon = iconRegister.registerIcon(iconStr);
-        this.topIcon = iconRegister.registerIcon(iconStr);
+        this.frontIcon = iconRegister.registerIcon(this.isActive ? iconStr + "_front_on" : iconStr + "_front_off");
+        this.topIcon = iconRegister.registerIcon(iconStr + "_top");
     }
 
-	public static void updateBlockState(boolean isBurning, World world, int x, int y, int z) {
+	public static void updateBlockState(boolean isActive, World world, int x, int y, int z) {
 		    int meta = world.getBlockMetadata(x, y, z);
 		    TileEntity tileentity = world.getTileEntity(x, y, z);
 		    keepInventory = true;
-		    if (isBurning)
-		    {
-		    	world.setBlock(x, y, z, FortressMod.fortressGenerator); //TODO: change this to FortressMod.fortressGeneratorOn
-		    }
-		    else
-		    {
+		    if (isActive) {
+		    	world.setBlock(x, y, z, FortressMod.fortressGeneratorOn);
+		    } else {
 		    	world.setBlock(x, y, z, FortressMod.fortressGenerator);
 		    }
 		    keepInventory = false;

@@ -25,7 +25,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 
 	public TileEntityFortressGenerator() {
-		inventory = new ItemStack[9];
+		this.inventory = new ItemStack[2];
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
 	}
