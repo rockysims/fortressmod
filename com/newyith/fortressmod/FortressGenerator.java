@@ -10,10 +10,13 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockFurnace;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.IIcon;
@@ -36,8 +39,6 @@ public class FortressGenerator extends BlockContainer {
 		return new TileEntityFortressGenerator();
 	}
 	
-	
-	
 	/**
      * Called upon block activation (right click on the block.)
      */
@@ -49,10 +50,44 @@ public class FortressGenerator extends BlockContainer {
     	return true;
     }
 	
-	
-	
-	
-	
+    @Override
+	public void breakBlock(World world, int x, int y, int z, Block oldblock, int oldMetadata) {
+    	Random rand = new Random();
+    	
+    	TileEntityFortressGenerator fgTile = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
+    	if (fgTile != null) {
+        	for (int i = 0; i < fgTile.getSizeInventory(); i++) {
+            	ItemStack itemstack = fgTile.getStackInSlot(i);
+            	if(itemstack != null) {
+					float f = rand.nextFloat() * 0.8F + 0.1F;
+					float f1 = rand.nextFloat() * 0.8F + 0.1F;
+					float f2 = rand.nextFloat() * 0.8F + 0.1F;
+
+					while (itemstack.stackSize > 0) {
+						int j = rand.nextInt(21) + 10;
+
+						if (j > itemstack.stackSize) {
+							j = itemstack.stackSize;
+						}
+
+						itemstack.stackSize -= j;
+
+						EntityItem item = new EntityItem(world, (double)((float)x + f), (double)((float)y + f1), (double)((float)z + f2), new ItemStack(itemstack.getItem(), j, itemstack.getItemDamage()));
+
+						if (itemstack.hasTagCompound()) {
+							item.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
+						}
+
+						world.spawnEntityInWorld(item);
+					}
+				}
+			}
+
+			world.func_147453_f(x, y, z, oldblock);
+    	}
+
+    	super.breakBlock(world, x, y, z, oldblock, oldMetadata);
+    }
 	
 	/**
      * Gets the block's texture. Args: side, meta
