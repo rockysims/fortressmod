@@ -1,5 +1,6 @@
 package com.newyith.fortressmod;
 
+import akka.event.Logging.Debug;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
@@ -32,17 +33,19 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	@Override
 	public void updateEntity() {
 		boolean wasBurning = this.burnTime > 0;
+		boolean flag1 = false;
+		
 		if (this.burnTime > 0) {
 			this.burnTime--;
-			System.out.println("burnTime-- " + this.burnTime);
+			Dbg.print("updateEntity(): burnTime--; this.burnTime == " + this.burnTime, this.worldObj.isRemote);
 		}
 		if (!this.worldObj.isRemote) {
 			//consider starting to burn another fuel item
 			if (this.burnTime == 0) {
 				this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 				this.burnTime = this.itemBurnTime;
-				System.out.println("burnTime reset to " + this.burnTime);
 				if (this.burnTime > 0) {
+                    flag1 = true;
 					if (this.inventory[0] != null) {
 						this.inventory[0].stackSize--;
 						if (this.inventory[0].stackSize == 0) {
@@ -54,15 +57,26 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			}
 			
 			if (wasBurning != this.burnTime > 0) {
+				//*
+				flag1 = true;
+	            FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+	            /*/
 				this.validate();
+				//*/
 			}
 		} // end if (!isRemote)
 		
-		boolean oldIsActive = isActive;
-		isActive = this.burnTime > 0;
-		if (isActive != oldIsActive) {
+		//*
+		if (flag1) {
+			this.markDirty();
+		}
+		/*/
+		boolean oldIsActive = this.isActive;
+		this.isActive = this.burnTime > 0;
+		if (this.isActive != oldIsActive) {
 			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
 		}
+		//*/
 	}
 	
 	private static int getItemBurnTime(ItemStack itemStack) {
@@ -208,6 +222,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	}
 
 	public boolean isBurning() {
+		Dbg.print("isBurning() this.burnTime == " + this.burnTime, this.worldObj.isRemote);
 		return this.burnTime > 0;
 	}
 

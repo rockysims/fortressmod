@@ -28,6 +28,8 @@ public class FortressGenerator extends BlockContainer {
     protected IIcon frontIcon;
     protected IIcon topIcon;
 
+	private static boolean keepInventory = false;
+
 	protected FortressGenerator() {
 		super(Material.rock);
 		setHardness(3.5F);
@@ -53,36 +55,38 @@ public class FortressGenerator extends BlockContainer {
 	
     @Override
 	public void breakBlock(World world, int x, int y, int z, Block oldblock, int oldMetadata) {
-    	TileEntityFortressGenerator fgTile = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
-    	if (fgTile != null) {
-        	for (int i = 0; i < fgTile.getSizeInventory(); i++) {
-            	ItemStack itemstack = fgTile.getStackInSlot(i);
-            	if(itemstack != null) {
-					float f = this.rand.nextFloat() * 0.8F + 0.1F;
-					float f1 = this.rand.nextFloat() * 0.8F + 0.1F;
-					float f2 = this.rand.nextFloat() * 0.8F + 0.1F;
+		if (!keepInventory) {
+        	TileEntityFortressGenerator fgTile = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
+        	if (fgTile != null) {
+            	for (int i = 0; i < fgTile.getSizeInventory(); i++) {
+                	ItemStack itemstack = fgTile.getStackInSlot(i);
+                	if(itemstack != null) {
+    					float f = this.rand.nextFloat() * 0.8F + 0.1F;
+    					float f1 = this.rand.nextFloat() * 0.8F + 0.1F;
+    					float f2 = this.rand.nextFloat() * 0.8F + 0.1F;
 
-					while (itemstack.stackSize > 0) {
-						int j = this.rand.nextInt(21) + 10;
+    					while (itemstack.stackSize > 0) {
+    						int j = this.rand.nextInt(21) + 10;
 
-						if (j > itemstack.stackSize) {
-							j = itemstack.stackSize;
-						}
+    						if (j > itemstack.stackSize) {
+    							j = itemstack.stackSize;
+    						}
 
-						itemstack.stackSize -= j;
+    						itemstack.stackSize -= j;
 
-						EntityItem item = new EntityItem(world, (double)((float)x + f), (double)((float)y + f1), (double)((float)z + f2), new ItemStack(itemstack.getItem(), j, itemstack.getItemDamage()));
+    						EntityItem item = new EntityItem(world, (double)((float)x + f), (double)((float)y + f1), (double)((float)z + f2), new ItemStack(itemstack.getItem(), j, itemstack.getItemDamage()));
 
-						if (itemstack.hasTagCompound()) {
-							item.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
-						}
+    						if (itemstack.hasTagCompound()) {
+    							item.getEntityItem().setTagCompound((NBTTagCompound)itemstack.getTagCompound().copy());
+    						}
 
-						world.spawnEntityInWorld(item);
-					}
-				}
-			}
+    						world.spawnEntityInWorld(item);
+    					}
+    				}
+    			}
 
-			world.func_147453_f(x, y, z, oldblock);
+    			world.func_147453_f(x, y, z, oldblock);
+        	}
     	}
 
     	super.breakBlock(world, x, y, z, oldblock, oldMetadata);
@@ -114,5 +118,26 @@ public class FortressGenerator extends BlockContainer {
         this.frontIcon = iconRegister.registerIcon(iconStr);
         this.topIcon = iconRegister.registerIcon(iconStr);
     }
+
+	public static void updateBlockState(boolean isBurning, World world, int x, int y, int z) {
+		    int meta = world.getBlockMetadata(x, y, z);
+		    TileEntity tileentity = world.getTileEntity(x, y, z);
+		    keepInventory = true;
+		    if (isBurning)
+		    {
+		    	world.setBlock(x, y, z, FortressMod.fortressGenerator); //TODO: change this to FortressMod.fortressGeneratorOn
+		    }
+		    else
+		    {
+		    	world.setBlock(x, y, z, FortressMod.fortressGenerator);
+		    }
+		    keepInventory = false;
+		    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
+		    if (tileentity != null)
+		    {
+			    tileentity.validate();
+			    world.setTileEntity(x, y, z, tileentity);
+		    }
+	}
     
 }

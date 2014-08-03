@@ -44,7 +44,7 @@ public class GuiFortressGenerator extends GuiContainer {
 		if (fortressGenerator.isBurning()) {
 			int burn = fortressGenerator.getBurnTimeRemainingScaled(14);
 			drawTexturedModalRect(j+73, k+59, 176, 16, burn, 10);
-			System.out.println("burn: " + burn);
+			System.out.println("burn: " + burn); //TODO: delete this line
 		}
 	}
 	
