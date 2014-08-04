@@ -1,7 +1,10 @@
 package com.newyith.fortressmod;
 
+import java.util.Random;
+
 import akka.event.Logging.Debug;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -13,7 +16,9 @@ import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class TileEntityFortressGenerator extends TileEntity implements IInventory {
+	private static Random rand = new Random();
 	private ItemStack[] inventory;
+	private boolean isActive;
 
 	/** The number of ticks that the current item (none in this case) has been cooking for */
 	public int cookTime;
@@ -23,9 +28,10 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
 	public int itemBurnTime;
+	private static final int cookPeriod = 100; //TODO: replace with "1000*60*60; //1 hour"
 	
-	private boolean isActive;
-
+	//-----------------------
+	
 	public TileEntityFortressGenerator() {
 		this.inventory = new ItemStack[2];
 		this.cookTime = 0;
@@ -61,7 +67,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			if (this.isBurning()) {
 				this.cookTime++;
 
-				if (this.cookTime == 200) {
+				if (this.cookTime == this.cookPeriod) {
 					this.cookTime = 0;
 					this.onCooked();
 					flag1 = true;
@@ -81,8 +87,20 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		}
 	}
 	
+	private boolean canMakeDarkstone() {
+		return this.itemBurnTime == getItemBurnTime(new ItemStack(Items.glowstone_dust));
+	}
+	
 	private void onCooked() {
-		//TODO: add chance of getting dark stone dust
+		if (canMakeDarkstone() && rand.nextFloat() < 0.8) {
+			ItemStack darkstoneStack = new ItemStack(Items.gunpowder, 1);
+		
+			if (this.inventory[1] == null) {
+	            this.inventory[1] = darkstoneStack;
+	        } else if (this.inventory[1].getItem() == darkstoneStack.getItem()) {
+	            this.inventory[1].stackSize += darkstoneStack.stackSize;
+	        }
+		}
 	}
 
 	private static int getItemBurnTime(ItemStack itemStack) {
@@ -90,7 +108,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			int itemId = Item.getIdFromItem(itemStack.getItem());
 
 			if (itemId == Item.getIdFromItem(Items.glowstone_dust)) {
-				return 100; //TODO: replace with "return 1000*60*60; //1 hour"
+				return cookPeriod; //one chance to get darkstone dust per glowstone burned
 			} else {
 				return TileEntityFurnace.getItemBurnTime(itemStack);
 			}
@@ -235,13 +253,13 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 	public int getBurnTimeRemainingScaled(int max) {
 		if (this.itemBurnTime == 0) {
-			this.itemBurnTime = 200;
+			this.itemBurnTime = cookPeriod;
 		}
 		return (this.burnTime * max) / this.itemBurnTime;
 	}
 
 	public int getCookProgressScaled(int max) {
-		return (this.cookTime * max) / 200;
+		return (this.cookTime * max) / cookPeriod;
 	}
 
 	/*

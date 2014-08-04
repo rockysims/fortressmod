@@ -49,6 +49,10 @@ public class FortressGenerator extends BlockContainer {
 		return new TileEntityFortressGenerator();
 	}
 	
+	public Item getItemDropped(int par1, Random par2, int par3) {
+        return Item.getItemFromBlock(FortressMod.fortressGenerator);
+    }
+	
 	@Override
 	public void onBlockAdded(World world, int x, int y, int z) {
 		super.onBlockAdded(world, x, y, z);

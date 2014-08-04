@@ -9,6 +9,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.SlotFurnace;
 import net.minecraft.item.ItemStack;
 
 public class ContainerFortressGenerator extends Container {
@@ -22,8 +23,9 @@ public class ContainerFortressGenerator extends Container {
 		this.fortressGenerator = entity;
 		
 		//custom slots
-		addSlotToContainer(new Slot(entity, 0, 56, 53));
-		addSlotToContainer(new Slot(entity, 1, 56, 17));
+		addSlotToContainer(new Slot(entity, 0, 56, 53)); //fuel slot
+		addSlotToContainer(new Slot(entity, 1, 116, 35)); //dark stone dust slot
+		//this.addSlotToContainer(new SlotFurnace(invPlayer.player, entity, 1, 116, 35)); //dark stone dust slot
 		
 		//player inventory
 		for (int y = 0; y < 3; y++) {
