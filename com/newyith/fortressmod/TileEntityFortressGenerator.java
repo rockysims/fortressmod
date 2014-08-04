@@ -15,17 +15,20 @@ import net.minecraftforge.common.util.Constants.NBT;
 public class TileEntityFortressGenerator extends TileEntity implements IInventory {
 	private ItemStack[] inventory;
 
+	/** The number of ticks that the current item (none in this case) has been cooking for */
+	public int cookTime;
+
 	/** The number of ticks that the fortress generator will keep burning */
-	private int burnTime; //remaining burn time
+	public int burnTime; //remaining burn time
 
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
-	private int itemBurnTime;
+	public int itemBurnTime;
 	
 	private boolean isActive;
 
-
 	public TileEntityFortressGenerator() {
 		this.inventory = new ItemStack[2];
+		this.cookTime = 0;
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
 	}
@@ -37,7 +40,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		if (this.burnTime > 0) {
 			this.burnTime--;
-			Dbg.print("updateEntity(): burnTime--; this.burnTime == " + this.burnTime, this.worldObj.isRemote);
 		}
 		if (!this.worldObj.isRemote) {
 			//consider starting to burn another fuel item
@@ -45,7 +47,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 				this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 				this.burnTime = this.itemBurnTime;
 				if (this.burnTime > 0) {
-                    flag1 = true;
+					flag1 = true;
 					if (this.inventory[0] != null) {
 						this.inventory[0].stackSize--;
 						if (this.inventory[0].stackSize == 0) {
@@ -56,29 +58,33 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 				}
 			}
 			
+			if (this.isBurning()) {
+				this.cookTime++;
+
+				if (this.cookTime == 200) {
+					this.cookTime = 0;
+					this.onCooked();
+					flag1 = true;
+				}
+			} else {
+				this.cookTime = 0;
+			}
+			
 			if (wasBurning != this.burnTime > 0) {
-				//*
 				flag1 = true;
-	            FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
-	            /*/
-				this.validate();
-				//*/
+				FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
 			}
 		} // end if (!isRemote)
 		
-		//*
 		if (flag1) {
 			this.markDirty();
 		}
-		/*/
-		boolean oldIsActive = this.isActive;
-		this.isActive = this.burnTime > 0;
-		if (this.isActive != oldIsActive) {
-			this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
-		}
-		//*/
 	}
 	
+	private void onCooked() {
+		//TODO: add chance of getting dark stone dust
+	}
+
 	private static int getItemBurnTime(ItemStack itemStack) {
 		if (itemStack != null) {
 			int itemId = Item.getIdFromItem(itemStack.getItem());
@@ -113,17 +119,17 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	@Override
 	public ItemStack decrStackSize(int slot, int count) {
 		ItemStack stack = getStackInSlot(slot);
-        if (stack != null) {
-                if (stack.stackSize <= count) {
-                        setInventorySlotContents(slot, null);
-                } else {
-                        stack = stack.splitStack(count);
-                        if (stack.stackSize == 0) {
-                                setInventorySlotContents(slot, null);
-                        }
-                }
-        }
-        return stack;
+		if (stack != null) {
+			if (stack.stackSize <= count) {
+				setInventorySlotContents(slot, null);
+			} else {
+				stack = stack.splitStack(count);
+				if (stack.stackSize == 0) {
+					setInventorySlotContents(slot, null);
+				}
+			}
+		}
+		return stack;
 	}
 
 	@Override
@@ -165,6 +171,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		//compound.setInteger("FrontDirectionFortressGenerator", (int)front);
 		compound.setInteger("BurnTimeFortressGenerator", burnTime);
+		compound.setInteger("CookTimeFortressGenerator", cookTime);
 	}
 	
 	@Override
@@ -184,6 +191,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		//front = compound.getInteger("FrontDirectionFortressGenerator");
 		this.burnTime = compound.getInteger("BurnTimeFortressGenerator");
+		this.cookTime = compound.getInteger("CookTimeFortressGenerator");
 		this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 	}
 	
@@ -222,7 +230,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	}
 
 	public boolean isBurning() {
-		Dbg.print("isBurning() this.burnTime == " + this.burnTime, this.worldObj.isRemote);
 		return this.burnTime > 0;
 	}
 
@@ -231,6 +238,10 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			this.itemBurnTime = 200;
 		}
 		return (this.burnTime * max) / this.itemBurnTime;
+	}
+
+	public int getCookProgressScaled(int max) {
+		return (this.cookTime * max) / 200;
 	}
 
 	/*

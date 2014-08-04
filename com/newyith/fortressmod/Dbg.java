@@ -10,22 +10,26 @@ public class Dbg {
 	}
 	
 	public static void print(String s, boolean isRemote) {
-		if (s == lastS) {
-			count ++;
+		if (s.equals(lastS)) {
+			count++;
 		} else {
 			lastS = s;
-			count = 0;
 			
 			s += "::";
 			if (count > 1) {
-				s += count + " * ";
+				s = count + " * " + s;
+				count = 0;
 			}
 			if (isRemote) {
-				s += "remote";
+				s += "client";
 			} else {
-				s += "local";
+				s += "server";
 			}
 			System.out.println(s);
 		}
+	}
+
+	public static void print(String s) {
+		System.out.println(s);
 	}
 }
