@@ -1,8 +1,10 @@
 package com.newyith.fortressmod;
 
+import java.util.LinkedHashSet;
 import java.util.Random;
 
 import akka.event.Logging.Debug;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -13,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class TileEntityFortressGenerator extends TileEntity implements IInventory {
@@ -77,6 +80,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			}
 			
 			if (wasBurning != this.burnTime > 0) {
+				updateGeneratedWalls();
 				flag1 = true;
 				FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
 			}
@@ -87,12 +91,18 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		}
 	}
 	
-	private boolean canMakeDarkstone() {
+	private void updateGeneratedWalls() {
+		FortressWallUpdater wall = new FortressWallUpdater();
+		wall.update(isBurning(), shouldGenerateBedrock(), this.worldObj, xCoord, yCoord, zCoord);
+	}
+
+	private boolean shouldGenerateBedrock() {
 		return this.itemBurnTime == getItemBurnTime(new ItemStack(Items.glowstone_dust));
 	}
 	
 	private void onCooked() {
-		if (canMakeDarkstone() && rand.nextFloat() < 0.8) {
+		/*//commented out because I'm doing fortress disruptors
+		if (shouldGenerateBedrock() && rand.nextFloat() < 0.8) {
 			ItemStack darkstoneStack = new ItemStack(Items.gunpowder, 1);
 		
 			if (this.inventory[1] == null) {
@@ -101,6 +111,8 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	            this.inventory[1].stackSize += darkstoneStack.stackSize;
 	        }
 		}
+		//*/
+		return;
 	}
 
 	private static int getItemBurnTime(ItemStack itemStack) {

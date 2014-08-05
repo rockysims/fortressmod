@@ -40,6 +40,8 @@ public class FortressMod
 		}
 	};
 
+	public static Block fortressBedrock = Blocks.bedrock; //TODO: change this to be custom block
+
 	/*
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {}
