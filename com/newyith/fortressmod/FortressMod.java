@@ -40,7 +40,7 @@ public class FortressMod
 		}
 	};
 
-	public static Block fortressBedrock = Blocks.bedrock; //TODO: change this to be custom block
+	public static Block fortressBedrock = Blocks.glass; //TODO: change this to be custom bedrock block
 
 	/*
 	@EventHandler
@@ -55,6 +55,9 @@ public class FortressMod
 		
         fortressGeneratorOn = new FortressGenerator(true).setBlockName("FortressGeneratorActive");
 		GameRegistry.registerBlock(fortressGeneratorOn, "FortressGeneratorActive");
+		
+		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock");
+		GameRegistry.registerBlock(fortressBedrock, "FortressBedrock");
 		
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
         ItemStack fortressGeneratorStack = new ItemStack(fortressGenerator, 1);

@@ -11,7 +11,6 @@ public class FortressWallUpdater {
 	public void update(boolean isGenerating, boolean bedrockMode, World world, int xCoord, int yCoord, int zCoord) {
 		//TODO: change this so it discovers generators rather than being passed isGenerating and bedrockMode
 		
-		Dbg.print("FortressWallUpdater.update()");
 		HashSet<String> visited = new HashSet<String>();
 		Stack<Point> generated = new Stack<Point>();
 		Stack<Point> layer = new Stack<Point>();
@@ -25,7 +24,7 @@ public class FortressWallUpdater {
 		nextLayer.push(p);
 		visited.add(makeKey(p.x, p.y, p.z));
 		
-		int recursionLimit = 15; //TODO: increase this
+		int recursionLimit = 50; //TODO: increase this
 		while (!nextLayer.isEmpty()) {
 			if (recursionLimit-- <= 0) {
 				Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted");
@@ -36,7 +35,7 @@ public class FortressWallUpdater {
 			nextLayer = new Stack<Point>();
 			
 			//process layer
-			int recursionLimit2 = 50; //TODO: increase this
+			int recursionLimit2 = 150; //TODO: increase this
 			while (!layer.isEmpty()) {
 				if (recursionLimit2-- <= 0) {
 					Dbg.print("FortressWallUpdater.update(): recursionLimit2 exhausted");
@@ -44,7 +43,6 @@ public class FortressWallUpdater {
 				}
 				
 				center = layer.pop();
-				Dbg.print("FortressWallUpdater.update() processing layer centered at " + makeKey(center.x, center.y, center.z));
 				//iterate over the 27 (3*3*3) blocks around center
 				for (int x = center.x-1; x <= center.x+1; x++) {
 					for (int y = center.y-1; y <= center.y+1; y++) {
@@ -60,8 +58,6 @@ public class FortressWallUpdater {
 									nextLayer.push(p);
 									generated.push(p);
 								}
-							} else {
-								//Dbg.print("already visited");
 							}
 						}
 					}
@@ -69,8 +65,6 @@ public class FortressWallUpdater {
 			}
 		}
 		
-		Dbg.print("update " + generated.size() + " wall blocks");
-
 		while (!generated.isEmpty()) {
 			p = generated.pop();
 			b = world.getBlock(p.x, p.y, p.z);
@@ -87,20 +81,16 @@ public class FortressWallUpdater {
 	}
 
 	private Block getDegeneratedBlock(Block b) {
-		if (b == FortressMod.fortressBedrock) {
+		if (b == FortressMod.fortressBedrock)
 			return Blocks.cobblestone;
-		}
-		
+
 		return null;
 	}
 
 	private Block getGeneratedBlock(Block b, boolean bedrockMode) {
 		if (bedrockMode) {
 			if (b == Blocks.cobblestone) {
-				Dbg.print("is cobblestone");
 				return FortressMod.fortressBedrock;
-			} else {
-				Dbg.print("not cobblestone: " + b.getLocalizedName());
 			}
 		} //TODO: implement obsidian fortress walls?
 
