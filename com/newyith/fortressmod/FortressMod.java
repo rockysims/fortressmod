@@ -25,8 +25,8 @@ import cpw.mods.fml.common.registry.GameRegistry;
 //TODO: work on FortressGeneratorTileEntity class
 
 //TODO: make only the oldest (in terms of when placed) fortress generator effect wall on/off state
-//TODO: on destroy oldest fortress generator make all other fortress generators touching the wall turn into broken version of fortress generator
-//TODO: add FortressEmergencyKey (8 quarts to craft, emergency key only disables fortress if generator generating it was placed by same person)
+//TODO: on destroy oldest fortress generator make all other fortress generators touching the wall clog
+//TODO: add FortressEmergencyKey (8 quarts to craft, emergency key only clogs fortress if generator generating it was placed by same person)
 //TODO: think about issue: if you turn on fg to generate fortress next to second fortress, then connect the 2 fortresses, then stop generating, that would update the whole wall or leave behind permanent bedrock
 
 @Mod(modid = ModInfo.MODID, name = ModInfo.NAME, version = ModInfo.VERSION)

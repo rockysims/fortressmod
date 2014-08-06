@@ -11,14 +11,18 @@ fixed: could place generator near outside of fortress then connect it to wall to
 
 Needed Tidbits:
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
+emergency key (quarts)
 
 TODO: consider: each ungenerated block type has its own custom block? how to do better?
+    answer: store the block type along with the points upon generation
 
-//TODO: in TileEntityFortressGenerator add "GeneratorEventHandler geh = new GeneratorEventHandler(this);"
-//geh.onPlaced()
-//geh.onActivated()
-//geh.onDeactivated()
-//geh.onBroken()
+//TODO: in TileEntityFortressGenerator add "GeneratorCore core = new GeneratorCore(this);"
+//core.onPlaced()
+//core.onBroken()
+//core.generate()
+//core.degenerate()
+//core.isClogged()
+//core.isGenerating()
 
 onFortressGeneratorPlaced
     placedGenerator.timePlaced = now
