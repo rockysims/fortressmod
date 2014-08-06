@@ -1,0 +1,64 @@
+onPlaced, clog unless its the only unclogged generator
+onActivated, if (!oldestGenerator) clog else generate walls
+onDeactivated, degenerate the walls it generated
+onBroken, if (oldestGenerator) clog the others
+
+issues:
+fixed: want to indicate immediately when a generator is placed such that it would clog if activated
+fixed: could place generator near enemy wall, turn it on, connect it, turn it off: issue is wall updater would turn off enemy wall
+fixed: what if a player is stuck in an enemy fortress?
+fixed: could place generator near outside of fortress then connect it to wall to be new oldest if inside generator broken (moved)
+
+Needed Tidbits:
+/stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
+
+TODO: consider: each ungenerated block type has its own custom block? how to do better?
+
+//TODO: in TileEntityFortressGenerator add "GeneratorEventHandler geh = new GeneratorEventHandler(this);"
+//geh.onPlaced()
+//geh.onActivated()
+//geh.onDeactivated()
+//geh.onBroken()
+
+onFortressGeneratorPlaced
+    placedGenerator.timePlaced = now
+    fgs = all fortress generators connected to placedGenerator by wall (not including placedGenerator)
+    if (fgs.length > 0)
+        turn placedGenerator into clogged generator
+
+onFortressGeneratorStartsBurning
+    fgs = all fortress generators connected to startedFg by wall (not including startedFg)
+    foundOlderGenerator = false
+    for (fg in fgs)
+        if (fg.timePlaced < startedFg.timePlaced)
+            //found older generator
+            foundOlderGenerator = true
+            break
+
+    if (foundOlderGenerator)
+        change startedFg into clogged generator
+    else
+        startedFg.generatedBlocks = startedFg.generateWalls()
+
+onFortressGeneratorStopsBurning
+    for (b in fg.generatedBlocks)
+        degenerate(b)
+
+onBreakFortressGeneratorBlock
+    fgs = all fortress generators connected to brokenFgBlock by wall (not including brokenFgBlock)
+    foundOlderGenerator = false
+    for (fg in fgs)
+        if (fg.timePlaced < brokenFgBlock.timePlaced)
+            //found older generator
+            foundOlderGenerator = true
+            break
+
+    if (!foundOlderGenerator)
+        for (fg in fgs)
+            change fg into clogged generator
+
+
+
+
+
+
