@@ -18,7 +18,7 @@ public class GuiFortressGenerator extends GuiContainer {
 
 	public GuiFortressGenerator(InventoryPlayer invPlayer, TileEntityFortressGenerator entity) {
 		super(new ContainerFortressGenerator(invPlayer, entity));
-		fortressGenerator = entity;
+		this.fortressGenerator = entity;
 
 		xSize = 176;
 		ySize = 165;
@@ -27,7 +27,15 @@ public class GuiFortressGenerator extends GuiContainer {
 	@Override
 	protected void drawGuiContainerForegroundLayer(int par1, int par2)
 	{
-		fontRendererObj.drawString(StatCollector.translateToLocal("Fortress Generator"), 40, 4, 0x404040);
+		String name;
+		if (this.fortressGenerator.isClogged()) {
+			name = "Clogged Fortress Generator";
+			fontRendererObj.drawString(StatCollector.translateToLocal(name), 17, 4, 0x404040);
+		} else {
+			name = "Fortress Generator";
+			fontRendererObj.drawString(StatCollector.translateToLocal(name), 40, 4, 0x404040);
+		}
+		
 		fontRendererObj.drawString(StatCollector.translateToLocal("container.inventory"), 8, (ySize - 96) + 2, 0x404040);
 	}
 
@@ -41,10 +49,15 @@ public class GuiFortressGenerator extends GuiContainer {
 
         if (this.fortressGenerator.isBurning())
         {
+        	int xOffset = 24;
+        	int yOffset = -12;
             int i1 = this.fortressGenerator.getBurnTimeRemainingScaled(13);
-            this.drawTexturedModalRect(k + 56, l + 36 + 12 - i1, 176, 12 - i1, 14, i1 + 1);
-            i1 = this.fortressGenerator.getCookProgressScaled(24);
-            this.drawTexturedModalRect(k + 79, l + 34, 176, 14, i1 + 1, 16);
+            this.drawTexturedModalRect(
+            		xOffset + k + 56, yOffset + l + 36 + 12 - i1,
+            		176, 12 - i1, 
+            		14, i1 + 1);
+            //i1 = this.fortressGenerator.getCookProgressScaled(24);
+            //this.drawTexturedModalRect(k + 79, l + 34, 176, 14, i1 + 1, 16);
         }
 	}
 	

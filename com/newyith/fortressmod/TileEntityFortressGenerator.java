@@ -23,77 +23,67 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	private ItemStack[] inventory;
 	private boolean isActive;
 
-	/** The number of ticks that the current item (none in this case) has been cooking for */
-	public int cookTime;
-
 	/** The number of ticks that the fortress generator will keep burning */
 	public int burnTime; //remaining burn time
 
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
 	public int itemBurnTime;
 	private boolean isClogged;
-	private static final int cookPeriod = 100; //TODO: replace with "1000*60*60; //1 hour"
+	private static final int burnPeriod = 100; //TODO: replace with "1000*60*60; //1 hour"
 	
+	private GeneratorCore generator;
+
 	//-----------------------
 	
 	public TileEntityFortressGenerator(boolean isClogged) {
-		this.inventory = new ItemStack[2];
-		this.cookTime = 0;
+		this.inventory = new ItemStack[1];
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
 		this.isClogged = isClogged;
+		this.generator = new GeneratorCore(this);
 	}
 	
 	@Override
 	public void updateEntity() {
-		boolean wasBurning = this.burnTime > 0;
-		boolean flag1 = false;
-		
-		if (this.burnTime > 0) {
-			this.burnTime--;
-		}
-		if (!this.worldObj.isRemote) {
-			//consider starting to burn another fuel item
-			if (this.burnTime == 0) {
-				this.itemBurnTime = getItemBurnTime(this.inventory[0]);
-				this.burnTime = this.itemBurnTime;
-				if (this.burnTime > 0) {
-					flag1 = true;
-					if (this.inventory[0] != null) {
-						this.inventory[0].stackSize--;
-						if (this.inventory[0].stackSize == 0) {
-							Item var3 = this.inventory[0].getItem().getContainerItem(); //hope i got import for Item right
-							this.inventory[0] = (var3 == null)?null:new ItemStack(var3);
+		if (!isClogged) {
+			boolean wasBurning = this.burnTime > 0;
+			boolean flag1 = false;
+			
+			if (this.burnTime > 0) {
+				this.burnTime--;
+			}
+			if (!this.worldObj.isRemote) {
+				//consider starting to burn another fuel item
+				if (this.burnTime == 0) {
+					this.itemBurnTime = getItemBurnTime(this.inventory[0]);
+					this.burnTime = this.itemBurnTime;
+					if (this.burnTime > 0) {
+						flag1 = true;
+						if (this.inventory[0] != null) {
+							this.inventory[0].stackSize--;
+							if (this.inventory[0].stackSize == 0) {
+								Item var3 = this.inventory[0].getItem().getContainerItem(); //hope i got import for Item right
+								this.inventory[0] = (var3 == null)?null:new ItemStack(var3);
+							}
 						}
 					}
 				}
-			}
-			
-			if (this.isBurning()) {
-				this.cookTime++;
-
-				if (this.cookTime == this.cookPeriod) {
-					this.cookTime = 0;
-					this.onCooked();
+				
+				if (wasBurning != this.burnTime > 0) {
+					updateGeneratedWalls();
 					flag1 = true;
+					FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
 				}
-			} else {
-				this.cookTime = 0;
-			}
+			} // end if (!isRemote)
 			
-			if (wasBurning != this.burnTime > 0) {
-				updateGeneratedWalls();
-				flag1 = true;
-				FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+			if (flag1) {
+				this.markDirty();
 			}
-		} // end if (!isRemote)
-		
-		if (flag1) {
-			this.markDirty();
-		}
+		} // end if (!isClogged)
 	}
 	
 	private void updateGeneratedWalls() {
+		//generatorCore.onBurnStateChanged(this.isBurning());
 		FortressWallUpdater wall = new FortressWallUpdater();
 		wall.update(isBurning(), shouldGenerateBedrock(), this.worldObj, xCoord, yCoord, zCoord);
 	}
@@ -102,27 +92,12 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		return this.itemBurnTime == getItemBurnTime(new ItemStack(Items.glowstone_dust));
 	}
 	
-	private void onCooked() {
-		/*//commented out because I'm doing fortress disruptors
-		if (shouldGenerateBedrock() && rand.nextFloat() < 0.8) {
-			ItemStack darkstoneStack = new ItemStack(Items.gunpowder, 1);
-		
-			if (this.inventory[1] == null) {
-	            this.inventory[1] = darkstoneStack;
-	        } else if (this.inventory[1].getItem() == darkstoneStack.getItem()) {
-	            this.inventory[1].stackSize += darkstoneStack.stackSize;
-	        }
-		}
-		//*/
-		return;
-	}
-
 	private static int getItemBurnTime(ItemStack itemStack) {
 		if (itemStack != null) {
 			int itemId = Item.getIdFromItem(itemStack.getItem());
 
 			if (itemId == Item.getIdFromItem(Items.glowstone_dust)) {
-				return cookPeriod; //one chance to get darkstone dust per glowstone burned
+				return burnPeriod;
 			} else {
 				return TileEntityFurnace.getItemBurnTime(itemStack);
 			}
@@ -203,7 +178,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		//compound.setInteger("FrontDirectionFortressGenerator", (int)front);
 		compound.setInteger("BurnTimeFortressGenerator", burnTime);
-		compound.setInteger("CookTimeFortressGenerator", cookTime);
 	}
 	
 	@Override
@@ -223,7 +197,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		//front = compound.getInteger("FrontDirectionFortressGenerator");
 		this.burnTime = compound.getInteger("BurnTimeFortressGenerator");
-		this.cookTime = compound.getInteger("CookTimeFortressGenerator");
 		this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 	}
 	
@@ -267,13 +240,13 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 	public int getBurnTimeRemainingScaled(int max) {
 		if (this.itemBurnTime == 0) {
-			this.itemBurnTime = cookPeriod;
+			this.itemBurnTime = burnPeriod;
 		}
 		return (this.burnTime * max) / this.itemBurnTime;
 	}
 
-	public int getCookProgressScaled(int max) {
-		return (this.cookTime * max) / cookPeriod;
+	public boolean isClogged() {
+		return this.isClogged;
 	}
 
 	/*

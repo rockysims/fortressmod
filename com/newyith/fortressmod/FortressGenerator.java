@@ -92,6 +92,8 @@ public class FortressGenerator extends BlockContainer {
 		if (d == 1) world.setBlockMetadataWithNotify(x, y, z, 5, 2);
 		if (d == 2) world.setBlockMetadataWithNotify(x, y, z, 3, 2);
 		if (d == 3) world.setBlockMetadataWithNotify(x, y, z, 4, 2);
+		
+		GeneratorCore.onPlaced(world, x, y, z);
 	}
 	
 	/** Called upon block activation (right click on the block.) */
@@ -140,6 +142,8 @@ public class FortressGenerator extends BlockContainer {
     	}
 
     	super.breakBlock(world, x, y, z, oldblock, oldMetadata);
+    	
+    	GeneratorCore.onBroken(world, x, y, z);
     }
 	
 	public static void updateBlockState(boolean isActive, World world, int x, int y, int z) {

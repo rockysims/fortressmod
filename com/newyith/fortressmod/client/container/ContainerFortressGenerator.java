@@ -15,7 +15,6 @@ import net.minecraft.item.ItemStack;
 public class ContainerFortressGenerator extends Container {
 
 	private TileEntityFortressGenerator fortressGenerator;
-	private int lastCookTime;
 	private int lastBurnTime;
 	private int lastItemBurnTime;
 	
@@ -23,9 +22,7 @@ public class ContainerFortressGenerator extends Container {
 		this.fortressGenerator = entity;
 		
 		//custom slots
-		addSlotToContainer(new Slot(entity, 0, 56, 53)); //fuel slot
-		addSlotToContainer(new Slot(entity, 1, 116, 35)); //dark stone dust slot
-		//this.addSlotToContainer(new SlotFurnace(invPlayer.player, entity, 1, 116, 35)); //dark stone dust slot
+		addSlotToContainer(new FortressGeneratorFuelSlot(entity, 0, 80, 41)); //fuel slot
 		
 		//player inventory
 		for (int y = 0; y < 3; y++) {
@@ -43,9 +40,8 @@ public class ContainerFortressGenerator extends Container {
 	@Override
 	public void addCraftingToCrafters(ICrafting crafting) {
 		super.addCraftingToCrafters(crafting);
-		crafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.cookTime);
-		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.burnTime);
-		crafting.sendProgressBarUpdate(this, 2, this.fortressGenerator.itemBurnTime);
+		crafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTime);
+		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
 	}
 
 	/** Looks for changes made in the container, sends them to every listener. */
@@ -56,20 +52,15 @@ public class ContainerFortressGenerator extends Container {
 		for (int i = 0; i < this.crafters.size(); ++i) {
 			ICrafting icrafting = (ICrafting)this.crafters.get(i);
 
-			if (this.lastCookTime != this.fortressGenerator.cookTime) {
-				icrafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.cookTime);
-			}
-
 			if (this.lastBurnTime != this.fortressGenerator.burnTime) {
-				icrafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.burnTime);
+				icrafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTime);
 			}
 
 			if (this.lastItemBurnTime != this.fortressGenerator.itemBurnTime) {
-				icrafting.sendProgressBarUpdate(this, 2, this.fortressGenerator.itemBurnTime);
+				icrafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
 			}
 		}
 
-		this.lastCookTime = this.fortressGenerator.cookTime;
 		this.lastBurnTime = this.fortressGenerator.burnTime;
 		this.lastItemBurnTime = this.fortressGenerator.itemBurnTime;
 	}
@@ -77,9 +68,8 @@ public class ContainerFortressGenerator extends Container {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void updateProgressBar(int key, int value) {
-		if (key == 0) this.fortressGenerator.cookTime = value;
-		if (key == 1) this.fortressGenerator.burnTime = value;
-		if (key == 2) this.fortressGenerator.itemBurnTime = value;
+		if (key == 0) this.fortressGenerator.burnTime = value;
+		if (key == 1) this.fortressGenerator.itemBurnTime = value;
 	}
 	
 	@Override

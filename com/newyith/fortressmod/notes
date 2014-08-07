@@ -12,6 +12,8 @@ fixed: could place generator near outside of fortress then connect it to wall to
 Needed Tidbits:
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby) //TODO: add /stuck command
 emergency key (quarts)
+keep a global list of generated blocks with a licenseToGenerateTimestamp (renewed by generators)
+    periodically check to ensure all generated blocks have a licenseToGenerateTimestamp
 
 TODO: consider: each ungenerated block type has its own custom block? how to do better?
     answer: store the block type along with the points upon generation
