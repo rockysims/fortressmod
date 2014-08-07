@@ -37,6 +37,7 @@ public class FortressMod
 	
 	public static Block fortressGenerator;
 	public static Block fortressGeneratorOn;
+	public static Block fortressGeneratorClogged;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
@@ -54,14 +55,28 @@ public class FortressMod
 	@EventHandler
 	public void init(FMLInitializationEvent e)
 	{
+		//Fortress Wall Blocks
+		
+		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock");
+		GameRegistry.registerBlock(fortressBedrock, "FortressBedrock");
+		
+		//Fortress Generators
+
         fortressGenerator = new FortressGenerator(false).setBlockName("FortressGenerator").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGenerator, "FortressGenerator");
 		
         fortressGeneratorOn = new FortressGenerator(true).setBlockName("FortressGeneratorActive");
 		GameRegistry.registerBlock(fortressGeneratorOn, "FortressGeneratorActive");
 		
-		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock");
-		GameRegistry.registerBlock(fortressBedrock, "FortressBedrock");
+        fortressGeneratorClogged = new FortressGenerator(false, true).setBlockName("FortressGeneratorClogged").setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressGeneratorClogged, "FortressGeneratorClogged");
+		
+		//Fortress Generator GUI
+		
+		new GuiHandler();
+		GameRegistry.registerTileEntity(TileEntityFortressGenerator.class, "FortressGenerator" + ModInfo.MODID);
+		
+		//Recipes
 		
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
         ItemStack fortressGeneratorStack = new ItemStack(fortressGenerator, 1);
@@ -80,8 +95,6 @@ public class FortressMod
         GameRegistry.addRecipe(lightstoneDustStack64, "d  ", " o ", "   ", 'o', obsidianStack, 'd', dirtStack);
         //*/
         
-		new GuiHandler();
-		GameRegistry.registerTileEntity(TileEntityFortressGenerator.class, "FortressGenerator" + ModInfo.MODID);
 	}
 	
 	/*

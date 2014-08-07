@@ -30,8 +30,10 @@ public class FortressGenerator extends BlockContainer {
 
     protected IIcon frontIcon;
     protected IIcon topIcon;
+    protected IIcon frontIconClogged;
 
 	private boolean isActive;
+	private boolean isClogged;
 
 	private static boolean keepInventory = false;
 
@@ -44,9 +46,14 @@ public class FortressGenerator extends BlockContainer {
 		this.isActive = isActive;
 	}
 
+	public FortressGenerator(boolean isActive, boolean isClogged) {
+		this(isActive);
+		this.isClogged = isClogged;
+	}
+
 	@Override
 	public TileEntity createNewTileEntity(World world, int metadata) {
-		return new TileEntityFortressGenerator();
+		return new TileEntityFortressGenerator(this.isClogged);
 	}
 	
 	public Item getItemDropped(int par1, Random par2, int par3) {
@@ -87,9 +94,7 @@ public class FortressGenerator extends BlockContainer {
 		if (d == 3) world.setBlockMetadataWithNotify(x, y, z, 4, 2);
 	}
 	
-	/**
-     * Called upon block activation (right click on the block.)
-     */
+	/** Called upon block activation (right click on the block.) */
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
     	if(!world.isRemote) {
@@ -137,32 +142,6 @@ public class FortressGenerator extends BlockContainer {
     	super.breakBlock(world, x, y, z, oldblock, oldMetadata);
     }
 	
-	/**
-     * Gets the block's texture. Args: side, meta
-     */
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side, int meta)
-    {
-    	if (side == 1 || side == 0) { //top or bottom
-    		return this.topIcon;
-    	} else {
-    		if (side == meta) { //front
-    			return this.frontIcon;
-    		} else { //side
-    			return this.blockIcon;
-    		}
-    	}
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void registerBlockIcons(IIconRegister iconRegister)
-    {
-    	String iconStr = ModInfo.MODID.toLowerCase() + ":" + "fortress_generator_block";
-        this.blockIcon = iconRegister.registerIcon(iconStr);
-        this.frontIcon = iconRegister.registerIcon(this.isActive ? iconStr + "_front_on" : iconStr + "_front_off");
-        this.topIcon = iconRegister.registerIcon(iconStr + "_top");
-    }
-
 	public static void updateBlockState(boolean isActive, World world, int x, int y, int z) {
 		    int meta = world.getBlockMetadata(x, y, z);
 		    TileEntity tileentity = world.getTileEntity(x, y, z);
@@ -181,4 +160,32 @@ public class FortressGenerator extends BlockContainer {
 		    }
 	}
     
+
+	/**
+     * Gets the block's texture. Args: side, meta
+     */
+    @SideOnly(Side.CLIENT)
+    public IIcon getIcon(int side, int meta)
+    {
+    	if (side == 1 || side == 0) { //top or bottom
+    		return this.topIcon;
+    	} else {
+    		if (side == meta) { //front
+    			return (!this.isClogged)?this.frontIcon:this.frontIconClogged;
+    		} else { //side
+    			return this.blockIcon;
+    		}
+    	}
+    }
+
+    @SideOnly(Side.CLIENT)
+    public void registerBlockIcons(IIconRegister iconRegister)
+    {
+    	String iconStr = ModInfo.MODID.toLowerCase() + ":" + "fortress_generator_block";
+        this.blockIcon = iconRegister.registerIcon(iconStr);
+        this.topIcon = iconRegister.registerIcon(iconStr + "_top");
+        this.frontIcon = iconRegister.registerIcon(this.isActive ? iconStr + "_front_on" : iconStr + "_front_off");
+        this.frontIconClogged = iconRegister.registerIcon(iconStr + "_front_clogged");
+    }
+
 }

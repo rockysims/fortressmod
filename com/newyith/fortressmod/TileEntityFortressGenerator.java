@@ -31,15 +31,17 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
 	public int itemBurnTime;
+	private boolean isClogged;
 	private static final int cookPeriod = 100; //TODO: replace with "1000*60*60; //1 hour"
 	
 	//-----------------------
 	
-	public TileEntityFortressGenerator() {
+	public TileEntityFortressGenerator(boolean isClogged) {
 		this.inventory = new ItemStack[2];
 		this.cookTime = 0;
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
+		this.isClogged = isClogged;
 	}
 	
 	@Override
