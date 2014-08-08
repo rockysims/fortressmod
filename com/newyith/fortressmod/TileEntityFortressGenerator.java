@@ -31,16 +31,21 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	private boolean isClogged;
 	private static final int burnPeriod = 100; //TODO: replace with "1000*60*60; //1 hour"
 	
-	private GeneratorCore generator;
+	public GeneratorCore generatorCore; //public so it's static methods can get the generatorCore instance via fortress generator's tile entity
 
 	//-----------------------
 	
-	public TileEntityFortressGenerator(boolean isClogged) {
+	public TileEntityFortressGenerator() {
 		this.inventory = new ItemStack[1];
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
+		this.isClogged = false;
+		this.generatorCore = new GeneratorCore(this);
+	}
+	
+	public TileEntityFortressGenerator(boolean isClogged) {
+		this();
 		this.isClogged = isClogged;
-		this.generator = new GeneratorCore(this);
 	}
 	
 	@Override
@@ -70,7 +75,11 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 				}
 				
 				if (wasBurning != this.burnTime > 0) {
+					//*
+					generatorCore.onBurnStateChanged();
+					/*/
 					updateGeneratedWalls();
+					//*/
 					flag1 = true;
 					FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
 				}
@@ -82,11 +91,12 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		} // end if (!isClogged)
 	}
 	
+	/*
 	private void updateGeneratedWalls() {
-		//generatorCore.onBurnStateChanged(this.isBurning());
 		FortressWallUpdater wall = new FortressWallUpdater();
 		wall.update(isBurning(), shouldGenerateBedrock(), this.worldObj, xCoord, yCoord, zCoord);
 	}
+	//*/
 
 	private boolean shouldGenerateBedrock() {
 		return this.itemBurnTime == getItemBurnTime(new ItemStack(Items.glowstone_dust));
@@ -178,6 +188,8 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		//compound.setInteger("FrontDirectionFortressGenerator", (int)front);
 		compound.setInteger("BurnTimeFortressGenerator", burnTime);
+		
+		this.generatorCore.writeToNBT(compound);
 	}
 	
 	@Override
@@ -198,6 +210,8 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		//front = compound.getInteger("FrontDirectionFortressGenerator");
 		this.burnTime = compound.getInteger("BurnTimeFortressGenerator");
 		this.itemBurnTime = getItemBurnTime(this.inventory[0]);
+		
+		this.generatorCore.readFromNBT(compound);
 	}
 	
 	@Override

@@ -99,6 +99,14 @@ public class FortressGenerator extends BlockContainer {
 	/** Called upon block activation (right click on the block.) */
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+    	
+    	
+    	TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
+    	Dbg.print("timePlaced: " + fg.generatorCore.timePlaced, world.isRemote);
+    	
+    	
+    	
+    	
     	if(!world.isRemote) {
     		player.openGui(FortressMod.modInstance, 0, world, x, y, z);
     	}
@@ -141,9 +149,9 @@ public class FortressGenerator extends BlockContainer {
         	}
     	}
 
-    	super.breakBlock(world, x, y, z, oldblock, oldMetadata);
+    	GeneratorCore.onBroken(world, x, y, z); //must be before super.breakBlock()
     	
-    	GeneratorCore.onBroken(world, x, y, z);
+    	super.breakBlock(world, x, y, z, oldblock, oldMetadata);
     }
 	
 	public static void updateBlockState(boolean isActive, World world, int x, int y, int z) {

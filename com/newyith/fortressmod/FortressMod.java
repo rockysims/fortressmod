@@ -71,11 +71,6 @@ public class FortressMod
         fortressGeneratorClogged = new FortressGenerator(false, true).setBlockName("FortressGeneratorClogged").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGeneratorClogged, "FortressGeneratorClogged");
 		
-		//Fortress Generator GUI
-		
-		new GuiHandler();
-		GameRegistry.registerTileEntity(TileEntityFortressGenerator.class, "FortressGenerator" + ModInfo.MODID);
-		
 		//Recipes
 		
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
@@ -94,7 +89,12 @@ public class FortressMod
         ItemStack lightstoneDustStack64 = new ItemStack(Items.glowstone_dust, 64);
         GameRegistry.addRecipe(lightstoneDustStack64, "d  ", " o ", "   ", 'o', obsidianStack, 'd', dirtStack);
         //*/
-        
+
+		//Fortress Generator GUI
+		
+		new GuiHandler();
+		GameRegistry.registerTileEntity(TileEntityFortressGenerator.class, "FortressGenerator" + ModInfo.MODID);
+		
 	}
 	
 	/*
