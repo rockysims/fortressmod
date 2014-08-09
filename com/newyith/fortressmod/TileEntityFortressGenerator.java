@@ -31,7 +31,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	private boolean isClogged;
 	private static final int burnPeriod = 100; //TODO: replace with "1000*60*60; //1 hour"
 	
-	public GeneratorCore generatorCore; //public so it's static methods can get the generatorCore instance via fortress generator's tile entity
+	public GeneratorCore generatorCore = null; //public so it's static methods can get the generatorCore instance via fortress generator's tile entity
 
 	//-----------------------
 	
@@ -40,7 +40,12 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
 		this.isClogged = false;
-		this.generatorCore = new GeneratorCore(this, this.worldObj);
+	}
+	
+	@Override
+	public void setWorldObj(World world) {
+		super.setWorldObj(world);
+		this.generatorCore = new GeneratorCore(this, world);
 	}
 	
 	public TileEntityFortressGenerator(boolean isClogged) {

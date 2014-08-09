@@ -2,6 +2,8 @@ package com.newyith.fortressmod;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Stack;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -82,6 +84,8 @@ public class GeneratorCore {
 	public static void onPlaced(World world, int x, int y, int z) {
 		//clog unless its the only none clogged generator (in which case degenerated connected wall)
 		if (!world.isRemote) {
+			Dbg.print("onPlaced");
+			
 			TileEntityFortressGenerator placedFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
 			GeneratorCore placedCore = placedFortressGenerator.generatorCore;
 			
@@ -99,11 +103,13 @@ public class GeneratorCore {
 	
 	public static void onBroken(World world, int x, int y, int z) {
 		if (!world.isRemote) {
+			Dbg.print("onBroken");
+			
 			TileEntityFortressGenerator brokenFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
 			GeneratorCore brokenCore = brokenFortressGenerator.generatorCore;
 			
 			//degenerate generated wall (and connected wall if oldest)
-			brokenCore.degenerateWall();
+			//brokenCore.degenerateWall(); //TODO: uncomment out this line (prevents generation? (immediate undo))
 
 			//if (oldestGenerator) clog the others
 			if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
@@ -116,6 +122,7 @@ public class GeneratorCore {
 	}
 
 	public void onBurnStateChanged() {
+		Dbg.print("onBurnStateChanged");
 		if (this.fortressGenerator.isBurning()) {
 			if (!this.fortressGenerator.isClogged()) {
 				//fortress generator was just turned on
@@ -141,12 +148,14 @@ public class GeneratorCore {
 		ArrayList<Point> wallPoints = getPointsConnected(wallBlocks, disabledWallBlocks);
 		for (Point p : wallPoints) {
 			this.generated.add(p);
-
+			
 			//generate block
 			Block blockToGenerate = world.getBlock(p.x, p.y, p.z);
 			int index = disabledWallBlocks.indexOf(blockToGenerate);
-			if (index != -1)
+			if (index != -1) {
 				world.setBlock(p.x, p.y, p.z, enabledWallBlocks.get(index));
+				Dbg.print("enabled " + p.toString());
+			}
 		}
 	}
 
@@ -155,16 +164,16 @@ public class GeneratorCore {
 	 * Also degenerates wall touching this generator provided this is the oldest generator.
 	 */
 	private void degenerateWall() {
-		//degenerate the walls it generated
-		for (Point p : generated) {
-			this.generated.remove(p);
-			
-			//degenerate block
-			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
-			int index = enabledWallBlocks.indexOf(blockToDegenerate);
-			if (index != -1)
-				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
-		}
+//		//degenerate the walls it generated
+//		for (Point p : generated) {
+//			this.generated.remove(p);
+//			
+//			//degenerate block
+//			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
+//			int index = enabledWallBlocks.indexOf(blockToDegenerate);
+//			if (index != -1)
+//				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
+//		}
 		
 		//if (oldest) degenerate walls touching this generator even if this wasn't the generator that generated them
 		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
@@ -183,6 +192,7 @@ public class GeneratorCore {
 				
 				//degenerate block
 				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
+				Dbg.print("disable " + p.toString());
 			}
 		}
 	}
@@ -221,10 +231,6 @@ public class GeneratorCore {
 		world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);
 	}
 	
-	private static void sendGlobalChat(String msg) {
-		MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentText(msg));
-	}
-	
 	/**
 	 * Looks at all blocks connected to the generator by wallBlocks (directly or recursively).
 	 * Connected means within 3x3x3.
@@ -234,11 +240,10 @@ public class GeneratorCore {
 	 * @return List of all points (x,y,z) with a block of a type in returnBlocks that is connected to the generator by wallBlocks.
 	 */
 	private ArrayList<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
-		
-		
-		
-		
-		
-		return null;
+		int x = this.fortressGenerator.xCoord;
+		int y = this.fortressGenerator.yCoord;
+		int z = this.fortressGenerator.zCoord;
+		Point p = new Point(x, y, z);
+		return Wall.getPointsConnected(this.world, p, wallBlocks, returnBlocks);
 	}
 }
