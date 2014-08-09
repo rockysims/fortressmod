@@ -1,5 +1,6 @@
 package com.newyith.fortressmod;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
 
@@ -8,6 +9,18 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 
 public class FortressWallUpdater {
+	/**
+	 * Gets the points (x,y,z) of all blocks connected to the generator by wallTypeBlocks (directly or recursively).
+	 * Connected means within 3x3x3.
+	 * 
+	 * @param wallTypeBlocks List of block types.
+	 * @return List of all points (x,y,z) connected to the generator by wallTypeBlocks.
+	 */
+	private ArrayList<Point> getPointsConnectedByBlocks(ArrayList<Block> wallTypeBlocks) {
+		
+		return null;
+	}
+	
 	public void update(boolean isGenerating, boolean bedrockMode, World world, int xCoord, int yCoord, int zCoord) {
 		//TODO: change this so it discovers generators rather than being passed isGenerating and bedrockMode
 		
