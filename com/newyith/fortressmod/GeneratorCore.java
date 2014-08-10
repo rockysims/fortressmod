@@ -88,11 +88,13 @@ public class GeneratorCore {
 		//clog unless its the only none clogged generator (in which case degenerated connected wall)
 		if (!world.isRemote) {
 			TileEntityFortressGenerator placedFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
-			GeneratorCore placedCore = placedFortressGenerator.generatorCore;
+			GeneratorCore placedCore = placedFortressGenerator.getGeneratorCore();
 			
 			//set timePlaced
 			placedCore.timePlaced = System.currentTimeMillis();
+			//placedCore.placedBy = null; // = player name of person placing the block
 			
+			//clog or degenerate
 			boolean isOldest = isOldestNotCloggedGeneratorConnectedTo(placedCore);
 			if (!isOldest) {
 				placedCore.clog();
@@ -106,7 +108,7 @@ public class GeneratorCore {
 	public static void onBroken(World world, int x, int y, int z) {
 		if (!world.isRemote) {
 			TileEntityFortressGenerator brokenFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
-			GeneratorCore brokenCore = brokenFortressGenerator.generatorCore;
+			GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
 			
 			//degenerate generated wall (and connected wall if oldest)
 			brokenCore.degenerateWall();
@@ -115,7 +117,7 @@ public class GeneratorCore {
 			if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
 				ArrayList<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
 				for (TileEntityFortressGenerator fg : fgs) {
-					fg.generatorCore.clog();
+					fg.getGeneratorCore().clog();
 				}
 			}
 		}
@@ -198,7 +200,7 @@ public class GeneratorCore {
 		boolean foundOlderGenerator = false;
 		for (TileEntityFortressGenerator fg : fgs) {
 			//if (otherFg was placed before thisFg)
-			if (fg.generatorCore.timePlaced < core.timePlaced) {
+			if (fg.getGeneratorCore().timePlaced < core.timePlaced) {
 				//found older generator
 				foundOlderGenerator = true;
 				break;
