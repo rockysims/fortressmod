@@ -45,7 +45,7 @@ public class FortressMod
 		}
 	};
 
-	public static Block fortressBedrock = Blocks.glass; //TODO: change this to be custom bedrock block
+	public static Block fortressBedrock;
 
 	/*
 	@EventHandler

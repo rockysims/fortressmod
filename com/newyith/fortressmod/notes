@@ -15,6 +15,7 @@ generation radius limit
 fortress doors (with signs) <------ //TODO: WORK ON DOORS NEXT
 emergency key (quarts) <----------- DOINT
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
+make fortress glass block
 
 TODO: look into burn time (NBT? ICrafting?) is cast to short
 
