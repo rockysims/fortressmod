@@ -87,8 +87,6 @@ public class GeneratorCore {
 	public static void onPlaced(World world, int x, int y, int z) {
 		//clog unless its the only none clogged generator (in which case degenerated connected wall)
 		if (!world.isRemote) {
-			Dbg.print("onPlaced");
-			
 			TileEntityFortressGenerator placedFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
 			GeneratorCore placedCore = placedFortressGenerator.generatorCore;
 			
@@ -107,8 +105,6 @@ public class GeneratorCore {
 	//Not called when broken and then replaced by different version of fortress generator (on, off, clogged)
 	public static void onBroken(World world, int x, int y, int z) {
 		if (!world.isRemote) {
-			Dbg.print("onBroken");
-			
 			TileEntityFortressGenerator brokenFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
 			GeneratorCore brokenCore = brokenFortressGenerator.generatorCore;
 			
@@ -118,7 +114,6 @@ public class GeneratorCore {
 			//if (oldestGenerator) clog the others
 			if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
 				ArrayList<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
-				Dbg.print("destroyed oldest so clogging the other " + String.valueOf(fgs.size()));
 				for (TileEntityFortressGenerator fg : fgs) {
 					fg.generatorCore.clog();
 				}
@@ -127,7 +122,6 @@ public class GeneratorCore {
 	}
 
 	public void onBurnStateChanged() {
-		Dbg.print("onBurnStateChanged");
 		if (this.fortressGenerator.isBurning()) {
 			if (!this.fortressGenerator.isClogged()) {
 				//fortress generator was just turned on
@@ -202,18 +196,14 @@ public class GeneratorCore {
 	private static boolean isOldestNotCloggedGeneratorConnectedTo(GeneratorCore core) {
 		ArrayList<TileEntityFortressGenerator> fgs = core.getConnectedFortressGeneratorsNotClogged(); 
 		boolean foundOlderGenerator = false;
-		Dbg.print("isOldest called with generator of age " + String.valueOf(core.timePlaced));
 		for (TileEntityFortressGenerator fg : fgs) {
-			Dbg.print("isOldest comparing to other generator of age " + String.valueOf(fg.generatorCore.timePlaced));
 			//if (otherFg was placed before thisFg)
 			if (fg.generatorCore.timePlaced < core.timePlaced) {
 				//found older generator
 				foundOlderGenerator = true;
-				Dbg.print("isOldest found older generator");
 				break;
 			}
 		}
-		Dbg.print("isOldest returning " + !foundOlderGenerator);
 		return !foundOlderGenerator;
 	}
 	
@@ -226,7 +216,6 @@ public class GeneratorCore {
 			matches.add(fg);
 		}
 
-		Dbg.print("getConnectedFortressGeneratorsNotClogged returning " + String.valueOf(matches.size()) + " matches");
 		return matches;
 	}
 

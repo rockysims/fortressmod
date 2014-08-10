@@ -60,24 +60,26 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	
 	@Override
 	public void updateEntity() {
-		if (!isClogged) {
-			boolean wasBurning = this.burnTime > 0;
-			boolean flag1 = false;
+		boolean wasBurning = this.burnTime > 0;
+		
+		if (this.burnTime > 0) {
+			this.burnTime--;
+		}
+		
+		if (!this.isClogged) {
+			boolean needToMarkAsDirty = false;
 			
-			if (this.burnTime > 0) {
-				this.burnTime--;
-			}
 			if (!this.worldObj.isRemote) {
 				//consider starting to burn another fuel item
 				if (this.burnTime == 0) {
 					this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 					this.burnTime = this.itemBurnTime;
 					if (this.burnTime > 0) {
-						flag1 = true;
+						needToMarkAsDirty = true;
 						if (this.inventory[0] != null) {
 							this.inventory[0].stackSize--;
 							if (this.inventory[0].stackSize == 0) {
-								Item var3 = this.inventory[0].getItem().getContainerItem(); //hope i got import for Item right
+								Item var3 = this.inventory[0].getItem().getContainerItem();
 								this.inventory[0] = (var3 == null)?null:new ItemStack(var3);
 							}
 						}
@@ -85,17 +87,16 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 				}
 				
 				if (wasBurning != this.burnTime > 0) {
-					//*
+					needToMarkAsDirty = true;
+					
 					generatorCore.onBurnStateChanged();
-					/*/
-					updateGeneratedWalls();
-					//*/
-					flag1 = true;
-					FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+					
+					if (!this.isClogged) //onBurnStateChanged() may have set this.isClogged
+						FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
 				}
 			} // end if (!isRemote)
 			
-			if (flag1) {
+			if (needToMarkAsDirty) {
 				this.markDirty();
 			}
 		} // end if (!isClogged)
@@ -190,7 +191,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		compound.setTag("ItemsFortressGenerator", list);
 		
 		//compound.setInteger("FrontDirectionFortressGenerator", (int)front);
-		//compound.setBoolean("isCloggedFortressGenerator", this.isClogged);
+		compound.setBoolean("isCloggedFortressGenerator", this.isClogged);
 		compound.setInteger("BurnTimeFortressGenerator", burnTime);
 		
 		this.generatorCore.writeToNBT(compound);
@@ -212,7 +213,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		}
 		
 		//front = compound.getInteger("FrontDirectionFortressGenerator");
-		//this.isClogged = compound.getBoolean("isCloggedFortressGenerator");
+		this.isClogged = compound.getBoolean("isCloggedFortressGenerator");
 		this.burnTime = compound.getInteger("BurnTimeFortressGenerator");
 		this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 		

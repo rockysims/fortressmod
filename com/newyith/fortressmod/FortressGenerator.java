@@ -100,12 +100,7 @@ public class FortressGenerator extends BlockContainer {
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
     	
-    	
     	TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
-    	Dbg.print("timePlaced: " + fg.generatorCore.timePlaced, world.isRemote);
-    	
-    	
-    	
     	
     	if(!world.isRemote) {
     		player.openGui(FortressMod.modInstance, 0, world, x, y, z);
@@ -161,9 +156,9 @@ public class FortressGenerator extends BlockContainer {
 		    ignoreBreakBlock = true;
 		    if (isActive) {
 		    	world.setBlock(x, y, z, FortressMod.fortressGeneratorOn);
-		    } else {
+			} else {
 		    	world.setBlock(x, y, z, FortressMod.fortressGenerator);
-		    }
+			}
 		    ignoreBreakBlock = false;
 		    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
 		    if (tileentity != null)
@@ -185,7 +180,7 @@ public class FortressGenerator extends BlockContainer {
 	    //replace block
 	    ignoreBreakBlock = true;
 		world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);
-	    ignoreBreakBlock = false;
+		ignoreBreakBlock = false;
 	    //put back meta and tileentity
 	    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
 	    if (tileentity != null) {

@@ -1,5 +1,6 @@
 package com.newyith.fortressmod.client;
 
+import com.newyith.fortressmod.Dbg;
 import com.newyith.fortressmod.FortressMod;
 import com.newyith.fortressmod.TileEntityFortressGenerator;
 import com.newyith.fortressmod.client.container.ContainerFortressGenerator;

@@ -17,6 +17,7 @@ public class ContainerFortressGenerator extends Container {
 	private TileEntityFortressGenerator fortressGenerator;
 	private int lastBurnTime;
 	private int lastItemBurnTime;
+	private boolean lastIsClogged;
 	
 	public ContainerFortressGenerator(InventoryPlayer invPlayer, TileEntityFortressGenerator entity) {
 		this.fortressGenerator = entity;
@@ -42,6 +43,7 @@ public class ContainerFortressGenerator extends Container {
 		super.addCraftingToCrafters(crafting);
 		crafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTime);
 		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
+		crafting.sendProgressBarUpdate(this, 2, ((this.fortressGenerator.isClogged())?1:0) );
 	}
 
 	/** Looks for changes made in the container, sends them to every listener. */
@@ -59,10 +61,15 @@ public class ContainerFortressGenerator extends Container {
 			if (this.lastItemBurnTime != this.fortressGenerator.itemBurnTime) {
 				icrafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
 			}
+			
+			if (this.lastIsClogged != this.fortressGenerator.isClogged()) {
+				icrafting.sendProgressBarUpdate(this, 2, ((this.fortressGenerator.isClogged())?1:0) );
+			}
 		}
 
 		this.lastBurnTime = this.fortressGenerator.burnTime;
 		this.lastItemBurnTime = this.fortressGenerator.itemBurnTime;
+		this.lastIsClogged = this.fortressGenerator.isClogged();
 	}
 
 	@Override
@@ -70,6 +77,7 @@ public class ContainerFortressGenerator extends Container {
 	public void updateProgressBar(int key, int value) {
 		if (key == 0) this.fortressGenerator.burnTime = value;
 		if (key == 1) this.fortressGenerator.itemBurnTime = value;
+		if (key == 2) this.fortressGenerator.setIsClogged(value == 1);
 	}
 	
 	@Override
