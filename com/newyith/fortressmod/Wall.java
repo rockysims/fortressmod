@@ -32,9 +32,8 @@ public class Wall {
 		Point p;
 		Point center;
 		
-		p = new Point(origin.x, origin.y, origin.z); //fortress generator's coordinates
-		nextLayer.push(p);
-		visited.add(makeKey(p));
+		nextLayer.push(origin);
+		visited.add(makeKey(origin));
 		
 		int recursionLimit = 50; //TODO: increase this?
 		while (!nextLayer.isEmpty()) {
@@ -60,17 +59,19 @@ public class Wall {
 				for (int x = center.x-1; x <= center.x+1; x++) {
 					for (int y = center.y-1; y <= center.y+1; y++) {
 						for (int z = center.z-1; z <= center.z+1; z++) {
-							key = makeKey(x, y, z);
+							p = new Point(x, y, z);
+							key = makeKey(p);
 							if (!visited.contains(key)) {
 								visited.add(key);
+
+								b = world.getBlock(x, y, z); //b is one of the 26 blocks around the center block
 								
-								if (world == null)
-									Dbg.print("null world here");
+								//add to matches if matches a returnBlocks type
+								if (returnBlocks.contains(b))
+									matches.add(p);
 
 								//process block
-								b = world.getBlock(x, y, z); //b is one of the 26 blocks around the center block
 								if (wallBlocks.contains(b)) {
-									p = new Point(x, y, z);
 									nextLayer.push(p);
 									if (returnBlocks.contains(b))
 										matches.add(p);
@@ -81,6 +82,9 @@ public class Wall {
 				}
 			}
 		}
+		
+		Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
+		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matches.size()) + " matches");
 		
 		return matches;
 	}

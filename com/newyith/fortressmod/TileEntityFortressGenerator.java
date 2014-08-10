@@ -40,12 +40,13 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
 		this.isClogged = false;
+		this.generatorCore = new GeneratorCore(this);
 	}
 	
 	@Override
 	public void setWorldObj(World world) {
 		super.setWorldObj(world);
-		this.generatorCore = new GeneratorCore(this, world);
+		this.generatorCore.setWorldObj(world);
 	}
 	
 	public TileEntityFortressGenerator(boolean isClogged) {

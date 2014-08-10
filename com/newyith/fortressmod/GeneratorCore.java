@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class GeneratorCore {
-	private ArrayList<Point> generated = new ArrayList<Point>(); //contains currently generated blocks (points)
+	private ArrayList<Point> generatedPoints = new ArrayList<Point>(); //contains currently generated blocks (points)
 	public long timePlaced = 0; //TODO: change this back to private
 	private TileEntityFortressGenerator fortressGenerator;
 	private World world;
@@ -27,9 +27,8 @@ public class GeneratorCore {
 	private ArrayList<Block> disabledWallBlocks = new ArrayList<Block>();
 
 
-	public GeneratorCore(TileEntityFortressGenerator fortressGenerator, World world) {
+	public GeneratorCore(TileEntityFortressGenerator fortressGenerator) {
 		this.fortressGenerator = fortressGenerator;
-		this.world = world;
 
 		//fill degeneratedWallBlocks (must be added in the same order as generated)
 		disabledWallBlocks.add(Blocks.cobblestone);
@@ -47,11 +46,15 @@ public class GeneratorCore {
 		notCloggedGeneratorBlocks.add(FortressMod.fortressGenerator);
 		notCloggedGeneratorBlocks.add(FortressMod.fortressGeneratorOn);
 	}
+
+	public void setWorldObj(World world) {
+		this.world = world;
+	}
 	
 	public void writeToNBT(NBTTagCompound compound) {
 		//save list of generated blocks
 		NBTTagList list = new NBTTagList();
-		for (Point p : this.generated) {
+		for (Point p : this.generatedPoints) {
 			NBTTagCompound item = new NBTTagCompound();
 			item.setInteger("x", p.x);
 			item.setInteger("y", p.y);
@@ -74,7 +77,7 @@ public class GeneratorCore {
 			int y = item.getInteger("y");
 			int z = item.getInteger("z");
 			p = new Point(x, y, z);
-			this.generated.add(p);
+			this.generatedPoints.add(p);
 		}
 		
 		//load timePlaced
@@ -96,11 +99,12 @@ public class GeneratorCore {
 			if (!isOldest) {
 				placedCore.clog();
 			} else {
-				placedCore.degenerateConnectedWall();
+				placedCore.degenerateWall();
 			}
 		}
 	}
 	
+	//Not called when broken and then replaced by different version of fortress generator (on, off, clogged)
 	public static void onBroken(World world, int x, int y, int z) {
 		if (!world.isRemote) {
 			Dbg.print("onBroken");
@@ -114,6 +118,7 @@ public class GeneratorCore {
 			//if (oldestGenerator) clog the others
 			if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
 				ArrayList<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
+				Dbg.print("destroyed oldest so clogging the other " + String.valueOf(fgs.size()));
 				for (TileEntityFortressGenerator fg : fgs) {
 					fg.generatorCore.clog();
 				}
@@ -147,7 +152,7 @@ public class GeneratorCore {
 		//change the wall blocks touching this generator into generated blocks		
 		ArrayList<Point> wallPoints = getPointsConnected(wallBlocks, disabledWallBlocks);
 		for (Point p : wallPoints) {
-			this.generated.add(p);
+			this.generatedPoints.add(p);
 			
 			//generate block
 			Block blockToGenerate = world.getBlock(p.x, p.y, p.z);
@@ -164,16 +169,15 @@ public class GeneratorCore {
 	 * Also degenerates wall touching this generator provided this is the oldest generator.
 	 */
 	private void degenerateWall() {
-//		//degenerate the walls it generated
-//		for (Point p : generated) {
-//			this.generated.remove(p);
-//			
-//			//degenerate block
-//			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
-//			int index = enabledWallBlocks.indexOf(blockToDegenerate);
-//			if (index != -1)
-//				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
-//		}
+		//degenerate the walls it generated
+		for (Point p : this.generatedPoints) {
+			//degenerate block
+			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
+			int index = enabledWallBlocks.indexOf(blockToDegenerate);
+			if (index != -1)
+				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
+		}
+		this.generatedPoints.clear();
 		
 		//if (oldest) degenerate walls touching this generator even if this wasn't the generator that generated them
 		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
@@ -188,8 +192,8 @@ public class GeneratorCore {
 			b = world.getBlock(p.x, p.y, p.z);
 			int index = enabledWallBlocks.indexOf(b);
 			if (index != -1) { //if (b is a generated block)
-				this.generated.remove(p); //just in case its in this.generated
-				
+				//assume this.generatedPoints is already empty
+
 				//degenerate block
 				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
 				Dbg.print("disable " + p.toString());
@@ -199,15 +203,20 @@ public class GeneratorCore {
 
 	private static boolean isOldestNotCloggedGeneratorConnectedTo(GeneratorCore core) {
 		ArrayList<TileEntityFortressGenerator> fgs = core.getConnectedFortressGeneratorsNotClogged(); 
-		boolean foundNewerGenerator = false;
+		boolean foundOlderGenerator = false;
+		Dbg.print("isOldest called with generator of age " + String.valueOf(core.timePlaced));
 		for (TileEntityFortressGenerator fg : fgs) {
-			if (fg.generatorCore.timePlaced > core.timePlaced) {
-				//found newer generator
-				foundNewerGenerator = true;
+			Dbg.print("isOldest comparing to other generator of age " + String.valueOf(fg.generatorCore.timePlaced));
+			//if (otherFg was placed before thisFg)
+			if (fg.generatorCore.timePlaced < core.timePlaced) {
+				//found older generator
+				foundOlderGenerator = true;
+				Dbg.print("isOldest found older generator");
 				break;
 			}
 		}
-		return !foundNewerGenerator;
+		Dbg.print("isOldest returning " + !foundOlderGenerator);
+		return !foundOlderGenerator;
 	}
 	
 	private ArrayList<TileEntityFortressGenerator> getConnectedFortressGeneratorsNotClogged() {
@@ -218,17 +227,13 @@ public class GeneratorCore {
 			TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(p.x, p.y, p.z);
 			matches.add(fg);
 		}
-		
+
+		Dbg.print("getConnectedFortressGeneratorsNotClogged returning " + String.valueOf(matches.size()) + " matches");
 		return matches;
 	}
 
 	private void clog() {
-		//TODO: handle moving inventory to new clogged generator?
-		
-		int x = this.fortressGenerator.xCoord;
-		int y = this.fortressGenerator.yCoord;
-		int z = this.fortressGenerator.zCoord;
-		world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);
+		FortressGenerator.clog(this.world, this.fortressGenerator);
 	}
 	
 	/**

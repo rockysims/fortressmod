@@ -35,7 +35,7 @@ public class FortressGenerator extends BlockContainer {
 	private boolean isActive;
 	private boolean isClogged;
 
-	private static boolean keepInventory = false;
+	private static boolean ignoreBreakBlock = false;
 
 	protected FortressGenerator(boolean isActive) {
 		super(Material.rock);
@@ -115,7 +115,7 @@ public class FortressGenerator extends BlockContainer {
 	
     @Override
 	public void breakBlock(World world, int x, int y, int z, Block oldblock, int oldMetadata) {
-		if (!keepInventory) {
+		if (!ignoreBreakBlock) {
         	TileEntityFortressGenerator fgTile = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
         	if (fgTile != null) {
             	for (int i = 0; i < fgTile.getSizeInventory(); i++) {
@@ -147,23 +147,24 @@ public class FortressGenerator extends BlockContainer {
 
     			world.func_147453_f(x, y, z, oldblock);
         	}
+        	
+           	GeneratorCore.onBroken(world, x, y, z); //must be before super.breakBlock()
     	}
 
-    	GeneratorCore.onBroken(world, x, y, z); //must be before super.breakBlock()
-    	
     	super.breakBlock(world, x, y, z, oldblock, oldMetadata);
     }
 	
-	public static void updateBlockState(boolean isActive, World world, int x, int y, int z) {
+    //synchronized for this.ignoreBreakBlock
+	public static synchronized void updateBlockState(boolean isActive, World world, int x, int y, int z) {
 		    int meta = world.getBlockMetadata(x, y, z);
 		    TileEntity tileentity = world.getTileEntity(x, y, z);
-		    keepInventory = true;
+		    ignoreBreakBlock = true;
 		    if (isActive) {
 		    	world.setBlock(x, y, z, FortressMod.fortressGeneratorOn);
 		    } else {
 		    	world.setBlock(x, y, z, FortressMod.fortressGenerator);
 		    }
-		    keepInventory = false;
+		    ignoreBreakBlock = false;
 		    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
 		    if (tileentity != null)
 		    {
@@ -172,6 +173,26 @@ public class FortressGenerator extends BlockContainer {
 		    }
 	}
     
+    //synchronized for this.ignoreBreakBlock
+	public static synchronized void clog(World world, TileEntityFortressGenerator fortressGenerator) {
+		int x = fortressGenerator.xCoord;
+		int y = fortressGenerator.yCoord;
+		int z = fortressGenerator.zCoord;
+	    
+	    //save meta and tileentity
+	    int meta = world.getBlockMetadata(x, y, z);
+	    TileEntity tileentity = world.getTileEntity(x, y, z);
+	    //replace block
+	    ignoreBreakBlock = true;
+		world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);		
+	    ignoreBreakBlock = false;
+	    //put back meta and tileentity
+	    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
+	    if (tileentity != null) {
+		    tileentity.validate();
+		    world.setTileEntity(x, y, z, tileentity);
+	    }
+	}
 
 	/**
      * Gets the block's texture. Args: side, meta
