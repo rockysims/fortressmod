@@ -184,12 +184,13 @@ public class FortressGenerator extends BlockContainer {
 	    TileEntity tileentity = world.getTileEntity(x, y, z);
 	    //replace block
 	    ignoreBreakBlock = true;
-		world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);		
+		world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);
 	    ignoreBreakBlock = false;
 	    //put back meta and tileentity
 	    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
 	    if (tileentity != null) {
 		    tileentity.validate();
+		    fortressGenerator.setIsClogged(true);
 		    world.setTileEntity(x, y, z, tileentity);
 	    }
 	}

@@ -43,15 +43,19 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		this.generatorCore = new GeneratorCore(this);
 	}
 	
+	public TileEntityFortressGenerator(boolean isClogged) {
+		this();
+		this.isClogged = isClogged;
+	}
+	
+	public void setIsClogged(boolean isClogged) {
+		this.isClogged = isClogged;
+	}
+
 	@Override
 	public void setWorldObj(World world) {
 		super.setWorldObj(world);
 		this.generatorCore.setWorldObj(world);
-	}
-	
-	public TileEntityFortressGenerator(boolean isClogged) {
-		this();
-		this.isClogged = isClogged;
 	}
 	
 	@Override
@@ -122,13 +126,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		return 0;
 	}
 	
-	/*
-	public static boolean isItemFuel(ItemStack itemStack)
-	{
-		 return getItemBurnTime(itemStack) > 0;
-	}
-	//*/
-	
 	@Override
 	public int getSizeInventory() {
 		return inventory.length;
@@ -193,6 +190,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		compound.setTag("ItemsFortressGenerator", list);
 		
 		//compound.setInteger("FrontDirectionFortressGenerator", (int)front);
+		//compound.setBoolean("isCloggedFortressGenerator", this.isClogged);
 		compound.setInteger("BurnTimeFortressGenerator", burnTime);
 		
 		this.generatorCore.writeToNBT(compound);
@@ -214,6 +212,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		}
 		
 		//front = compound.getInteger("FrontDirectionFortressGenerator");
+		//this.isClogged = compound.getBoolean("isCloggedFortressGenerator");
 		this.burnTime = compound.getInteger("BurnTimeFortressGenerator");
 		this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 		

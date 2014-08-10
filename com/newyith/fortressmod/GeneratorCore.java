@@ -113,7 +113,7 @@ public class GeneratorCore {
 			GeneratorCore brokenCore = brokenFortressGenerator.generatorCore;
 			
 			//degenerate generated wall (and connected wall if oldest)
-			//brokenCore.degenerateWall(); //TODO: uncomment out this line (prevents generation? (immediate undo))
+			brokenCore.degenerateWall();
 
 			//if (oldestGenerator) clog the others
 			if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
@@ -159,7 +159,6 @@ public class GeneratorCore {
 			int index = disabledWallBlocks.indexOf(blockToGenerate);
 			if (index != -1) {
 				world.setBlock(p.x, p.y, p.z, enabledWallBlocks.get(index));
-				Dbg.print("enabled " + p.toString());
 			}
 		}
 	}
@@ -196,7 +195,6 @@ public class GeneratorCore {
 
 				//degenerate block
 				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
-				Dbg.print("disable " + p.toString());
 			}
 		}
 	}
