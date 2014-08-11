@@ -13,29 +13,23 @@ Still Need:
 manual book
 generation radius limit
 fortress doors (with signs) <------ //TODO: WORK ON DOORS NEXT
-emergency key (quarts) <----------- DOING //TODO: make emergency key not work if generator is touching quartz block
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
-make fortress glass block
 add generate/degenerate sounds
+get better textures from someone on forums
 
-TODO: look into burn time (NBT? ICrafting?) is cast to short
+Done:
+make fortress glass block
+emergency key (quarts)
 
-TODO: test tnt against fortress wall blocks
-
-TODO: Later: add redstone controls (pause generation if powered)
 
 TODO: switch to using Deque instead of Stack
 
-TODO: consider: each ungenerated block type has its own custom block? how to do better?
-    answer: store the block type along with the points upon generation
+TODO: Later: add redstone controls (pause generation if powered)
 
-//TODO: in TileEntityFortressGenerator add "GeneratorCore core = new GeneratorCore(this);"
-//core.onPlaced()
-//core.onBroken()
-//core.generate()
-//core.degenerate()
-//core.isClogged()
-//core.isGenerating()
+
+
+
+
 
 onFortressGeneratorPlaced
     placedGenerator.timePlaced = now
