@@ -38,6 +38,7 @@ public class FortressMod
 	public static Block fortressGenerator;
 	public static Block fortressGeneratorOn;
 	public static Block fortressGeneratorClogged;
+	public static Block fortressEmergencyKey;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
@@ -71,11 +72,19 @@ public class FortressMod
         fortressGeneratorClogged = new FortressGenerator(false, true).setBlockName("FortressGeneratorClogged").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGeneratorClogged, "FortressGeneratorClogged");
 		
+		//Fortress Generator Emergency Key
+		fortressEmergencyKey = new FortressEmergencyKey().setBlockName("FortressEmergencyKey").setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressEmergencyKey, "FortressEmergencyKey");
+		
 		//Recipes
 		
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
         ItemStack fortressGeneratorStack = new ItemStack(fortressGenerator, 1);
         GameRegistry.addRecipe(fortressGeneratorStack, "ooo", "o o", "ooo", 'o', obsidianStack);
+		
+		ItemStack quartzStack = new ItemStack(Blocks.quartz_block, 1);
+        ItemStack emergencyKeyStack = new ItemStack(fortressEmergencyKey, 1);
+        GameRegistry.addRecipe(emergencyKeyStack, "qqq", "q q", "qqq", 'q', quartzStack);
         
         //* debug recipes
         ItemStack dirtStack = new ItemStack(Blocks.dirt, 1);

@@ -21,30 +21,11 @@ public class GeneratorCore {
 	private TileEntityFortressGenerator fortressGenerator;
 	private World world;
 	
-	private ArrayList<Block> wallBlocks = new ArrayList<Block>();
-	private ArrayList<Block> notCloggedGeneratorBlocks = new ArrayList<Block>();
-	private ArrayList<Block> enabledWallBlocks = new ArrayList<Block>();
-	private ArrayList<Block> disabledWallBlocks = new ArrayList<Block>();
+	private String placedByPlayerName = "none"; //set in onPlaced
 
 
 	public GeneratorCore(TileEntityFortressGenerator fortressGenerator) {
 		this.fortressGenerator = fortressGenerator;
-
-		//fill degeneratedWallBlocks (must be added in the same order as generated)
-		disabledWallBlocks.add(Blocks.cobblestone);
-		
-		//fill generatedWallBlocks (must be added in the same order as degenerated)
-		enabledWallBlocks.add(FortressMod.fortressBedrock);
-		
-		//fill wallBlocks
-		for (Block b : disabledWallBlocks)
-			wallBlocks.add(b);
-		for (Block b : enabledWallBlocks)
-			wallBlocks.add(b);
-		
-		//fill notCloggedGeneratorBlocks
-		notCloggedGeneratorBlocks.add(FortressMod.fortressGenerator);
-		notCloggedGeneratorBlocks.add(FortressMod.fortressGeneratorOn);
 	}
 
 	public void setWorldObj(World world) {
@@ -63,8 +44,9 @@ public class GeneratorCore {
 		}
 		compound.setTag("generated", list);
 		
-		//save timePlaced
+		//save the other stuff
 		compound.setLong("timePlaced", this.timePlaced);
+		compound.setString("placedByPlayerName", this.placedByPlayerName);
 	}
 	
 	public void readFromNBT(NBTTagCompound compound) {
@@ -80,11 +62,12 @@ public class GeneratorCore {
 			this.generatedPoints.add(p);
 		}
 		
-		//load timePlaced
+		//load the other stuff
 		this.timePlaced = compound.getLong("timePlaced");
+		this.placedByPlayerName = compound.getString("placedByPlayerName");
 	}
 	
-	public static void onPlaced(World world, int x, int y, int z) {
+	public static void onPlaced(World world, int x, int y, int z, String placingPlayerName) {
 		//clog unless its the only none clogged generator (in which case degenerated connected wall)
 		if (!world.isRemote) {
 			TileEntityFortressGenerator placedFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
@@ -92,7 +75,7 @@ public class GeneratorCore {
 			
 			//set timePlaced
 			placedCore.timePlaced = System.currentTimeMillis();
-			//placedCore.placedBy = null; // = player name of person placing the block
+			placedCore.placedByPlayerName = placingPlayerName;
 			
 			//clog or degenerate
 			boolean isOldest = isOldestNotCloggedGeneratorConnectedTo(placedCore);
@@ -108,16 +91,19 @@ public class GeneratorCore {
 	public static void onBroken(World world, int x, int y, int z) {
 		if (!world.isRemote) {
 			TileEntityFortressGenerator brokenFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
-			GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
 			
-			//degenerate generated wall (and connected wall if oldest)
-			brokenCore.degenerateWall();
+			if (!brokenFortressGenerator.isClogged()) {
+				GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
 
-			//if (oldestGenerator) clog the others
-			if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
-				ArrayList<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
-				for (TileEntityFortressGenerator fg : fgs) {
-					fg.getGeneratorCore().clog();
+				//degenerate generated wall (and connected wall if oldest)
+				brokenCore.degenerateWall();
+
+				//if (oldestGenerator) clog the others
+				if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
+					ArrayList<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
+					for (TileEntityFortressGenerator fg : fgs) {
+						fg.getGeneratorCore().clog();
+					}
 				}
 			}
 		}
@@ -146,15 +132,15 @@ public class GeneratorCore {
 	 */
 	private void generateWall() {
 		//change the wall blocks touching this generator into generated blocks		
-		ArrayList<Point> wallPoints = getPointsConnected(wallBlocks, disabledWallBlocks);
+		ArrayList<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
 		for (Point p : wallPoints) {
 			this.generatedPoints.add(p);
 			
 			//generate block
 			Block blockToGenerate = world.getBlock(p.x, p.y, p.z);
-			int index = disabledWallBlocks.indexOf(blockToGenerate);
+			int index = Wall.getDisabledWallBlocks().indexOf(blockToGenerate);
 			if (index != -1) {
-				world.setBlock(p.x, p.y, p.z, enabledWallBlocks.get(index));
+				world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
 			}
 		}
 	}
@@ -168,9 +154,9 @@ public class GeneratorCore {
 		for (Point p : this.generatedPoints) {
 			//degenerate block
 			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
-			int index = enabledWallBlocks.indexOf(blockToDegenerate);
+			int index = Wall.getEnabledWallBlocks().indexOf(blockToDegenerate);
 			if (index != -1)
-				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
+				world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
 		}
 		this.generatedPoints.clear();
 		
@@ -182,15 +168,15 @@ public class GeneratorCore {
 	
 	private void degenerateConnectedWall() {
 		Block b;
-		ArrayList<Point> wallPoints = getPointsConnected(wallBlocks, enabledWallBlocks);
+		ArrayList<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
 		for (Point p : wallPoints) {
 			b = world.getBlock(p.x, p.y, p.z);
-			int index = enabledWallBlocks.indexOf(b);
+			int index = Wall.getEnabledWallBlocks().indexOf(b);
 			if (index != -1) { //if (b is a generated block)
 				//assume this.generatedPoints is already empty
 
 				//degenerate block
-				world.setBlock(p.x, p.y, p.z, disabledWallBlocks.get(index));
+				world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
 			}
 		}
 	}
@@ -212,7 +198,7 @@ public class GeneratorCore {
 	private ArrayList<TileEntityFortressGenerator> getConnectedFortressGeneratorsNotClogged() {
 		ArrayList<TileEntityFortressGenerator> matches = new ArrayList<TileEntityFortressGenerator>();
 		
-		ArrayList<Point> connectFgPoints = getPointsConnected(wallBlocks, notCloggedGeneratorBlocks);
+		ArrayList<Point> connectFgPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks());
 		for (Point p : connectFgPoints) {
 			TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(p.x, p.y, p.z);
 			matches.add(fg);
@@ -221,7 +207,12 @@ public class GeneratorCore {
 		return matches;
 	}
 
-	private void clog() {
+	/**
+	 * Clogs the generator after degenerating walls.
+	 * Assumes checking for permission to clog generator and degenerate walls is already done.
+	 */
+	void clog() {
+		this.degenerateWall();
 		FortressGenerator.clog(this.world, this.fortressGenerator);
 	}
 	
@@ -239,5 +230,9 @@ public class GeneratorCore {
 		int z = this.fortressGenerator.zCoord;
 		Point p = new Point(x, y, z);
 		return Wall.getPointsConnected(this.world, p, wallBlocks, returnBlocks);
+	}
+
+	public String getPlacedByPlayerName() {
+		return this.placedByPlayerName;
 	}
 }

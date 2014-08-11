@@ -11,6 +11,12 @@ import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 
 public class Wall {
+	private static boolean blockTypesCreated = false;
+	private static ArrayList<Block> wallBlocks = new ArrayList<Block>();
+	private static ArrayList<Block> disabledWallBlocks = new ArrayList<Block>();
+	private static ArrayList<Block> enabledWallBlocks = new ArrayList<Block>();
+	private static ArrayList<Block> notCloggedGeneratorBlocks = new ArrayList<Block>();
+
 	/**
 	 * Looks at all blocks connected to the generator by wallBlocks (directly or recursively).
 	 * Connected means within 3x3x3.
@@ -73,8 +79,6 @@ public class Wall {
 								//process block
 								if (wallBlocks.contains(b)) {
 									nextLayer.push(p);
-									if (returnBlocks.contains(b))
-										matches.add(p);
 								}
 							}
 						}
@@ -98,80 +102,50 @@ public class Wall {
 		key = Integer.valueOf(x) + "," + Integer.valueOf(y) + "," + Integer.valueOf(z);
 		return key;
 	}
-
-	/*
-	public void update(boolean isGenerating, boolean bedrockMode, World world, int xCoord, int yCoord, int zCoord) {
-		//TODO: change this so it discovers generators rather than being passed isGenerating and bedrockMode
-		
-		HashSet<String> visited = new HashSet<String>();
-		Stack<Point> generated = new Stack<Point>();
-		Stack<Point> layer = new Stack<Point>();
-		Stack<Point> nextLayer = new Stack<Point>();
-		Block b;
-		String key;
-		Point p;
-		Point center;
-		
-		p = new Point(xCoord, yCoord, zCoord); //fortress generator's coordinates
-		nextLayer.push(p);
-		visited.add(makeKey(p.x, p.y, p.z));
-		
-		int recursionLimit = 50; //TODO: increase this
-		while (!nextLayer.isEmpty()) {
-			if (recursionLimit-- <= 0) {
-				Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted");
-				break;
-			}
-
-			layer = nextLayer;
-			nextLayer = new Stack<Point>();
-			
-			//process layer
-			int recursionLimit2 = 150; //TODO: increase this
-			while (!layer.isEmpty()) {
-				if (recursionLimit2-- <= 0) {
-					Dbg.print("FortressWallUpdater.update(): recursionLimit2 exhausted");
-					break;
-				}
-				
-				center = layer.pop();
-				//iterate over the 27 (3*3*3) blocks around center
-				for (int x = center.x-1; x <= center.x+1; x++) {
-					for (int y = center.y-1; y <= center.y+1; y++) {
-						for (int z = center.z-1; z <= center.z+1; z++) {
-							key = makeKey(x, y, z);
-							if (!visited.contains(key)) {
-								visited.add(key);
-								
-								//process block
-								b = world.getBlock(x, y, z); //b is one of the 26 blocks around the center block
-								if (isWall(b)) {
-									p = new Point(x, y, z);
-									nextLayer.push(p);
-									generated.push(p);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		while (!generated.isEmpty()) {
-			p = generated.pop();
-			b = world.getBlock(p.x, p.y, p.z);
-			if (isGenerating)
-				b = getGeneratedBlock(b, bedrockMode);
-			else
-				b = getDegeneratedBlock(b);
-			
-			if (b != null) {
-				world.setBlock(p.x, p.y, p.z, b);
-			}
-		}
-		
+	
+	//-------------------
+	
+	public static ArrayList<Block> getWallBlocks() {
+		ensureBlockTypeConstantsExist();
+		return wallBlocks;
 	}
-	//*/
+
+	public static ArrayList<Block> getEnabledWallBlocks() {
+		ensureBlockTypeConstantsExist();
+		return enabledWallBlocks;
+	}
+
+	public static ArrayList<Block> getDisabledWallBlocks() {
+		ensureBlockTypeConstantsExist();
+		return disabledWallBlocks;
+	}
+
+	public static ArrayList<Block> getNotCloggedGeneratorBlocks() {
+		ensureBlockTypeConstantsExist();
+		return notCloggedGeneratorBlocks;
+	}
+
+	private static void ensureBlockTypeConstantsExist() {
+		if (!blockTypesCreated) {
+			//fill degeneratedWallBlocks (must be added in the same order as generated)
+			disabledWallBlocks.add(Blocks.cobblestone);
+			
+			//fill generatedWallBlocks (must be added in the same order as degenerated)
+			enabledWallBlocks.add(FortressMod.fortressBedrock);
+			
+			//fill wallBlocks
+			for (Block b : disabledWallBlocks)
+				wallBlocks.add(b);
+			for (Block b : enabledWallBlocks)
+				wallBlocks.add(b);
+			
+			//fill notCloggedGeneratorBlocks
+			notCloggedGeneratorBlocks.add(FortressMod.fortressGenerator);
+			notCloggedGeneratorBlocks.add(FortressMod.fortressGeneratorOn);
+			
+			blockTypesCreated = true;
+		}
+	}
 }
 
 

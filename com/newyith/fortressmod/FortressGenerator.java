@@ -93,7 +93,14 @@ public class FortressGenerator extends BlockContainer {
 		if (d == 2) world.setBlockMetadataWithNotify(x, y, z, 3, 2);
 		if (d == 3) world.setBlockMetadataWithNotify(x, y, z, 4, 2);
 		
-		GeneratorCore.onPlaced(world, x, y, z);
+		//set placingPlayerName 
+		String placingPlayerName = "notPlacedByPlayer";
+		if (entity instanceof EntityPlayer) {
+			EntityPlayer player = (EntityPlayer) entity;
+			placingPlayerName = player.getGameProfile().getName();
+		}
+		
+		GeneratorCore.onPlaced(world, x, y, z, placingPlayerName);
 	}
 	
 	/** Called upon block activation (right click on the block.) */

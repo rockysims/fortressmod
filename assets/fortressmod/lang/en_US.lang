@@ -1,3 +1,4 @@
 itemGroup.tabName=FortressMod
 tile.FortressGenerator.name=Fortress Generator
 tile.FortressGeneratorClogged.name=Clogged Fortress Generator
+tile.FortressEmergencyKey.name=Emergency Fortress Key

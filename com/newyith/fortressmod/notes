@@ -13,14 +13,16 @@ Still Need:
 manual book
 generation radius limit
 fortress doors (with signs) <------ //TODO: WORK ON DOORS NEXT
-emergency key (quarts) <----------- DOINT
+emergency key (quarts) <----------- DOING //TODO: make emergency key not work if generator is touching quartz block
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 make fortress glass block
+add generate/degenerate sounds
 
 TODO: look into burn time (NBT? ICrafting?) is cast to short
 
 TODO: Later: add redstone controls (pause generation if powered)
 
+TODO: switch to using Deque instead of Stack
 
 TODO: consider: each ungenerated block type has its own custom block? how to do better?
     answer: store the block type along with the points upon generation
