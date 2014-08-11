@@ -20,6 +20,8 @@ add generate/degenerate sounds
 
 TODO: look into burn time (NBT? ICrafting?) is cast to short
 
+TODO: test tnt against fortress wall blocks
+
 TODO: Later: add redstone controls (pause generation if powered)
 
 TODO: switch to using Deque instead of Stack

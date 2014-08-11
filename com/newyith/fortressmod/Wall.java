@@ -129,9 +129,11 @@ public class Wall {
 		if (!blockTypesCreated) {
 			//fill degeneratedWallBlocks (must be added in the same order as generated)
 			disabledWallBlocks.add(Blocks.cobblestone);
+			disabledWallBlocks.add(Blocks.glass);
 			
 			//fill generatedWallBlocks (must be added in the same order as degenerated)
 			enabledWallBlocks.add(FortressMod.fortressBedrock);
+			enabledWallBlocks.add(FortressMod.fortressGlass);
 			
 			//fill wallBlocks
 			for (Block b : disabledWallBlocks)

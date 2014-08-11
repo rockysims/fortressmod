@@ -47,6 +47,7 @@ public class FortressMod
 	};
 
 	public static Block fortressBedrock;
+	public static Block fortressGlass;
 
 	/*
 	@EventHandler
@@ -60,6 +61,9 @@ public class FortressMod
 		
 		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock");
 		GameRegistry.registerBlock(fortressBedrock, "FortressBedrock");
+
+		fortressGlass = new FortressGlass().setBlockName("FortressGlass");
+		GameRegistry.registerBlock(fortressGlass, "FortressGlass");
 		
 		//Fortress Generators
 
