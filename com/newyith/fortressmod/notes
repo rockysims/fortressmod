@@ -24,7 +24,8 @@ emergency key (quarts)
 
 TODO: switch to using Deque instead of Stack
 
-TODO: Later: add redstone controls (pause generation if powered)
+TODO: Later: add redstone controls (pause generation if powered) 
+    or maybe redstone makes it regenerate walls (start generating new wall blocks like if you turned it off then on again)
 
 
 
