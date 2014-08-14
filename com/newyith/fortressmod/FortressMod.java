@@ -14,6 +14,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -59,10 +60,10 @@ public class FortressMod
 	{
 		//Fortress Wall Blocks
 		
-		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock");
+		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressBedrock, "FortressBedrock");
 
-		fortressGlass = new FortressGlass().setBlockName("FortressGlass");
+		fortressGlass = new FortressGlass().setBlockName("FortressGlass").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGlass, "FortressGlass");
 		
 		//Fortress Generators
@@ -108,6 +109,9 @@ public class FortressMod
 		new GuiHandler();
 		GameRegistry.registerTileEntity(TileEntityFortressGenerator.class, "FortressGenerator" + ModInfo.MODID);
 		
+		//Event Handlers
+		
+		//MinecraftForge.EVENT_BUS.register(new OnPlayerInteractsWithBlock_notUsed());
 	}
 	
 	/*

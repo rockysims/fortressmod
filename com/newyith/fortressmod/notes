@@ -9,6 +9,9 @@ fixed: could place generator near enemy wall, turn it on, connect it, turn it of
 fixed: what if a player is stuck in an enemy fortress?
 fixed: could place generator near outside of fortress then connect it to wall to be new oldest if inside generator broken (moved)
 
+Maybe:
+Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
+
 Still Need:
 manual book
 generation radius limit
