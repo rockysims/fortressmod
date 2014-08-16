@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.newyith.fortressmod.client.GuiHandler;
 import com.newyith.fortressmod.items.ItemFortressDoor;
+import com.newyith.fortressmod.renderers.FortressIronDoorRenderer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -18,6 +19,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -43,16 +45,19 @@ public class FortressMod
 	public static Block fortressGeneratorOn;
 	public static Block fortressGeneratorClogged;
 	public static Block fortressEmergencyKey;
-	public static Block fortressIronDoor;
-	public static Item itemFortressDoor;
 	public static Block fortressBedrock;
 	public static Block fortressGlass;
+	//fortress door
+	public static Block fortressIronDoor;
+	public static Item itemFortressDoor;
+	public static int fortressIronDoorRenderId;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
 			return Items.arrow;
 		}
 	};
+
 
 	
 	
@@ -75,9 +80,13 @@ public class FortressMod
 		//fortress door block
 		fortressIronDoor = new FortressIronDoor().setBlockName("FortressIronDoor").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressIronDoor, "FortressIronDoor");
+		//GameRegistry.registerBlock(fortressIronDoor, ItemFortressDoor.class, "FortressIronDoor");
 		//fortress door item
 		itemFortressDoor = new ItemFortressDoor();
 		GameRegistry.registerItem(itemFortressDoor, "ItemFortressDoor");
+		//fortress door renderer
+		fortressIronDoorRenderId = RenderingRegistry.getNextAvailableRenderId();
+		RenderingRegistry.registerBlockHandler(new FortressIronDoorRenderer(fortressIronDoorRenderId));
 		
 		//Fortress Generators
 
@@ -118,7 +127,7 @@ public class FortressMod
         //*/
 
 		//Fortress Generator GUI
-		
+        
 		new GuiHandler();
 		GameRegistry.registerTileEntity(TileEntityFortressGenerator.class, "FortressGenerator" + ModInfo.MODID);
 		

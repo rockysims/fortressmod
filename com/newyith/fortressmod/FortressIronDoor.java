@@ -2,17 +2,22 @@ package com.newyith.fortressmod;
 
 import java.util.Random;
 
+import com.newyith.fortressmod.renderers.FortressIronDoorRenderer;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.IconFlipped;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemDoor;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 
 public class FortressIronDoor extends BlockDoor {
 
@@ -28,14 +33,37 @@ public class FortressIronDoor extends BlockDoor {
 		//disableStats();
 	}
 	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public String getTextureName() {
+		return ModInfo.MODID.toLowerCase() + ":" + "fortress_door";
+    }
+	
+	/*
+	@Override
+	public int getRenderType() {
+		return FortressMod.fortressIronDoorRenderId;
+	}
+	//*/
+	
+	@Override
+	public void onBlockClicked(World p_149699_1_, int p_149699_2_, int p_149699_3_, int p_149699_4_, EntityPlayer p_149699_5_) {
+		Dbg.print("Fortress door clicked");
+	}
+	
+	public Item getItemDropped(int par1, Random par2, int par3) {
+		return FortressMod.itemFortressDoor;
+    }
+
+	
+
+	
+	/*
+	
 	public Item getItemDropped(int par1, Random par2, int par3) {
 		return FortressMod.itemFortressDoor;
     }
 	
-	
-	/**
-     * Gets the block's texture. Args: side, meta
-     */
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int p_149691_1_, int p_149691_2_)
     {
@@ -116,7 +144,7 @@ public class FortressIronDoor extends BlockDoor {
         this.field_150016_b[1] = new IconFlipped(this.field_150016_b[0], true, false);
     }
 	
-	
+//*/
 	
 	
 	
