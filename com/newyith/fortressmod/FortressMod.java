@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.newyith.fortressmod.client.GuiHandler;
 import com.newyith.fortressmod.items.ItemFortressDoor;
-import com.newyith.fortressmod.renderers.FortressIronDoorRenderer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -48,9 +47,8 @@ public class FortressMod
 	public static Block fortressBedrock;
 	public static Block fortressGlass;
 	//fortress door
-	public static Block fortressIronDoor;
+	public static Block fortressDoor;
 	public static Item itemFortressDoor;
-	public static int fortressIronDoorRenderId;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
@@ -58,9 +56,6 @@ public class FortressMod
 		}
 	};
 
-
-	
-	
 	/*
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {}
@@ -78,15 +73,11 @@ public class FortressMod
 		GameRegistry.registerBlock(fortressGlass, "FortressGlass");
 
 		//fortress door block
-		fortressIronDoor = new FortressIronDoor().setBlockName("FortressIronDoor").setCreativeTab(tabName);
-		GameRegistry.registerBlock(fortressIronDoor, "FortressIronDoor");
-		//GameRegistry.registerBlock(fortressIronDoor, ItemFortressDoor.class, "FortressIronDoor");
+		fortressDoor = new FortressDoor().setBlockName("FortressDoor");
+		GameRegistry.registerBlock(fortressDoor, "FortressDoor");
 		//fortress door item
-		itemFortressDoor = new ItemFortressDoor();
+		itemFortressDoor = new ItemFortressDoor().setCreativeTab(tabName);
 		GameRegistry.registerItem(itemFortressDoor, "ItemFortressDoor");
-		//fortress door renderer
-		fortressIronDoorRenderId = RenderingRegistry.getNextAvailableRenderId();
-		RenderingRegistry.registerBlockHandler(new FortressIronDoorRenderer(fortressIronDoorRenderId));
 		
 		//Fortress Generators
 
