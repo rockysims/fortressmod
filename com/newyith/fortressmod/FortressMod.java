@@ -7,14 +7,18 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.newyith.fortressmod.client.GuiHandler;
+import com.newyith.fortressmod.items.ItemFortressDoor;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -32,15 +36,17 @@ public class FortressMod
 	public static Block fortressGeneratorOn;
 	public static Block fortressGeneratorClogged;
 	public static Block fortressEmergencyKey;
+	public static Block fortressBedrock;
+	public static Block fortressGlass;
+	//fortress door
+	public static Block fortressDoor;
+	public static Item itemFortressDoor;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
 			return Items.arrow;
 		}
 	};
-
-	public static Block fortressBedrock;
-	public static Block fortressGlass;
 
 	/*
 	@EventHandler
@@ -57,6 +63,13 @@ public class FortressMod
 
 		fortressGlass = new FortressGlass().setBlockName("FortressGlass").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGlass, "FortressGlass");
+
+		//fortress door block
+		fortressDoor = new FortressDoor().setBlockName("FortressDoor");
+		GameRegistry.registerBlock(fortressDoor, "FortressDoor");
+		//fortress door item
+		itemFortressDoor = new ItemFortressDoor().setCreativeTab(tabName);
+		GameRegistry.registerItem(itemFortressDoor, "ItemFortressDoor");
 		
 		//Fortress Generators
 
@@ -97,7 +110,7 @@ public class FortressMod
         //*/
 
 		//Fortress Generator GUI
-		
+        
 		new GuiHandler();
 		GameRegistry.registerTileEntity(TileEntityFortressGenerator.class, "FortressGenerator" + ModInfo.MODID);
 		
