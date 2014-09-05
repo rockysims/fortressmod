@@ -16,6 +16,16 @@ public class Wall {
 	private static ArrayList<Block> disabledWallBlocks = new ArrayList<Block>();
 	private static ArrayList<Block> enabledWallBlocks = new ArrayList<Block>();
 	private static ArrayList<Block> notCloggedGeneratorBlocks = new ArrayList<Block>();
+	
+	public static enum ConnectedThreshold {
+		FACES,
+		//LINES,
+		POINTS
+	};
+	
+	public static ArrayList<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+		return getPointsConnected(world, origin, wallBlocks, returnBlocks, ConnectedThreshold.POINTS);
+	}
 
 	/**
 	 * Looks at all blocks connected to the generator by wallBlocks (directly or recursively).
@@ -25,8 +35,9 @@ public class Wall {
 	 * @param returnBlocks List of block types to look for and return when connected to the wall.
 	 * @return List of all points (blocks) connected to the generator by wallBlocks and matching a block type in returnBlocks.
 	 */
-	public static ArrayList<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+	public static ArrayList<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
 		ArrayList<Point> matches = new ArrayList<Point>();
+		ArrayList<Point> connected = new ArrayList<Point>();
 		
 		HashSet<String> visited = new HashSet<String>();
 		Stack<Point> layer = new Stack<Point>();
@@ -35,7 +46,6 @@ public class Wall {
 		//Deque<Point> nextLayer = new ArrayDeque<Point>();
 		Block b;
 		String key;
-		Point p;
 		Point center;
 		
 		nextLayer.push(origin);
@@ -61,26 +71,49 @@ public class Wall {
 				}
 				
 				center = layer.pop();
-				//iterate over the 27 (3*3*3) blocks around center
-				for (int x = center.x-1; x <= center.x+1; x++) {
-					for (int y = center.y-1; y <= center.y+1; y++) {
-						for (int z = center.z-1; z <= center.z+1; z++) {
-							p = new Point(x, y, z);
-							key = makeKey(p);
-							if (!visited.contains(key)) {
-								visited.add(key);
-
-								b = world.getBlock(x, y, z); //b is one of the 26 blocks around the center block
-								
-								//add to matches if matches a returnBlocks type
-								if (returnBlocks.contains(b))
-									matches.add(p);
-
-								//process block
-								if (wallBlocks.contains(b)) {
-									nextLayer.push(p);
-								}
+				connected.clear();
+				
+				//handle ConnectedThreshold.POINTS
+				if (connectedThreshold == ConnectedThreshold.POINTS) {
+					//iterate over the 27 (3*3*3) blocks around center
+					for (int x = center.x-1; x <= center.x+1; x++) {
+						for (int y = center.y-1; y <= center.y+1; y++) {
+							for (int z = center.z-1; z <= center.z+1; z++) {
+								connected.add(new Point(x, y, z));
 							}
+						}
+					}
+				}
+				
+				//handle ConnectedThreshold.FACES
+				if (connectedThreshold == ConnectedThreshold.FACES) {
+					//iterate over the 6 blocks adjacent to center
+					int x = center.x;
+					int y = center.y;
+					int z = center.z;
+					connected.add(new Point(x+1, y, z));
+					connected.add(new Point(x-1, y, z));
+					connected.add(new Point(x, y+1, z));
+					connected.add(new Point(x, y-1, z));
+					connected.add(new Point(x, y, z+1));
+					connected.add(new Point(x, y, z-1));
+				}
+				
+				//process connected points
+				for (Point p : connected) {
+					key = makeKey(p);
+					if (!visited.contains(key)) {
+						visited.add(key);
+
+						b = world.getBlock(p.x, p.y, p.z); //b is one of the blocks connected to the center block
+						
+						//add to matches if it matches a returnBlocks type
+						if (returnBlocks.contains(b))
+							matches.add(p);
+
+						//process block
+						if (wallBlocks.contains(b)) {
+							nextLayer.push(p);
 						}
 					}
 				}
