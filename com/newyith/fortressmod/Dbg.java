@@ -10,9 +10,9 @@ public class Dbg {
 	}
 	
 	public static void print(String s, boolean isRemote) {
-		if (s.equals(lastS)) {
-			count++;
-		} else {
+//		if (s.equals(lastS)) {
+//			count++;
+//		} else {
 			lastS = s;
 			
 			s += "::";
@@ -26,7 +26,7 @@ public class Dbg {
 				s += "server";
 			}
 			System.out.println(s);
-		}
+//		}
 	}
 
 	public static void print(String s) {

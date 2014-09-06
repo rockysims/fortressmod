@@ -140,8 +140,37 @@ public class GeneratorCore {
 			Block blockToGenerate = world.getBlock(p.x, p.y, p.z);
 			int index = Wall.getDisabledWallBlocks().indexOf(blockToGenerate);
 			if (index != -1) {
-				world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+				
+				
+				
+				if (Wall.getEnabledWallBlocks().get(index) == FortressMod.fortressDoor) {
+					generateDoor(p, index);
+				} else {
+					world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+				}
+				
+				
+				
 			}
+		}
+	}
+	private void generateDoor(Point p, int index) {
+		//TODO: make iron doors work too
+		if (world.getBlock(p.x, p.y + 1, p.z) == Blocks.wooden_door) {
+			int metaTop = world.getBlockMetadata(p.x, p.y + 1, p.z);
+			int metaBottom = world.getBlockMetadata(p.x, p.y, p.z);
+			
+			//remove old door
+			world.setBlockToAir(p.x, p.y, p.z);
+			world.setBlockToAir(p.x, p.y + 1, p.z);
+
+			//create bottom of door
+			world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(p.x, p.y, p.z, metaBottom, 2);
+
+			//create top of door
+			world.setBlock(p.x, p.y + 1, p.z, Wall.getEnabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(p.x, p.y + 1, p.z, metaTop, 2);
 		}
 	}
 
@@ -155,8 +184,13 @@ public class GeneratorCore {
 			//degenerate block
 			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
 			int index = Wall.getEnabledWallBlocks().indexOf(blockToDegenerate);
-			if (index != -1)
-				world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
+			if (index != -1) {
+				if (blockToDegenerate == FortressMod.fortressDoor) {
+					degenerateDoor(p, index);
+				} else {
+					world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
+				}
+			}
 		}
 		this.generatedPoints.clear();
 		
@@ -165,7 +199,26 @@ public class GeneratorCore {
 			degenerateConnectedWall();
 		}
 	}
-	
+	private void degenerateDoor(Point p, int index) {
+		//TODO: make iron doors work too
+		if (world.getBlock(p.x, p.y + 1, p.z) == FortressMod.fortressDoor) {
+			int metaBottom = world.getBlockMetadata(p.x, p.y, p.z);
+			int metaTop = world.getBlockMetadata(p.x, p.y + 1, p.z);
+
+			//remove old door
+			world.setBlockToAir(p.x, p.y, p.z);
+			world.setBlockToAir(p.x, p.y + 1, p.z);
+
+			//create bottom of door
+			world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(p.x, p.y, p.z, metaBottom, 2);
+
+			//create top of door
+			world.setBlock(p.x, p.y + 1, p.z, Wall.getDisabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(p.x, p.y + 1, p.z, metaTop, 2);
+		}
+	}
+
 	private void degenerateConnectedWall() {
 		Block b;
 		ArrayList<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());

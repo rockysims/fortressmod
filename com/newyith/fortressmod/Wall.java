@@ -163,10 +163,12 @@ public class Wall {
 			//fill degeneratedWallBlocks (must be added in the same order as generated)
 			disabledWallBlocks.add(Blocks.cobblestone);
 			disabledWallBlocks.add(Blocks.glass);
+			disabledWallBlocks.add(Blocks.wooden_door);
 			
 			//fill generatedWallBlocks (must be added in the same order as degenerated)
 			enabledWallBlocks.add(FortressMod.fortressBedrock);
 			enabledWallBlocks.add(FortressMod.fortressGlass);
+			enabledWallBlocks.add(FortressMod.fortressDoor);
 			
 			//fill wallBlocks
 			for (Block b : disabledWallBlocks)

@@ -23,24 +23,25 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class FortressDoor extends BlockDoor {
+	//i think meta == (top/bottom)(open/closed)(?)(?)
 
 	protected FortressDoor() {
 		super(Material.rock); //not Material.iron so that it will open close on right click and not wood so it can't burn
 		setHardness(1.0F);
-		//setBlockUnbreakable();
-		//setResistance(6000000.0F);
-		//disableStats();
+		setBlockUnbreakable();
+		setResistance(6000000.0F);
+		disableStats();
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public String getTextureName() {
+	public String getTextureName() {
 		return ModInfo.MODID.toLowerCase() + ":" + "fortress_door";
-    }
+	}
 	
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
-		String playerName = player.getGameProfile().getName();
+    	String playerName = player.getGameProfile().getName();
 		if (getNamesAllowedToOpenDoor(world, x, y, z).contains(playerName)) {
 			return super.onBlockActivated(world, x, y, z, player, par6, par7, par8, par9);
 		} else {
@@ -48,11 +49,13 @@ public class FortressDoor extends BlockDoor {
 		}
 	}
 	
+	/**
+	 * Updates door open state based on isPowered.
+	 */
 	@Override
-	public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-		Dbg.print("onNeighborBlockChange at " + (new Point(x, y, z)).toString(), world.isRemote);
-		super.onNeighborBlockChange(world, x, y, z, block);
-    }
+	public void func_150014_a(World world, int x, int y, int z, boolean isPowered) {
+		//do nothing (ignore redstone power)
+	}
 	
 	private ArrayList<String> getNamesAllowedToOpenDoor(World world, int x, int y, int z) {
 		ArrayList<String> names = new ArrayList<String>();
@@ -68,7 +71,7 @@ public class FortressDoor extends BlockDoor {
 		if (blockAboveDoor == Blocks.obsidian) {
 			ArrayList<Block> wallBlocks = new ArrayList<Block>();
 			ArrayList<Block> returnBlocks = new ArrayList<Block>();
-			//wallBlocks.add(Blocks.obsidian); //TODO: consider uncommenting out this line
+			wallBlocks.add(Blocks.obsidian);
 			returnBlocks.add(Blocks.wall_sign);
 			returnBlocks.add(Blocks.standing_sign);
 			ArrayList<Point> signs = Wall.getPointsConnected(world, pointAboveDoor, wallBlocks, returnBlocks, Wall.ConnectedThreshold.FACES);
@@ -110,12 +113,7 @@ public class FortressDoor extends BlockDoor {
 		return names;
 	}
 
-	@Override
-	public void onBlockClicked(World p_149699_1_, int p_149699_2_, int p_149699_3_, int p_149699_4_, EntityPlayer p_149699_5_) {
-		Dbg.print("Fortress door clicked");
-	}
-	
 	public Item getItemDropped(int par1, Random par2, int par3) {
 		return (par1 & 8) != 0 ? null : FortressMod.itemFortressDoor;
-    }
+	}
 }
