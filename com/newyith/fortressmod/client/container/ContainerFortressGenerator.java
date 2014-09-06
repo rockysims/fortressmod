@@ -1,5 +1,6 @@
 package com.newyith.fortressmod.client.container;
 
+import com.newyith.fortressmod.Dbg;
 import com.newyith.fortressmod.TileEntityFortressGenerator;
 
 import cpw.mods.fml.relauncher.Side;
@@ -22,20 +23,20 @@ public class ContainerFortressGenerator extends Container {
 	public ContainerFortressGenerator(InventoryPlayer invPlayer, TileEntityFortressGenerator entity) {
 		this.fortressGenerator = entity;
 		
-		//custom slots
-		addSlotToContainer(new FortressGeneratorFuelSlot(entity, 0, 80, 41)); //fuel slot
-		
+		//player inventory and hot bar must be added first for shit-clicking to work properly
 		//player inventory
 		for (int y = 0; y < 3; y++) {
 			for (int x = 0; x < 9; x++) {
 				this.addSlotToContainer(new Slot(invPlayer, 9 + x + y * 9, 8 + x * 18, 84 + y * 18));
 			}
 		}
-		
 		//player hot bar
 		for (int x = 0; x < 9; x++) {
 			this.addSlotToContainer(new Slot(invPlayer, x, 8 + x * 18, 142));
 		}
+
+		//custom slots
+		addSlotToContainer(new FortressGeneratorFuelSlot(entity, 0, 80, 41)); //fuel slot
 	}
 	
 	@Override
