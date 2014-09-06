@@ -140,25 +140,22 @@ public class GeneratorCore {
 			Block blockToGenerate = world.getBlock(p.x, p.y, p.z);
 			int index = Wall.getDisabledWallBlocks().indexOf(blockToGenerate);
 			if (index != -1) {
-				
-				
-				
-				if (Wall.getEnabledWallBlocks().get(index) == FortressMod.fortressDoor) {
+				if (blockToGenerate == Blocks.wooden_door || blockToGenerate == Blocks.iron_door) {
 					generateDoor(p, index);
 				} else {
 					world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
 				}
-				
-				
-				
 			}
 		}
 	}
 	private void generateDoor(Point p, int index) {
-		//TODO: make iron doors work too
-		if (world.getBlock(p.x, p.y + 1, p.z) == Blocks.wooden_door) {
-			int metaTop = world.getBlockMetadata(p.x, p.y + 1, p.z);
+		//assumes p is a door block
+		Block block = world.getBlock(p.x, p.y, p.z);
+		Block blockAbove = world.getBlock(p.x, p.y + 1, p.z);
+		
+		if (block == blockAbove) {
 			int metaBottom = world.getBlockMetadata(p.x, p.y, p.z);
+			int metaTop = world.getBlockMetadata(p.x, p.y + 1, p.z);
 			
 			//remove old door
 			world.setBlockToAir(p.x, p.y, p.z);
@@ -185,7 +182,7 @@ public class GeneratorCore {
 			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
 			int index = Wall.getEnabledWallBlocks().indexOf(blockToDegenerate);
 			if (index != -1) {
-				if (blockToDegenerate == FortressMod.fortressDoor) {
+				if (blockToDegenerate == FortressMod.fortressWoodenDoor || blockToDegenerate == FortressMod.fortressIronDoor) {
 					degenerateDoor(p, index);
 				} else {
 					world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
@@ -200,8 +197,11 @@ public class GeneratorCore {
 		}
 	}
 	private void degenerateDoor(Point p, int index) {
-		//TODO: make iron doors work too
-		if (world.getBlock(p.x, p.y + 1, p.z) == FortressMod.fortressDoor) {
+		//assumes p is a door block
+		Block block = world.getBlock(p.x, p.y, p.z);
+		Block blockAbove = world.getBlock(p.x, p.y + 1, p.z);
+		
+		if (block == blockAbove) {
 			int metaBottom = world.getBlockMetadata(p.x, p.y, p.z);
 			int metaTop = world.getBlockMetadata(p.x, p.y + 1, p.z);
 

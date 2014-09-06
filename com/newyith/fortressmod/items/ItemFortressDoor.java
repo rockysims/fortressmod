@@ -15,11 +15,14 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 public class ItemFortressDoor extends ItemDoor {
+	
+	private Material origMaterial;
 
-	public ItemFortressDoor() {
+	public ItemFortressDoor(Material origMaterial) {
 		super(Material.rock);
 		setUnlocalizedName("FortressDoor");
 		setTextureName(ModInfo.MODID.toLowerCase() + ":" + "fortress_door");
+		this.origMaterial = origMaterial;
 	}
 
 	@Override
@@ -33,8 +36,12 @@ public class ItemFortressDoor extends ItemDoor {
         else
         {
             ++y;
-            Block block = FortressMod.fortressDoor;
-            //block = Blocks.wooden_door;
+            Block block;
+            if (this.origMaterial == Material.wood) {
+            	block = FortressMod.fortressWoodenDoor;
+            } else {
+            	block = FortressMod.fortressIronDoor;
+            }
 
             if (player.canPlayerEdit(x, y, z, p_77648_7_, stack) && player.canPlayerEdit(x, y + 1, z, p_77648_7_, stack))
             {

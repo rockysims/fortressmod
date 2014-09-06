@@ -1,8 +1,6 @@
 package com.newyith.fortressmod;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.Stack;
 
@@ -163,12 +161,16 @@ public class Wall {
 			//fill degeneratedWallBlocks (must be added in the same order as generated)
 			disabledWallBlocks.add(Blocks.cobblestone);
 			disabledWallBlocks.add(Blocks.glass);
+			disabledWallBlocks.add(Blocks.obsidian);
 			disabledWallBlocks.add(Blocks.wooden_door);
+			disabledWallBlocks.add(Blocks.iron_door);
 			
 			//fill generatedWallBlocks (must be added in the same order as degenerated)
 			enabledWallBlocks.add(FortressMod.fortressBedrock);
 			enabledWallBlocks.add(FortressMod.fortressGlass);
-			enabledWallBlocks.add(FortressMod.fortressDoor);
+			enabledWallBlocks.add(FortressMod.fortressObsidian);
+			enabledWallBlocks.add(FortressMod.fortressWoodenDoor);
+			enabledWallBlocks.add(FortressMod.fortressIronDoor);
 			
 			//fill wallBlocks
 			for (Block b : disabledWallBlocks)

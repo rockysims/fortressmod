@@ -38,9 +38,12 @@ public class FortressMod
 	public static Block fortressEmergencyKey;
 	public static Block fortressBedrock;
 	public static Block fortressGlass;
+	public static Block fortressObsidian;
 	//fortress door
-	public static Block fortressDoor;
-	public static Item itemFortressDoor;
+	public static Block fortressWoodenDoor;
+	public static Block fortressIronDoor;
+	public static Item itemFortressWoodenDoor;
+	public static Item itemFortressIronDoor;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
@@ -64,12 +67,22 @@ public class FortressMod
 		fortressGlass = new FortressGlass().setBlockName("FortressGlass").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGlass, "FortressGlass");
 
-		//fortress door block
-		fortressDoor = new FortressDoor().setBlockName("FortressDoor");
-		GameRegistry.registerBlock(fortressDoor, "FortressDoor");
-		//fortress door item
-		itemFortressDoor = new ItemFortressDoor().setCreativeTab(tabName);
-		GameRegistry.registerItem(itemFortressDoor, "ItemFortressDoor");
+		fortressObsidian = new FortressObsidian().setBlockName("FortressObsidian").setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressObsidian, "FortressObsidian");
+
+		//fortress wooden door block
+		fortressWoodenDoor = new FortressDoor(Material.wood).setBlockName("FortressWoodenDoor");
+		GameRegistry.registerBlock(fortressWoodenDoor, "FortressWoodenDoor");
+		//fortress wooden door item
+		itemFortressWoodenDoor = new ItemFortressDoor(Material.wood).setCreativeTab(tabName);
+		GameRegistry.registerItem(itemFortressWoodenDoor, "ItemFortressWoodenDoor");
+
+		//fortress iron door block
+		fortressIronDoor = new FortressDoor(Material.iron).setBlockName("FortressIronDoor");
+		GameRegistry.registerBlock(fortressIronDoor, "FortressIronDoor");
+		//fortress iron door item
+		itemFortressIronDoor = new ItemFortressDoor(Material.iron).setCreativeTab(tabName);
+		GameRegistry.registerItem(itemFortressIronDoor, "ItemFortressIronDoor");
 		
 		//Fortress Generators
 

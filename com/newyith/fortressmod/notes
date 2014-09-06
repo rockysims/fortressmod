@@ -15,17 +15,14 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
+TODO: get shift clicking fuel in/out of FGs working again
 generation radius limit
-fortress doors (with signs) <------ //TODO: WORK ON DOORS NEXT
-    TODO: make fortress door ignore redstone signals
-    make it so if there is an obsidian block over a fortress door the fortress door cannot be opened
-        if there is a sign adjacent (6 faces) to the obsidian block, the door opens when right clicked by someone with a name on the sign
-    make generating a fortress change both wooden and iron doors into fortress doors
-        add iron door as a wall type that changes to fortress door and preserves meta data
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add generate/degenerate sounds
 get better textures from someone on forums
 manual book
+fortress doors (with signs)
+    TODO: confirm fortress door items work
 
 Done:
 make fortress glass block

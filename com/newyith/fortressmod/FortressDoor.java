@@ -24,13 +24,16 @@ import net.minecraft.world.World;
 
 public class FortressDoor extends BlockDoor {
 	//i think meta == (top/bottom)(open/closed)(?)(?)
+	
+	private Material origMaterial;
 
-	protected FortressDoor() {
+	protected FortressDoor(Material origMaterial) {
 		super(Material.rock); //not Material.iron so that it will open close on right click and not wood so it can't burn
 		setHardness(1.0F);
 		setBlockUnbreakable();
 		setResistance(6000000.0F);
 		disableStats();
+		this.origMaterial = origMaterial;
 	}
 	
 	@Override
@@ -38,17 +41,7 @@ public class FortressDoor extends BlockDoor {
 	public String getTextureName() {
 		return ModInfo.MODID.toLowerCase() + ":" + "fortress_door";
 	}
-	
-	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
-    	String playerName = player.getGameProfile().getName();
-		if (getNamesAllowedToOpenDoor(world, x, y, z).contains(playerName)) {
-			return super.onBlockActivated(world, x, y, z, player, par6, par7, par8, par9);
-		} else {
-			return false;
-		}
-	}
-	
+
 	/**
 	 * Updates door open state based on isPowered.
 	 */
@@ -57,21 +50,33 @@ public class FortressDoor extends BlockDoor {
 		//do nothing (ignore redstone power)
 	}
 	
+	@Override
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
+    	String playerName = player.getGameProfile().getName();
+    	ArrayList<String> authorizedNames = getNamesAllowedToOpenDoor(world, x, y, z);
+    	
+    	if (authorizedNames.contains(playerName)) {
+			return super.onBlockActivated(world, x, y, z, player, par6, par7, par8, par9);
+		} else {
+			return false;
+		}
+	}
 	private ArrayList<String> getNamesAllowedToOpenDoor(World world, int x, int y, int z) {
 		ArrayList<String> names = new ArrayList<String>();
 		
 		//get blockAboveDoor and pointAboveDoor
 		Point pointAboveDoor = new Point(x, y + 1, z);
 		Block blockAboveDoor = world.getBlock(x, y + 1, z);
-		if (blockAboveDoor == FortressMod.fortressDoor) {
+		if (blockAboveDoor == FortressMod.fortressWoodenDoor || blockAboveDoor == FortressMod.fortressIronDoor) {
 			blockAboveDoor = world.getBlock(x, y + 2, z);
 			pointAboveDoor = new Point(x, y + 2, z);
 		}
 		
-		if (blockAboveDoor == Blocks.obsidian) {
+		if (blockAboveDoor == Blocks.obsidian || blockAboveDoor == FortressMod.fortressObsidian) {
 			ArrayList<Block> wallBlocks = new ArrayList<Block>();
 			ArrayList<Block> returnBlocks = new ArrayList<Block>();
 			wallBlocks.add(Blocks.obsidian);
+			wallBlocks.add(FortressMod.fortressObsidian);
 			returnBlocks.add(Blocks.wall_sign);
 			returnBlocks.add(Blocks.standing_sign);
 			ArrayList<Point> signs = Wall.getPointsConnected(world, pointAboveDoor, wallBlocks, returnBlocks, Wall.ConnectedThreshold.FACES);
@@ -114,6 +119,7 @@ public class FortressDoor extends BlockDoor {
 	}
 
 	public Item getItemDropped(int par1, Random par2, int par3) {
-		return (par1 & 8) != 0 ? null : FortressMod.itemFortressDoor;
+		Item item = (this.origMaterial == Material.wood)?FortressMod.itemFortressWoodenDoor:FortressMod.itemFortressIronDoor;
+		return (par1 & 8) != 0 ? null : item;
 	}
 }
