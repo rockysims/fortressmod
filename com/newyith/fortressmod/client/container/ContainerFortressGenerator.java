@@ -46,7 +46,6 @@ public class ContainerFortressGenerator extends Container {
 		crafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTime);
 		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
 		crafting.sendProgressBarUpdate(this, 2, ((this.fortressGenerator.isClogged())?1:0) );
-		crafting.sendProgressBarUpdate(this, 3, ((this.fortressGenerator.getGeneratorCore().isPaused())?1:0) );
 	}
 
 	/** Looks for changes made in the container, sends them to every listener. */
@@ -68,16 +67,11 @@ public class ContainerFortressGenerator extends Container {
 			if (this.lastIsClogged != this.fortressGenerator.isClogged()) {
 				icrafting.sendProgressBarUpdate(this, 2, ((this.fortressGenerator.isClogged())?1:0) );
 			}
-			
-			if (this.lastIsPaused != this.fortressGenerator.getGeneratorCore().isPaused()) {
-				icrafting.sendProgressBarUpdate(this, 3, ((this.fortressGenerator.getGeneratorCore().isPaused())?1:0) );
-			}
 		}
 
 		this.lastBurnTime = this.fortressGenerator.burnTime;
 		this.lastItemBurnTime = this.fortressGenerator.itemBurnTime;
 		this.lastIsClogged = this.fortressGenerator.isClogged();
-		this.lastIsPaused = this.fortressGenerator.getGeneratorCore().isPaused();
 	}
 
 	@Override
@@ -86,7 +80,6 @@ public class ContainerFortressGenerator extends Container {
 		if (key == 0) this.fortressGenerator.burnTime = value;
 		if (key == 1) this.fortressGenerator.itemBurnTime = value;
 		if (key == 2) this.fortressGenerator.setIsClogged(value == 1);
-		if (key == 3) this.fortressGenerator.getGeneratorCore().setIsPaused(value == 1);
 	}
 	
 	@Override

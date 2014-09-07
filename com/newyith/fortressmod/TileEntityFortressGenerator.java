@@ -66,7 +66,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	public void updateEntity() {
 		boolean wasBurning = this.burnTime > 0;
 		
-		if (this.burnTime > 0 && !this.generatorCore.isPaused()) {
+		if (this.burnTime > 0 && !this.generatorCore.isPowered()) {
 			this.burnTime--;
 		}
 		
