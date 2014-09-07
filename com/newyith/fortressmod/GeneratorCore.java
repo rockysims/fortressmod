@@ -22,6 +22,9 @@ public class GeneratorCore {
 	private World world;
 	
 	private String placedByPlayerName = "none"; //set in onPlaced
+	private boolean isPaused;
+	private boolean wasPowered = false;
+	private boolean wasPoweredNotSet = true;
 
 
 	public GeneratorCore(TileEntityFortressGenerator fortressGenerator) {
@@ -47,6 +50,7 @@ public class GeneratorCore {
 		//save the other stuff
 		compound.setLong("timePlaced", this.timePlaced);
 		compound.setString("placedByPlayerName", this.placedByPlayerName);
+		compound.setBoolean("isPaused", this.isPaused);
 	}
 	
 	public void readFromNBT(NBTTagCompound compound) {
@@ -65,6 +69,7 @@ public class GeneratorCore {
 		//load the other stuff
 		this.timePlaced = compound.getLong("timePlaced");
 		this.placedByPlayerName = compound.getString("placedByPlayerName");
+		this.isPaused = compound.getBoolean("isPaused");
 	}
 	
 	public static void onPlaced(World world, int x, int y, int z, String placingPlayerName) {
@@ -76,6 +81,12 @@ public class GeneratorCore {
 			//set timePlaced
 			placedCore.timePlaced = System.currentTimeMillis();
 			placedCore.placedByPlayerName = placingPlayerName;
+			
+			//if already getting redstone power, pretend redstone power was just turned on
+			boolean isPowered = world.isBlockIndirectlyGettingPowered(x, y, z);
+			if (isPowered) {
+				placedCore.onPoweredMightHaveChanged(isPowered);
+			}
 			
 			//clog or degenerate
 			boolean isOldest = isOldestNotCloggedGeneratorConnectedTo(placedCore);
@@ -111,7 +122,7 @@ public class GeneratorCore {
 
 	public void onBurnStateChanged() {
 		if (this.fortressGenerator.isBurning()) {
-			if (!this.fortressGenerator.isClogged()) {
+			if (!this.fortressGenerator.isClogged() && !this.isPaused) {
 				//fortress generator was just turned on
 				if (isOldestNotCloggedGeneratorConnectedTo(this)) {
 					this.generateWall();
@@ -124,6 +135,31 @@ public class GeneratorCore {
 		}
 	}
 
+	public void onNeighborBlockChange(World world, int x, int y, int z) {
+		boolean isPowered = world.isBlockIndirectlyGettingPowered(x, y, z);
+		
+		if (isPowered != wasPowered || wasPoweredNotSet ) {
+			wasPowered = isPowered;
+			wasPoweredNotSet = false;
+			
+			this.onPoweredMightHaveChanged(isPowered);
+		}
+	}
+	public void onPoweredMightHaveChanged(boolean isPowered) {
+		boolean isGenerating = !this.generatedPoints.isEmpty();
+		this.isPaused = isPowered;
+		
+		if (isGenerating && this.isPaused) {
+			//just turned on redstone power so degenerate wall
+			this.degenerateWall();
+		}
+		
+		if (!isGenerating && !this.isPaused) {
+			//just turned off redstone power so try to start generating again
+			this.onBurnStateChanged();
+		}
+	}
+	
 	// --------- Internal Methods ---------
 	
 	/**
@@ -287,5 +323,13 @@ public class GeneratorCore {
 
 	public String getPlacedByPlayerName() {
 		return this.placedByPlayerName;
+	}
+
+	public boolean isPaused() {
+		return this.isPaused;
+	}
+
+	public void setIsPaused(boolean isPaused) {
+		this.isPaused = isPaused;
 	}
 }

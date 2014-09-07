@@ -50,7 +50,15 @@ public class FortressGenerator extends BlockContainer {
 		this(isActive);
 		this.isClogged = isClogged;
 	}
-
+	
+	@Override
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
+		super.onNeighborBlockChange(world, x, y, z, block);
+		
+		TileEntityFortressGenerator fg = (TileEntityFortressGenerator)world.getTileEntity(x, y, z);
+		fg.getGeneratorCore().onNeighborBlockChange(world, x, y, z);
+	}
+	
 	@Override
 	public TileEntity createNewTileEntity(World world, int metadata) {
 		return new TileEntityFortressGenerator(this.isClogged);
