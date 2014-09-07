@@ -17,7 +17,7 @@ public class Wall {
 	private static ArrayList<Block> enabledWallBlocks = new ArrayList<Block>();
 	private static ArrayList<Block> notCloggedGeneratorBlocks = new ArrayList<Block>();
 	
-	private static int generationRangeLimit = 64; //64 blocks in all directions with the generator as point of origin
+	private static final int generationRangeLimit = 64; //64 blocks in all directions with the generator as point of origin
 	
 	public static enum ConnectedThreshold {
 		FACES,
@@ -53,10 +53,10 @@ public class Wall {
 		nextLayer.push(origin);
 		visited.add(makeKey(origin));
 		
-		int recursionLimit = ((generationRangeLimit+1)*2)^3;
+		int recursionLimit = (int)Math.pow(generationRangeLimit/2, 3);
 		while (!nextLayer.isEmpty()) {
 			if (recursionLimit-- <= 0) {
-				Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted (outer loop)");
+				Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted");
 				break;
 			}
 
@@ -65,9 +65,10 @@ public class Wall {
 			//nextLayer = new ArrayDeque<Point>();
 			
 			//process layer
+			int recursionLimit2 = 6*(int)Math.pow(generationRangeLimit*2, 2);
 			while (!layer.isEmpty()) {
-				if (recursionLimit-- <= 0) {
-					Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted (inner loop)");
+				if (recursionLimit2-- <= 0) {
+					Dbg.print("FortressWallUpdater.update(): recursionLimit2 exhausted");
 					break;
 				}
 				
