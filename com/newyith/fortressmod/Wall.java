@@ -53,10 +53,10 @@ public class Wall {
 		nextLayer.push(origin);
 		visited.add(makeKey(origin));
 		
-		int recursionLimit = 50; //TODO: increase this?
+		int recursionLimit = ((generationRangeLimit+1)*2)^3;
 		while (!nextLayer.isEmpty()) {
 			if (recursionLimit-- <= 0) {
-				Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted");
+				Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted (outer loop)");
 				break;
 			}
 
@@ -65,10 +65,9 @@ public class Wall {
 			//nextLayer = new ArrayDeque<Point>();
 			
 			//process layer
-			int recursionLimit2 = 150; //TODO: increase this?
 			while (!layer.isEmpty()) {
-				if (recursionLimit2-- <= 0) {
-					Dbg.print("FortressWallUpdater.update(): recursionLimit2 exhausted");
+				if (recursionLimit-- <= 0) {
+					Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted (inner loop)");
 					break;
 				}
 				
