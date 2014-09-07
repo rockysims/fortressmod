@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Stack;
 
+import com.google.common.collect.ImmutableList;
+
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -14,6 +16,8 @@ public class Wall {
 	private static ArrayList<Block> disabledWallBlocks = new ArrayList<Block>();
 	private static ArrayList<Block> enabledWallBlocks = new ArrayList<Block>();
 	private static ArrayList<Block> notCloggedGeneratorBlocks = new ArrayList<Block>();
+	
+	private static int generationRangeLimit = 64; //64 blocks in all directions with the generator as point of origin
 	
 	public static enum ConnectedThreshold {
 		FACES,
@@ -99,6 +103,9 @@ public class Wall {
 				
 				//process connected points
 				for (Point p : connected) {
+					if (!isInRange(p, origin))
+						continue;
+					
 					key = makeKey(p);
 					if (!visited.contains(key)) {
 						visited.add(key);
@@ -122,6 +129,16 @@ public class Wall {
 		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matches.size()) + " matches");
 		
 		return matches;
+	}
+	
+	private static boolean isInRange(Point p, Point origin) {
+		boolean inRange = true;
+		
+		inRange = inRange && (Math.abs(p.x - origin.x)) < generationRangeLimit;
+		inRange = inRange && (Math.abs(p.y - origin.y)) < generationRangeLimit;
+		inRange = inRange && (Math.abs(p.z - origin.z)) < generationRangeLimit;
+		
+		return inRange;
 	}
 
 	private static String makeKey(Point p) {
