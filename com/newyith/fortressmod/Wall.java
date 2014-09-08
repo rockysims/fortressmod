@@ -86,9 +86,6 @@ public class Wall {
 			}
 
 			layerIndex++;
-			while (layerIndex >= matchesAsLayers.size()) {
-				matchesAsLayers.add(new ArrayList<Point>());
-			}
 			layer = nextLayer;
 			nextLayer = new Stack<Point>();
 			//nextLayer = new ArrayDeque<Point>();
@@ -143,6 +140,10 @@ public class Wall {
 						
 						//add to matchesAsLayers if it matches a returnBlocks type
 						if (returnBlocks.contains(b)) {
+							//"while" not "if" because maybe only matching blocks are far away but connected by wall
+							while (layerIndex >= matchesAsLayers.size()) {
+								matchesAsLayers.add(new ArrayList<Point>());
+							}
 							matchesAsLayers.get(layerIndex).add(p);
 						}
 

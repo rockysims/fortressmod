@@ -21,20 +21,21 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class GeneratorCore {
-	private List<List<Point>> generatedLayers = new ArrayList<List<Point>>(); //contains currently generated blocks (points)
-	public long timePlaced = 0; //TODO: change this back to private
+	//saved in NBT
+	private List<List<Point>> generatedLayers = new ArrayList<List<Point>>();
+	private List<List<Point>> wallLayers = new ArrayList<List<Point>>();
+	private boolean isChangingGenerated;
+	private boolean isRunning;
+	private long timePlaced = 0;
+	private String placedByPlayerName = "none"; //set in onPlaced
+	
 	private TileEntityFortressGenerator fortressGenerator;
 	private World world;
-	
-	private String placedByPlayerName = "none"; //set in onPlaced
 	private boolean wasPowered = false;
 	private boolean wasPoweredNotSet = true;
-	private boolean isChangingGenerated; //TODO: save to NBT
-	private List<List<Point>> wallLayers = new ArrayList<List<Point>>(); //TODO: save to NBT
-	private boolean isRunning; //TODO: save to NBT
 	private boolean animateGeneration = true;
 	private long lastFrameTimestamp = 0;
-	private long msPerFrame = 500;
+	private long msPerFrame = 200;
 
 	public GeneratorCore(TileEntityFortressGenerator fortressGenerator) {
 		this.fortressGenerator = fortressGenerator;
@@ -51,6 +52,8 @@ public class GeneratorCore {
 		//save the other stuff
 		compound.setLong("timePlaced", this.timePlaced);
 		compound.setString("placedByPlayerName", this.placedByPlayerName);
+		compound.setBoolean("isChangingGenerated", this.isChangingGenerated);
+		compound.setBoolean("isRunning", this.isRunning);
 	}
 	private void writeLayersToNBT(NBTTagCompound compound, String id, List<List<Point>> layers) {
 		NBTTagList layersList = new NBTTagList();
@@ -82,6 +85,8 @@ public class GeneratorCore {
 		//load the other stuff
 		this.timePlaced = compound.getLong("timePlaced");
 		this.placedByPlayerName = compound.getString("placedByPlayerName");
+		this.isChangingGenerated = compound.getBoolean("isChangingGenerated");
+		this.isRunning = compound.getBoolean("isRunning");
 	}
 	
 	private List<List<Point>> readLayersFromNBT(NBTTagCompound compound, String id) {
@@ -178,14 +183,12 @@ public class GeneratorCore {
 		}
 	}
 	public void onPoweredMightHaveChanged() {
-		boolean isGenerating = !this.generatedLayers.isEmpty();
-		
-		if (isGenerating && this.isPowered()) {
+		if (this.isRunning && this.isPowered()) {
 			//just turned on redstone power so degenerate wall
 			this.degenerateWall(true);
 		}
 		
-		if (!isGenerating && !this.isPowered()) {
+		if (!this.isRunning && !this.isPowered()) {
 			//just turned off redstone power so try to start generating again
 			this.onBurnStateChanged();
 		}
@@ -200,28 +203,27 @@ public class GeneratorCore {
 				boolean updateLayer = false;
 
 				//update to next frame
-				for (int layerIndex = 0; layerIndex < this.wallLayers.size(); layerIndex++) {
-					//TODO: try uncomment out next few lines
-//					//if (degenerating) reverse direction
-//					if (!this.isRunning) {
-//						layerIndex = (wallLayers.size()-1) - layerIndex;
-//					}
+				for (int i = 0; i < this.wallLayers.size(); i++) {
+					int layerIndex = i;
+					//if (degenerating) reverse direction
+					if (!this.isRunning) {
+						layerIndex = (wallLayers.size()-1) - i;
+					}
 					
 					List<Point> layer = this.wallLayers.get(layerIndex);
 					
-					//set numGeneratedInLayer
-					int numGeneratedInLayer = 0;
-					if (layerIndex < this.generatedLayers.size()) {
-						List<Point> overlap = new ArrayList<Point>(layer);
-						overlap.retainAll(this.generatedLayers.get(layerIndex));
-						//overlap now contains only elements in both layer and this.generatedLayers.get(layerIndex)
-						numGeneratedInLayer = overlap.size();
-					}
-					
 					//set allOfLayerIsGenerated and anyOfLayerIsGenerated
-					boolean allOfLayerIsGenerated = layer.size() == numGeneratedInLayer;
-					boolean anyOfLayerIsGenerated = numGeneratedInLayer > 0;
-					
+					boolean allOfLayerIsGenerated = true;
+					boolean anyOfLayerIsGenerated = false;
+					for (Point p : layer) {
+						boolean isGeneratedBlock = Wall.getEnabledWallBlocks().contains(world.getBlock(p.x, p.y, p.z));
+						if (isGeneratedBlock) {
+							anyOfLayerIsGenerated = true;
+						} else {
+							allOfLayerIsGenerated = false;
+						}
+					}
+
 					//set updateLayer
 					updateLayer = false;
 					if (this.isRunning && !allOfLayerIsGenerated) {
@@ -266,7 +268,7 @@ public class GeneratorCore {
 							}
 						} // end for (Point p : layer)
 						
-						if (this.animateGeneration) {
+						if (this.animateGeneration && updateLayer) {
 							//updated a layer so we're done with this frame
 							break;
 						}
@@ -274,11 +276,13 @@ public class GeneratorCore {
 				} // end for (List<Point> layer : this.wallPoints)
 				
 				//if (there was no next frame) we are done
-				if (!updateLayer)
+				if (!updateLayer) {
 					this.isChangingGenerated = false;
+				}
 				//if (not animating) we finished all at once
-				if (!this.animateGeneration)
+				if (!this.animateGeneration) {
 					this.isChangingGenerated = false;
+				}
 			}
 		}
 	}
@@ -368,12 +372,12 @@ public class GeneratorCore {
 	 */
 	private void degenerateWall(boolean animate) {
 		//*
-		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
-			List<List<Point>> connectedPoints = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
-			this.generatedLayers = merge(this.generatedLayers, connectedPoints);
-		}
 		this.wallLayers.clear();
 		this.wallLayers.addAll(this.generatedLayers);
+		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
+			List<List<Point>> connectedPoints = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
+			this.wallLayers = merge(this.wallLayers, connectedPoints);
+		}
 		
 		this.isRunning = false;
 		this.isChangingGenerated = true;
