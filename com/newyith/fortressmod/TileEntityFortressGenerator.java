@@ -29,6 +29,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
 	public int itemBurnTime;
 	private boolean isClogged;
+	private boolean isPaused;
 	private static final int burnPeriod = 100; //TODO: replace with "1000*60*60; //1 hour"
 	
 	private GeneratorCore generatorCore = null; //public so it's static methods can get the generatorCore instance via fortress generator's tile entity
@@ -40,12 +41,14 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
 		this.isClogged = false;
+		this.isPaused = false;
 		this.generatorCore = new GeneratorCore(this);
 	}
 	
-	public TileEntityFortressGenerator(boolean isClogged) {
+	public TileEntityFortressGenerator(boolean isClogged, boolean isPaused) {
 		this();
 		this.isClogged = isClogged;
+		this.isPaused = isPaused;
 	}
 
 	@Override
@@ -58,15 +61,11 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		return this.generatorCore;
 	}
 	
-	public void setIsClogged(boolean isClogged) {
-		this.isClogged = isClogged;
-	}
-
 	@Override
 	public void updateEntity() {
 		boolean wasBurning = this.burnTime > 0;
 		
-		if (this.burnTime > 0 && !this.generatorCore.isPowered()) {
+		if (this.burnTime > 0 && !this.generatorCore.isPaused()) {
 			this.burnTime--;
 		}
 		
@@ -273,6 +272,18 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 	public boolean isClogged() {
 		return this.isClogged;
+	}
+
+	public void setIsClogged(boolean isClogged) {
+		this.isClogged = isClogged;
+	}
+
+	public boolean isPaused() {
+		return this.isPaused;
+	}
+
+	public void setIsPaused(boolean isPaused) {
+		this.isPaused = isPaused;
 	}
 
 	/*

@@ -31,8 +31,6 @@ public class GeneratorCore {
 	
 	private TileEntityFortressGenerator fortressGenerator;
 	private World world;
-	private boolean wasPowered = false;
-	private boolean wasPoweredNotSet = true;
 	private boolean animateGeneration = true;
 	private long lastFrameTimestamp = 0;
 	private long msPerFrame = 200;
@@ -161,7 +159,7 @@ public class GeneratorCore {
 
 	public void onBurnStateChanged() {
 		if (this.fortressGenerator.isBurning()) {
-			if (!this.fortressGenerator.isClogged() && !this.isPowered()) {
+			if (!this.fortressGenerator.isClogged() && !this.isPaused()) {
 				//fortress generator was just turned on
 				if (isOldestNotCloggedGeneratorConnectedTo(this)) {
 					this.generateWall();
@@ -174,21 +172,13 @@ public class GeneratorCore {
 		}
 	}
 
-	public void onNeighborBlockChange(World world, int x, int y, int z) {
-		if (this.isPowered() != wasPowered || wasPoweredNotSet ) {
-			wasPowered = this.isPowered();
-			wasPoweredNotSet = false;
-			
-			this.onPoweredMightHaveChanged();
-		}
-	}
 	public void onPoweredMightHaveChanged() {
-		if (this.isRunning && this.isPowered()) {
+		if (this.isRunning && this.isPaused()) {
 			//just turned on redstone power so degenerate wall
 			this.degenerateWall(true);
 		}
 		
-		if (!this.isRunning && !this.isPowered()) {
+		if (!this.isRunning && !this.isPaused()) {
 			//just turned off redstone power so try to start generating again
 			this.onBurnStateChanged();
 		}
@@ -506,10 +496,7 @@ public class GeneratorCore {
 		return this.placedByPlayerName;
 	}
 
-	public boolean isPowered() {
-		int x = this.fortressGenerator.xCoord;
-		int y = this.fortressGenerator.yCoord;
-		int z = this.fortressGenerator.zCoord;
-		return world.isBlockIndirectlyGettingPowered(x, y, z);
+	public boolean isPaused() {
+		return this.fortressGenerator.isPaused();
 	}
 }

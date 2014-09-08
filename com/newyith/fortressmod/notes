@@ -15,14 +15,15 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-add redstone power pauses generator feature
 animated generation/degeneration
+    //TODO: fix bug where fuel burns at normal speed until redstone power is switched on and off then burns faster
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add generate/degenerate sounds
 get better textures from someone on forums
 manual book
 
 Done:
+add redstone power pauses generator feature
 generation radius limit
 fortress doors (with signs)
 make fortress glass block

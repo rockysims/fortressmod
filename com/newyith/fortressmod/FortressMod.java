@@ -34,6 +34,7 @@ public class FortressMod
 	
 	public static Block fortressGenerator;
 	public static Block fortressGeneratorOn;
+	public static Block fortressGeneratorPaused;
 	public static Block fortressGeneratorClogged;
 	public static Block fortressEmergencyKey;
 	public static Block fortressBedrock;
@@ -50,6 +51,7 @@ public class FortressMod
 			return Items.arrow;
 		}
 	};
+
 
 	/*
 	@EventHandler
@@ -89,10 +91,13 @@ public class FortressMod
         fortressGenerator = new FortressGenerator(false).setBlockName("FortressGenerator").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGenerator, "FortressGenerator");
 		
-        fortressGeneratorOn = new FortressGenerator(true).setBlockName("FortressGeneratorActive");
+		fortressGeneratorOn = new FortressGenerator(true).setBlockName("FortressGeneratorActive");
 		GameRegistry.registerBlock(fortressGeneratorOn, "FortressGeneratorActive");
 		
-        fortressGeneratorClogged = new FortressGenerator(false, true).setBlockName("FortressGeneratorClogged").setCreativeTab(tabName);
+		fortressGeneratorPaused = new FortressGenerator(true, false, true).setBlockName("FortressGeneratorOnAndPowered");
+		GameRegistry.registerBlock(fortressGeneratorPaused, "FortressGeneratorOnAndPowered");
+		
+        fortressGeneratorClogged = new FortressGenerator(false, true, false).setBlockName("FortressGeneratorClogged").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGeneratorClogged, "FortressGeneratorClogged");
 		
 		//Fortress Generator Emergency Key
