@@ -2,9 +2,11 @@ package com.newyith.fortressmod;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Stack;
 
 import com.google.common.collect.ImmutableList;
+import com.newyith.fortressmod.Wall.ConnectedThreshold;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -24,9 +26,31 @@ public class Wall {
 		//LINES,
 		POINTS
 	};
+
+	private static List<Point> flattenLayers(List<List<Point>> layers) {
+		List<Point> points = new ArrayList<Point>();
+		
+		for (List<Point> layer : layers) {
+			for (Point p : layer) {
+				points.add(p);
+			}
+		}
+		
+		return points;
+	}
 	
-	public static ArrayList<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
-		return getPointsConnected(world, origin, wallBlocks, returnBlocks, ConnectedThreshold.POINTS);
+	public static List<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, wallBlocks, returnBlocks, connectedThreshold);
+		return flattenLayers(layers);
+	}
+
+	public static List<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, wallBlocks, returnBlocks, ConnectedThreshold.POINTS);
+		return flattenLayers(layers);
+	}
+	
+	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+		return getPointsConnectedAsLayers(world, origin, wallBlocks, returnBlocks, ConnectedThreshold.POINTS);
 	}
 
 	/**
@@ -37,8 +61,8 @@ public class Wall {
 	 * @param returnBlocks List of block types to look for and return when connected to the wall.
 	 * @return List of all points (blocks) connected to the generator by wallBlocks and matching a block type in returnBlocks.
 	 */
-	public static ArrayList<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
-		ArrayList<Point> matches = new ArrayList<Point>();
+	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
+		List<List<Point>> matchesAsLayers = new ArrayList<List<Point>>();
 		ArrayList<Point> connected = new ArrayList<Point>();
 		
 		HashSet<String> visited = new HashSet<String>();
@@ -46,6 +70,7 @@ public class Wall {
 		Stack<Point> nextLayer = new Stack<Point>();
 		//Deque<Point> layer = new ArrayDeque<Point>(); //TODO: switch to using Deque
 		//Deque<Point> nextLayer = new ArrayDeque<Point>();
+		int layerIndex = -1;
 		Block b;
 		String key;
 		Point center;
@@ -60,6 +85,10 @@ public class Wall {
 				break;
 			}
 
+			layerIndex++;
+			while (layerIndex >= matchesAsLayers.size()) {
+				matchesAsLayers.add(new ArrayList<Point>());
+			}
 			layer = nextLayer;
 			nextLayer = new Stack<Point>();
 			//nextLayer = new ArrayDeque<Point>();
@@ -112,9 +141,10 @@ public class Wall {
 
 						b = world.getBlock(p.x, p.y, p.z); //b is one of the blocks connected to the center block
 						
-						//add to matches if it matches a returnBlocks type
-						if (returnBlocks.contains(b))
-							matches.add(p);
+						//add to matchesAsLayers if it matches a returnBlocks type
+						if (returnBlocks.contains(b)) {
+							matchesAsLayers.get(layerIndex).add(p);
+						}
 
 						//process block
 						if (wallBlocks.contains(b)) {
@@ -126,9 +156,9 @@ public class Wall {
 		}
 		
 		Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
-		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matches.size()) + " matches");
+		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matchesAsLayers.size()) + " matchesAsLayers");
 		
-		return matches;
+		return matchesAsLayers;
 	}
 	
 	private static boolean isInRange(Point p, Point origin) {

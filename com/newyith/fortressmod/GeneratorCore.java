@@ -2,8 +2,13 @@ package com.newyith.fortressmod;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Stack;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -16,7 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
 public class GeneratorCore {
-	private ArrayList<Point> generatedPoints = new ArrayList<Point>(); //contains currently generated blocks (points)
+	private List<List<Point>> generatedLayers = new ArrayList<List<Point>>(); //contains currently generated blocks (points)
 	public long timePlaced = 0; //TODO: change this back to private
 	private TileEntityFortressGenerator fortressGenerator;
 	private World world;
@@ -24,7 +29,12 @@ public class GeneratorCore {
 	private String placedByPlayerName = "none"; //set in onPlaced
 	private boolean wasPowered = false;
 	private boolean wasPoweredNotSet = true;
-
+	private boolean isChangingGenerated; //TODO: save to NBT
+	private List<List<Point>> wallLayers = new ArrayList<List<Point>>(); //TODO: save to NBT
+	private boolean isRunning; //TODO: save to NBT
+	private boolean animateGeneration = true;
+	private long lastFrameTimestamp = 0;
+	private long msPerFrame = 500;
 
 	public GeneratorCore(TileEntityFortressGenerator fortressGenerator) {
 		this.fortressGenerator = fortressGenerator;
@@ -35,40 +45,70 @@ public class GeneratorCore {
 	}
 	
 	public void writeToNBT(NBTTagCompound compound) {
-		//save list of generated blocks
-		NBTTagList list = new NBTTagList();
-		for (Point p : this.generatedPoints) {
-			NBTTagCompound item = new NBTTagCompound();
-			item.setInteger("x", p.x);
-			item.setInteger("y", p.y);
-			item.setInteger("z", p.z);
-			list.appendTag(item);
-		}
-		compound.setTag("generated", list);
+		writeLayersToNBT(compound, "wallLayers", this.wallLayers);
+		writeLayersToNBT(compound, "generatedLayers", this.generatedLayers);
 		
 		//save the other stuff
 		compound.setLong("timePlaced", this.timePlaced);
 		compound.setString("placedByPlayerName", this.placedByPlayerName);
 	}
+	private void writeLayersToNBT(NBTTagCompound compound, String id, List<List<Point>> layers) {
+		NBTTagList layersList = new NBTTagList();
+		
+		for (List<Point> layer : layers) {
+			//fill list
+			NBTTagList list = new NBTTagList();
+			for (Point p : layer) {
+				NBTTagCompound item = new NBTTagCompound();
+				item.setInteger("x", p.x);
+				item.setInteger("y", p.y);
+				item.setInteger("z", p.z);
+				list.appendTag(item);
+			}
+
+			//add list to layersList (wrapped in compound)
+			NBTTagCompound listCompound = new NBTTagCompound();
+			listCompound.setTag("list", list);
+			layersList.appendTag(listCompound);
+		}
+		
+		compound.setTag(id, layersList);
+	}
 	
 	public void readFromNBT(NBTTagCompound compound) {
-		//load list of generated blocks
-		Point p;
-		NBTTagList list = compound.getTagList("generated", NBT.TAG_COMPOUND);
-		for (int i = 0; i < list.tagCount(); i++) {
-			NBTTagCompound item = list.getCompoundTagAt(i);
-			int x = item.getInteger("x");
-			int y = item.getInteger("y");
-			int z = item.getInteger("z");
-			p = new Point(x, y, z);
-			this.generatedPoints.add(p);
-		}
+		this.wallLayers = readLayersFromNBT(compound, "wallLayers");
+		this.generatedLayers = readLayersFromNBT(compound, "generatedLayers");
 		
 		//load the other stuff
 		this.timePlaced = compound.getLong("timePlaced");
 		this.placedByPlayerName = compound.getString("placedByPlayerName");
 	}
 	
+	private List<List<Point>> readLayersFromNBT(NBTTagCompound compound, String id) {
+		NBTTagList layersList = compound.getTagList(id, NBT.TAG_COMPOUND);
+		
+		//fill layersRead
+		List<List<Point>> layersRead = new ArrayList<List<Point>>();
+		for (int layerIndex = 0; layerIndex < layersList.tagCount(); layerIndex++) {
+			//get list from layersList
+			NBTTagCompound listCompound = layersList.getCompoundTagAt(layerIndex);
+			NBTTagList list = listCompound.getTagList("list", NBT.TAG_COMPOUND);
+			
+			//fill layerRead
+			List<Point> layerRead = new ArrayList<Point>();
+			for (int i = 0; i < list.tagCount(); i++) {
+				NBTTagCompound item = list.getCompoundTagAt(i);
+				int x = item.getInteger("x");
+				int y = item.getInteger("y");
+				int z = item.getInteger("z");
+				layerRead.add(new Point(x, y, z));
+			}
+			layersRead.add(layerRead);
+		}
+		
+		return layersRead;
+	}
+
 	public static void onPlaced(World world, int x, int y, int z, String placingPlayerName) {
 		//clog unless its the only none clogged generator (in which case degenerated connected wall)
 		if (!world.isRemote) {
@@ -87,7 +127,7 @@ public class GeneratorCore {
 			if (!isOldest) {
 				placedCore.clog();
 			} else {
-				placedCore.degenerateWall();
+				placedCore.degenerateWall(true);
 			}
 		}
 	}
@@ -101,11 +141,11 @@ public class GeneratorCore {
 				GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
 
 				//degenerate generated wall (and connected wall if oldest)
-				brokenCore.degenerateWall();
+				brokenCore.degenerateWall(false);
 
 				//if (oldestGenerator) clog the others
 				if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
-					ArrayList<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
+					List<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
 					for (TileEntityFortressGenerator fg : fgs) {
 						fg.getGeneratorCore().clog();
 					}
@@ -125,7 +165,7 @@ public class GeneratorCore {
 				}
 			}
 		} else {
-			this.degenerateWall();
+			this.degenerateWall(true);
 		}
 	}
 
@@ -138,11 +178,11 @@ public class GeneratorCore {
 		}
 	}
 	public void onPoweredMightHaveChanged() {
-		boolean isGenerating = !this.generatedPoints.isEmpty();
+		boolean isGenerating = !this.generatedLayers.isEmpty();
 		
 		if (isGenerating && this.isPowered()) {
 			//just turned on redstone power so degenerate wall
-			this.degenerateWall();
+			this.degenerateWall(true);
 		}
 		
 		if (!isGenerating && !this.isPowered()) {
@@ -150,31 +190,103 @@ public class GeneratorCore {
 			this.onBurnStateChanged();
 		}
 	}
-	
-	// --------- Internal Methods ---------
-	
-	/**
-	 * Generates (turns on) the wall touching this generator.
-	 * Assumes checking for permission to generate walls is already done.
-	 */
-	private void generateWall() {
-		//change the wall blocks touching this generator into generated blocks		
-		ArrayList<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
-		for (Point p : wallPoints) {
-			this.generatedPoints.add(p);
-			
-			//generate block
-			Block blockToGenerate = world.getBlock(p.x, p.y, p.z);
-			int index = Wall.getDisabledWallBlocks().indexOf(blockToGenerate);
-			if (index != -1) {
-				if (blockToGenerate == Blocks.wooden_door || blockToGenerate == Blocks.iron_door) {
-					generateDoor(p, index);
-				} else {
-					world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
-				}
+
+	public void updateEntity() {
+		if (this.isChangingGenerated) {
+			long now = (new Date()).getTime();
+			//if (ready to update to next frame)
+			if (!this.animateGeneration  || now - this.lastFrameTimestamp > this.msPerFrame ) {
+				this.lastFrameTimestamp  = now;
+				boolean updateLayer = false;
+
+				//update to next frame
+				for (int layerIndex = 0; layerIndex < this.wallLayers.size(); layerIndex++) {
+					//TODO: try uncomment out next few lines
+//					//if (degenerating) reverse direction
+//					if (!this.isRunning) {
+//						layerIndex = (wallLayers.size()-1) - layerIndex;
+//					}
+					
+					List<Point> layer = this.wallLayers.get(layerIndex);
+					
+					//set numGeneratedInLayer
+					int numGeneratedInLayer = 0;
+					if (layerIndex < this.generatedLayers.size()) {
+						List<Point> overlap = new ArrayList<Point>(layer);
+						overlap.retainAll(this.generatedLayers.get(layerIndex));
+						//overlap now contains only elements in both layer and this.generatedLayers.get(layerIndex)
+						numGeneratedInLayer = overlap.size();
+					}
+					
+					//set allOfLayerIsGenerated and anyOfLayerIsGenerated
+					boolean allOfLayerIsGenerated = layer.size() == numGeneratedInLayer;
+					boolean anyOfLayerIsGenerated = numGeneratedInLayer > 0;
+					
+					//set updateLayer
+					updateLayer = false;
+					if (this.isRunning && !allOfLayerIsGenerated) {
+						updateLayer = true;
+					}
+					if (!this.isRunning && anyOfLayerIsGenerated) {
+						updateLayer = true;
+					}
+					
+					//update layer if needed
+					if (updateLayer) {
+						for (Point p : layer) {
+							Block wallBlock = world.getBlock(p.x, p.y, p.z);
+							
+							if (this.isRunning) {
+								//generate wallBlock
+								int index = Wall.getDisabledWallBlocks().indexOf(wallBlock);
+								if (index != -1) {
+									while (layerIndex >= this.generatedLayers.size()) {
+										this.generatedLayers.add(new ArrayList<Point>());
+									}
+									this.generatedLayers.get(layerIndex).add(p);
+									
+									if (wallBlock == Blocks.wooden_door || wallBlock == Blocks.iron_door) {
+										generateDoor(p, index);
+									} else {
+										world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+									}
+								}
+							} else {
+								//degenerate wallBlock
+								int index = Wall.getEnabledWallBlocks().indexOf(wallBlock);
+								if (index != -1) {
+									this.generatedLayers.get(layerIndex).remove(p);
+									
+									if (wallBlock == FortressMod.fortressWoodenDoor || wallBlock == FortressMod.fortressIronDoor) {
+										degenerateDoor(p, index);
+									} else {
+										world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
+									}
+								}
+							}
+						} // end for (Point p : layer)
+						
+						if (this.animateGeneration) {
+							//updated a layer so we're done with this frame
+							break;
+						}
+					} // end if (updateLayer)
+				} // end for (List<Point> layer : this.wallPoints)
+				
+				//if (there was no next frame) we are done
+				if (!updateLayer)
+					this.isChangingGenerated = false;
+				//if (not animating) we finished all at once
+				if (!this.animateGeneration)
+					this.isChangingGenerated = false;
 			}
 		}
 	}
+	
+	// --------- Internal Methods ---------
+	
+	//TODO: save in NBT wallPoints, isChangingGenerated, isRunning
+
 	private void generateDoor(Point p, int index) {
 		//assumes p is a door block
 		Block block = world.getBlock(p.x, p.y, p.z);
@@ -197,32 +309,7 @@ public class GeneratorCore {
 			world.setBlockMetadataWithNotify(p.x, p.y + 1, p.z, metaTop, 2);
 		}
 	}
-
-	/**
-	 * Degenerates (turns off) the wall being generated by this generator.
-	 * Also degenerates wall touching this generator provided this is the oldest generator.
-	 */
-	private void degenerateWall() {
-		//degenerate the walls it generated
-		for (Point p : this.generatedPoints) {
-			//degenerate block
-			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
-			int index = Wall.getEnabledWallBlocks().indexOf(blockToDegenerate);
-			if (index != -1) {
-				if (blockToDegenerate == FortressMod.fortressWoodenDoor || blockToDegenerate == FortressMod.fortressIronDoor) {
-					degenerateDoor(p, index);
-				} else {
-					world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
-				}
-			}
-		}
-		this.generatedPoints.clear();
-		
-		//if (oldest) degenerate walls touching this generator even if this wasn't the generator that generated them
-		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
-			degenerateConnectedWall();
-		}
-	}
+	
 	private void degenerateDoor(Point p, int index) {
 		//assumes p is a door block
 		Block block = world.getBlock(p.x, p.y, p.z);
@@ -245,15 +332,106 @@ public class GeneratorCore {
 			world.setBlockMetadataWithNotify(p.x, p.y + 1, p.z, metaTop, 2);
 		}
 	}
+	
+	/**
+	 * Generates (turns on) the wall touching this generator.
+	 * Assumes checking for permission to generate walls is already done.
+	 */
+	private void generateWall() {
+		//*
+		this.wallLayers = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
+		this.isRunning = true;
+		this.isChangingGenerated = true;
+		/*/
+		//change the wall blocks touching this generator into generated blocks		
+		ArrayList<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
+		for (Point p : wallPoints) {
+			this.generatedLayers.add(p);
+			
+			//generate block
+			Block blockToGenerate = world.getBlock(p.x, p.y, p.z);
+			int index = Wall.getDisabledWallBlocks().indexOf(blockToGenerate);
+			if (index != -1) {
+				if (blockToGenerate == Blocks.wooden_door || blockToGenerate == Blocks.iron_door) {
+					generateDoor(p, index);
+				} else {
+					world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+				}
+			}
+		}
+		//*/
+	}
+
+	/**
+	 * Degenerates (turns off) the wall being generated by this generator.
+	 * Also degenerates wall touching this generator provided this is the oldest generator.
+	 */
+	private void degenerateWall(boolean animate) {
+		//*
+		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
+			List<List<Point>> connectedPoints = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
+			this.generatedLayers = merge(this.generatedLayers, connectedPoints);
+		}
+		this.wallLayers.clear();
+		this.wallLayers.addAll(this.generatedLayers);
+		
+		this.isRunning = false;
+		this.isChangingGenerated = true;
+		
+		if (!animate) {
+			this.animateGeneration = false;
+			this.updateEntity();
+			this.animateGeneration = true;
+		}
+		/*/
+		//degenerate the walls it generated
+		for (Point p : this.generatedLayers) {
+			//degenerate block
+			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
+			int index = Wall.getEnabledWallBlocks().indexOf(blockToDegenerate);
+			if (index != -1) {
+				if (blockToDegenerate == FortressMod.fortressWoodenDoor || blockToDegenerate == FortressMod.fortressIronDoor) {
+					degenerateDoor(p, index);
+				} else {
+					world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
+				}
+			}
+		}
+		this.generatedLayers.clear();
+		
+		//if (oldest) degenerate walls touching this generator even if this wasn't the generator that generated them
+		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
+			degenerateConnectedWall();
+		}
+		//*/
+	}
+
+	private List<List<Point>> merge(List<List<Point>> layers1, List<List<Point>> layers2) {
+		List<List<Point>> layers = new ArrayList<List<Point>>();
+		
+		int biggestSize = Math.max(layers1.size(), layers2.size());
+		for (int i = 0; i < biggestSize; i++) {
+			//process layer i
+			layers.add(new ArrayList<Point>());
+			if (i < layers1.size()) {
+				layers.get(i).addAll(layers1.get(i));
+			}
+			if (i < layers2.size()) {
+				layers.get(i).addAll(layers2.get(i));
+			}
+		}
+		
+		return layers;
+	}
 
 	private void degenerateConnectedWall() {
 		Block b;
-		ArrayList<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
+		List<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
 		for (Point p : wallPoints) {
 			b = world.getBlock(p.x, p.y, p.z);
 			int index = Wall.getEnabledWallBlocks().indexOf(b);
 			if (index != -1) { //if (b is a generated block)
-				//assume this.generatedPoints is already empty
+				//assume this.generatedLayers is already empty
 
 				//degenerate block
 				world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
@@ -262,7 +440,7 @@ public class GeneratorCore {
 	}
 
 	private static boolean isOldestNotCloggedGeneratorConnectedTo(GeneratorCore core) {
-		ArrayList<TileEntityFortressGenerator> fgs = core.getConnectedFortressGeneratorsNotClogged(); 
+		List<TileEntityFortressGenerator> fgs = core.getConnectedFortressGeneratorsNotClogged(); 
 		boolean foundOlderGenerator = false;
 		for (TileEntityFortressGenerator fg : fgs) {
 			//if (otherFg was placed before thisFg)
@@ -275,10 +453,10 @@ public class GeneratorCore {
 		return !foundOlderGenerator;
 	}
 	
-	private ArrayList<TileEntityFortressGenerator> getConnectedFortressGeneratorsNotClogged() {
-		ArrayList<TileEntityFortressGenerator> matches = new ArrayList<TileEntityFortressGenerator>();
+	private List<TileEntityFortressGenerator> getConnectedFortressGeneratorsNotClogged() {
+		List<TileEntityFortressGenerator> matches = new ArrayList<TileEntityFortressGenerator>();
 		
-		ArrayList<Point> connectFgPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks());
+		List<Point> connectFgPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks());
 		for (Point p : connectFgPoints) {
 			TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(p.x, p.y, p.z);
 			matches.add(fg);
@@ -292,7 +470,7 @@ public class GeneratorCore {
 	 * Assumes checking for permission to clog generator and degenerate walls is already done.
 	 */
 	void clog() {
-		this.degenerateWall();
+		this.degenerateWall(true);
 		FortressGenerator.clog(this.world, this.fortressGenerator);
 	}
 	
@@ -304,12 +482,20 @@ public class GeneratorCore {
 	 * @param returnBlocks List of block types to look for and return when connected to the wall.
 	 * @return List of all points (x,y,z) with a block of a type in returnBlocks that is connected to the generator by wallBlocks.
 	 */
-	private ArrayList<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+	private List<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
 		int x = this.fortressGenerator.xCoord;
 		int y = this.fortressGenerator.yCoord;
 		int z = this.fortressGenerator.zCoord;
 		Point p = new Point(x, y, z);
 		return Wall.getPointsConnected(this.world, p, wallBlocks, returnBlocks);
+	}
+
+	private List<List<Point>> getPointsConnectedAsLayers(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+		int x = this.fortressGenerator.xCoord;
+		int y = this.fortressGenerator.yCoord;
+		int z = this.fortressGenerator.zCoord;
+		Point p = new Point(x, y, z);
+		return Wall.getPointsConnectedAsLayers(this.world, p, wallBlocks, returnBlocks);
 	}
 
 	public String getPlacedByPlayerName() {

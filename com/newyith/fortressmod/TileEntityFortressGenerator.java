@@ -104,6 +104,8 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 				this.markDirty();
 			}
 		} // end if (!isClogged)
+		
+		this.generatorCore.updateEntity();
 	}
 	
 	/*
