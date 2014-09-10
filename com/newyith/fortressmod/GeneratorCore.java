@@ -33,7 +33,7 @@ public class GeneratorCore {
 	private World world;
 	private boolean animateGeneration = true;
 	private long lastFrameTimestamp = 0;
-	private long msPerFrame = 200;
+	private long msPerFrame = 150;
 
 	public GeneratorCore(TileEntityFortressGenerator fortressGenerator) {
 		this.fortressGenerator = fortressGenerator;

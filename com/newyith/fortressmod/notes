@@ -17,10 +17,17 @@ Maybe:
 Still Need:
 animated generation/degeneration
     //TODO: fix bug where fuel burns at normal speed until redstone power is switched on and off then burns faster
+    //TODO: fix bug where generating structure1, generating structure2, connecting the two structures, regenerating structure2, degenerating structure1 causes crash
+    //TODO: fix bug where doesn't clog if oldest is paused
+    //TODO: fix bug where generator isn't paused any more after save and reload
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add generate/degenerate sounds
 get better textures from someone on forums
 manual book
+maybe: redstone power with signal strength of 1 applied to generator makes generator:
+        degenerate only wall it didn't generate (provided its the oldest generator)
+   on loses redstone power of 1 strength, do the same thing as losing redstone power in any other case
+        generates wall (including enemy fortresses turned off with redstone power of 1 strength)
 
 Done:
 add redstone power pauses generator feature
