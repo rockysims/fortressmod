@@ -15,15 +15,6 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-animated generation/degeneration
-    //TODO: fix bug where fuel burns at normal speed until redstone power is switched on and off then burns faster
-    //TODO: fix bug where generating structure1, generating structure2, connecting the two structures, regenerating structure2, degenerating structure1 causes crash
-    //TODO: fix bug where doesn't clog if oldest is paused
-    //TODO: fix bug where generator isn't paused any more after save and reload
-    //TODO: fix bug where place fg connected to off redstone, power redstone, fuel fg, generator starts running but should pause
-    //TODO: figure out bug where right click changes state of tile
-    //TODO: fix bug where oldest generator degenerates wall even when clogged
-    
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add generate/degenerate sounds
 get better textures from someone on forums
@@ -34,6 +25,7 @@ maybe: redstone power with signal strength of 1 applied to generator makes gener
         generates wall (including enemy fortresses turned off with redstone power of 1 strength)
 
 Done:
+animated generation/degeneration
 add redstone power pauses generator feature
 generation radius limit
 fortress doors (with signs)

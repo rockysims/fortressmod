@@ -229,6 +229,7 @@ public class Wall {
 			//fill notCloggedGeneratorBlocks
 			notCloggedGeneratorBlocks.add(FortressMod.fortressGenerator);
 			notCloggedGeneratorBlocks.add(FortressMod.fortressGeneratorOn);
+			notCloggedGeneratorBlocks.add(FortressMod.fortressGeneratorPaused);
 			
 			blockTypesCreated = true;
 		}

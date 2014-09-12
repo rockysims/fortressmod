@@ -25,7 +25,7 @@ public class GeneratorCore {
 	private List<List<Point>> generatedLayers = new ArrayList<List<Point>>();
 	private List<List<Point>> wallLayers = new ArrayList<List<Point>>();
 	private boolean isChangingGenerated;
-	private boolean isRunning;
+	private boolean isGeneratingWall;
 	private long timePlaced = 0;
 	private String placedByPlayerName = "none"; //set in onPlaced
 	
@@ -51,7 +51,7 @@ public class GeneratorCore {
 		compound.setLong("timePlaced", this.timePlaced);
 		compound.setString("placedByPlayerName", this.placedByPlayerName);
 		compound.setBoolean("isChangingGenerated", this.isChangingGenerated);
-		compound.setBoolean("isRunning", this.isRunning);
+		compound.setBoolean("isGeneratingWall", this.isGeneratingWall);
 	}
 	private void writeLayersToNBT(NBTTagCompound compound, String id, List<List<Point>> layers) {
 		NBTTagList layersList = new NBTTagList();
@@ -84,7 +84,7 @@ public class GeneratorCore {
 		this.timePlaced = compound.getLong("timePlaced");
 		this.placedByPlayerName = compound.getString("placedByPlayerName");
 		this.isChangingGenerated = compound.getBoolean("isChangingGenerated");
-		this.isRunning = compound.getBoolean("isRunning");
+		this.isGeneratingWall = compound.getBoolean("isGeneratingWall");
 	}
 	
 	private List<List<Point>> readLayersFromNBT(NBTTagCompound compound, String id) {
@@ -122,8 +122,8 @@ public class GeneratorCore {
 			placedCore.timePlaced = System.currentTimeMillis();
 			placedCore.placedByPlayerName = placingPlayerName;
 			
-			//if already getting redstone power, pretend redstone power was just turned on
-			placedCore.onPoweredMightHaveChanged();
+			//pretend redstone state just changed in case it is already powered
+			placedFortressGenerator.onNeighborBlockChange(world, x, y, z);
 			
 			//clog or degenerate
 			boolean isOldest = isOldestNotCloggedGeneratorConnectedTo(placedCore);
@@ -173,12 +173,12 @@ public class GeneratorCore {
 	}
 
 	public void onPoweredMightHaveChanged() {
-		if (this.isRunning && this.isPaused()) {
+		if (this.isGeneratingWall && this.isPaused()) {
 			//just turned on redstone power so degenerate wall
 			this.degenerateWall(true);
 		}
 		
-		if (!this.isRunning && !this.isPaused()) {
+		if (!this.isGeneratingWall && this.isActive()) {
 			//just turned off redstone power so try to start generating again
 			this.onBurnStateChanged();
 		}
@@ -196,7 +196,7 @@ public class GeneratorCore {
 				for (int i = 0; i < this.wallLayers.size(); i++) {
 					int layerIndex = i;
 					//if (degenerating) reverse direction
-					if (!this.isRunning) {
+					if (!this.isGeneratingWall) {
 						layerIndex = (wallLayers.size()-1) - i;
 					}
 					
@@ -217,10 +217,10 @@ public class GeneratorCore {
 
 					//set updateLayer
 					updateLayer = false;
-					if (this.isRunning && !allOfLayerIsGenerated) {
+					if (this.isGeneratingWall && !allOfLayerIsGenerated) {
 						updateLayer = true;
 					}
-					if (!this.isRunning && anyOfLayerIsGenerated) {
+					if (!this.isGeneratingWall && anyOfLayerIsGenerated) {
 						updateLayer = true;
 					}
 					
@@ -229,7 +229,7 @@ public class GeneratorCore {
 						for (Point p : layer) {
 							Block wallBlock = world.getBlock(p.x, p.y, p.z);
 							
-							if (this.isRunning) {
+							if (this.isGeneratingWall) {
 								//generate wallBlock
 								int index = Wall.getDisabledWallBlocks().indexOf(wallBlock);
 								if (index != -1) {
@@ -281,8 +281,6 @@ public class GeneratorCore {
 	}
 	
 	// --------- Internal Methods ---------
-	
-	//TODO: save in NBT wallPoints, isChangingGenerated, isRunning
 
 	private void generateDoor(Point p, int index) {
 		//assumes p is a door block
@@ -337,7 +335,7 @@ public class GeneratorCore {
 	private void generateWall() {
 		//*
 		this.wallLayers = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
-		this.isRunning = true;
+		this.isGeneratingWall = true;
 		this.isChangingGenerated = true;
 		/*/
 		//change the wall blocks touching this generator into generated blocks		
@@ -372,7 +370,7 @@ public class GeneratorCore {
 			this.wallLayers = merge(this.wallLayers, connectedPoints);
 		}
 		
-		this.isRunning = false;
+		this.isGeneratingWall = false;
 		this.isChangingGenerated = true;
 		
 		if (!animate) {
@@ -499,7 +497,15 @@ public class GeneratorCore {
 		return this.placedByPlayerName;
 	}
 
+	private boolean isActive() {
+		return this.fortressGenerator.isActive();
+	}
+
 	public boolean isPaused() {
 		return this.fortressGenerator.isPaused();
+	}
+
+	private boolean isClogged() {
+		return this.fortressGenerator.isClogged();
 	}
 }

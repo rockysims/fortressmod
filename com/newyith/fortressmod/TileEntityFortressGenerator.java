@@ -322,6 +322,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 				this.setState(FortressGeneratorState.OFF);
 		}
 		
-		this.getGeneratorCore().onPoweredMightHaveChanged();
+		this.generatorCore.onPoweredMightHaveChanged();
 	}
 }
