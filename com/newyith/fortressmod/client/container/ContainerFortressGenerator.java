@@ -83,6 +83,7 @@ public class ContainerFortressGenerator extends Container {
 		if (key == 0) this.fortressGenerator.burnTime = value;
 		if (key == 1) this.fortressGenerator.itemBurnTime = value;
 		if (key == 2) {
+			Dbg.print("updateProgressBar(): setState to " + (FortressGeneratorState.values()[value]).name());
 			this.fortressGenerator.setState(FortressGeneratorState.values()[value]);
 		}
 	}

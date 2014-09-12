@@ -223,7 +223,7 @@ public class GeneratorCore {
 					if (!this.isGeneratingWall && anyOfLayerIsGenerated) {
 						updateLayer = true;
 					}
-					
+
 					//update layer if needed
 					if (updateLayer) {
 						for (Point p : layer) {
@@ -284,77 +284,78 @@ public class GeneratorCore {
 
 	private void generateDoor(Point p, int index) {
 		//assumes p is a door block
-		Block block = world.getBlock(p.x, p.y, p.z);
-		Block blockAbove = world.getBlock(p.x, p.y + 1, p.z);
+		Point top = getDoorTop(p);
+		Point bottom = new Point(top.x, top.y - 1, top.z);
+		Block topBlock = world.getBlock(top.x, top.y, top.z);
+		Block bottomBlock = world.getBlock(bottom.x, bottom.y, bottom.z);
 		
-		if (block == blockAbove) {
-			int metaBottom = world.getBlockMetadata(p.x, p.y, p.z);
-			int metaTop = world.getBlockMetadata(p.x, p.y + 1, p.z);
-			
+		if (topBlock == bottomBlock) {
+			int topMeta = world.getBlockMetadata(top.x, top.y, top.z);
+			int bottomMeta = world.getBlockMetadata(bottom.x, bottom.y, bottom.z);
+
 			//remove old door
-			world.setBlockToAir(p.x, p.y, p.z);
-			world.setBlockToAir(p.x, p.y + 1, p.z);
+			world.setBlockToAir(bottom.x, bottom.y, bottom.z);
+			world.setBlockToAir(top.x, top.y, top.z);
 
 			//create bottom of door
-			world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
-			world.setBlockMetadataWithNotify(p.x, p.y, p.z, metaBottom, 2);
+			world.setBlock(bottom.x, bottom.y, bottom.z, Wall.getEnabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(bottom.x, bottom.y, bottom.z, bottomMeta, 2);
 
 			//create top of door
-			world.setBlock(p.x, p.y + 1, p.z, Wall.getEnabledWallBlocks().get(index));
-			world.setBlockMetadataWithNotify(p.x, p.y + 1, p.z, metaTop, 2);
-		}
+			world.setBlock(top.x, top.y, top.z, Wall.getEnabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(top.x, top.y, top.z, topMeta, 2);
+		} //else the world is in an invalid state?
 	}
 	
 	private void degenerateDoor(Point p, int index) {
 		//assumes p is a door block
-		Block block = world.getBlock(p.x, p.y, p.z);
-		Block blockAbove = world.getBlock(p.x, p.y + 1, p.z);
+		Point top = getDoorTop(p);
+		Point bottom = new Point(top.x, top.y - 1, top.z);
+		Block topBlock = world.getBlock(top.x, top.y, top.z);
+		Block bottomBlock = world.getBlock(bottom.x, bottom.y, bottom.z);
 		
-		if (block == blockAbove) {
-			int metaBottom = world.getBlockMetadata(p.x, p.y, p.z);
-			int metaTop = world.getBlockMetadata(p.x, p.y + 1, p.z);
+		if (topBlock == bottomBlock) {
+			int topMeta = world.getBlockMetadata(top.x, top.y, top.z);
+			int bottomMeta = world.getBlockMetadata(bottom.x, bottom.y, bottom.z);
 
 			//remove old door
-			world.setBlockToAir(p.x, p.y, p.z);
-			world.setBlockToAir(p.x, p.y + 1, p.z);
+			world.setBlockToAir(bottom.x, bottom.y, bottom.z);
+			world.setBlockToAir(top.x, top.y, top.z);
 
 			//create bottom of door
-			world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
-			world.setBlockMetadataWithNotify(p.x, p.y, p.z, metaBottom, 2);
+			world.setBlock(bottom.x, bottom.y, bottom.z, Wall.getDisabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(bottom.x, bottom.y, bottom.z, bottomMeta, 2);
 
 			//create top of door
-			world.setBlock(p.x, p.y + 1, p.z, Wall.getDisabledWallBlocks().get(index));
-			world.setBlockMetadataWithNotify(p.x, p.y + 1, p.z, metaTop, 2);
-		}
+			world.setBlock(top.x, top.y, top.z, Wall.getDisabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(top.x, top.y, top.z, topMeta, 2);
+		} //else the world is in an invalid state?
 	}
 	
+	private Point getDoorTop(Point p) {
+		//assumes p is a door block
+		int meta = world.getBlockMetadata(p.x, p.y, p.z);
+		
+		Point top;
+		if ((meta & 2) == 0) { //2 = 0*8 + 0*4 + 1*2 + 0*1
+			//p is door top
+			top = p;
+		} else {
+			//p is door bottom
+			top = new Point(p.x, p.y + 1, p.z);
+		}
+		
+		return top;
+	}
+
 	/**
 	 * Generates (turns on) the wall touching this generator.
 	 * Assumes checking for permission to generate walls is already done.
 	 */
 	private void generateWall() {
-		//*
 		this.wallLayers = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
 		this.isGeneratingWall = true;
 		this.isChangingGenerated = true;
-		/*/
-		//change the wall blocks touching this generator into generated blocks		
-		ArrayList<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
-		for (Point p : wallPoints) {
-			this.generatedLayers.add(p);
-			
-			//generate block
-			Block blockToGenerate = world.getBlock(p.x, p.y, p.z);
-			int index = Wall.getDisabledWallBlocks().indexOf(blockToGenerate);
-			if (index != -1) {
-				if (blockToGenerate == Blocks.wooden_door || blockToGenerate == Blocks.iron_door) {
-					generateDoor(p, index);
-				} else {
-					world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
-				}
-			}
-		}
-		//*/
 	}
 
 	/**
@@ -362,7 +363,6 @@ public class GeneratorCore {
 	 * Also degenerates wall touching this generator provided this is the oldest generator.
 	 */
 	private void degenerateWall(boolean animate) {
-		//*
 		this.wallLayers.clear();
 		this.wallLayers.addAll(this.generatedLayers);
 		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
@@ -378,27 +378,6 @@ public class GeneratorCore {
 			this.updateEntity();
 			this.animateGeneration = true;
 		}
-		/*/
-		//degenerate the walls it generated
-		for (Point p : this.generatedLayers) {
-			//degenerate block
-			Block blockToDegenerate = world.getBlock(p.x, p.y, p.z);
-			int index = Wall.getEnabledWallBlocks().indexOf(blockToDegenerate);
-			if (index != -1) {
-				if (blockToDegenerate == FortressMod.fortressWoodenDoor || blockToDegenerate == FortressMod.fortressIronDoor) {
-					degenerateDoor(p, index);
-				} else {
-					world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
-				}
-			}
-		}
-		this.generatedLayers.clear();
-		
-		//if (oldest) degenerate walls touching this generator even if this wasn't the generator that generated them
-		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
-			degenerateConnectedWall();
-		}
-		//*/
 	}
 
 	private List<List<Point>> merge(List<List<Point>> layers1, List<List<Point>> layers2) {

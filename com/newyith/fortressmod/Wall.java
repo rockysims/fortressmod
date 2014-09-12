@@ -165,9 +165,9 @@ public class Wall {
 	private static boolean isInRange(Point p, Point origin) {
 		boolean inRange = true;
 		
-		inRange = inRange && (Math.abs(p.x - origin.x)) < generationRangeLimit;
-		inRange = inRange && (Math.abs(p.y - origin.y)) < generationRangeLimit;
-		inRange = inRange && (Math.abs(p.z - origin.z)) < generationRangeLimit;
+		inRange = inRange && (Math.abs(p.x - origin.x)) <= generationRangeLimit;
+		inRange = inRange && (Math.abs(p.y - origin.y)) <= generationRangeLimit;
+		inRange = inRange && (Math.abs(p.z - origin.z)) <= generationRangeLimit;
 		
 		return inRange;
 	}

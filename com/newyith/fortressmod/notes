@@ -15,6 +15,7 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
+add generating of user selected blocks (via placing block types to be generated in slots in fortress generator)
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add generate/degenerate sounds
 get better textures from someone on forums
@@ -23,6 +24,9 @@ maybe: redstone power with signal strength of 1 applied to generator makes gener
         degenerate only wall it didn't generate (provided its the oldest generator)
    on loses redstone power of 1 strength, do the same thing as losing redstone power in any other case
         generates wall (including enemy fortresses turned off with redstone power of 1 strength)
+TODO: make first half of door that tries to be generated/degenerated generate/degenerate the whole door
+TODO: consider giving the role of obsidian in fortress doors to glass instead
+TODO: make fortress generator GUI say paused if generator is paused
 
 Done:
 animated generation/degeneration

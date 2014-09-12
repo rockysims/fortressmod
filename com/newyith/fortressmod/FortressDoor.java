@@ -55,8 +55,12 @@ public class FortressDoor extends BlockDoor {
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9) {
     	String playerName = player.getGameProfile().getName();
     	ArrayList<String> authorizedNames = getNamesAllowedToOpenDoor(world, x, y, z);
+
+    	//convert authorizedNames to lower case
+    	for (int i = 0; i < authorizedNames.size(); i++)
+    		authorizedNames.set(i, authorizedNames.get(i).toLowerCase());
     	
-    	if (authorizedNames.contains(playerName)) {
+    	if (authorizedNames.contains(playerName.toLowerCase())) {
 			return super.onBlockActivated(world, x, y, z, player, par6, par7, par8, par9);
 		} else {
 			return false;
