@@ -156,7 +156,7 @@ public class Wall {
 			}
 		}
 		
-		Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
+		//Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
 		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matchesAsLayers.size()) + " matchesAsLayers");
 		
 		return matchesAsLayers;

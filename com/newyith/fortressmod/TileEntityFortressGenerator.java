@@ -1,5 +1,6 @@
 package com.newyith.fortressmod;
 
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Random;
 
@@ -21,34 +22,40 @@ import net.minecraftforge.common.util.Constants.NBT;
 public class TileEntityFortressGenerator extends TileEntity implements IInventory {
 	private static Random rand = new Random();
 	private ItemStack[] inventory;
-	private boolean isActive;
 
 	/** The number of ticks that the fortress generator will keep burning */
 	public int burnTime; //remaining burn time
 
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
 	public int itemBurnTime;
-	private boolean isClogged;
-	private boolean isPaused;
-	private static final int burnPeriod = 100; //TODO: replace with "1000*60*60; //1 hour"
+	private static final int burnPeriod = 100; //TODO: replace with "(1000*60*60)/50; //1 hour"
+	
+	private FortressGeneratorState state;
+	private boolean updateBlockStateFlag;
 	
 	private GeneratorCore generatorCore = null; //public so it's static methods can get the generatorCore instance via fortress generator's tile entity
 
+	//debug
+	public int uniqueId;
+	private long lastUpdateEntity = 0;
+	private static int nextUniqueId = 0;
+	
 	//-----------------------
 	
 	public TileEntityFortressGenerator() {
+		this.uniqueId = this.nextUniqueId++;
+		//Dbg.print("new TileEntityFortressGenerator() uniqueId: " + this.uniqueId);
+		
 		this.inventory = new ItemStack[1];
 		this.burnTime = 0;
 		this.itemBurnTime = 0;
-		this.isClogged = false;
-		this.isPaused = false;
+		this.state = FortressGeneratorState.OFF;
 		this.generatorCore = new GeneratorCore(this);
 	}
 	
-	public TileEntityFortressGenerator(boolean isClogged, boolean isPaused) {
+	public TileEntityFortressGenerator(FortressGeneratorState state) {
 		this();
-		this.isClogged = isClogged;
-		this.isPaused = isPaused;
+		this.state = state;
 	}
 
 	@Override
@@ -65,11 +72,16 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	public void updateEntity() {
 		boolean wasBurning = this.burnTime > 0;
 		
-		if (this.burnTime > 0 && !this.generatorCore.isPaused()) {
+		long now = new Date().getTime();
+		long duration = now - this.lastUpdateEntity;
+		this.lastUpdateEntity = now;
+		//Dbg.print("burnTime--; " + String.valueOf(this.uniqueId) + " duration: " + String.valueOf(duration), this.worldObj.isRemote);
+		
+		if (this.burnTime > 0 && !this.isPaused()) {
 			this.burnTime--;
 		}
 		
-		if (!this.isClogged) {
+		if (!this.isClogged()) {
 			boolean needToMarkAsDirty = false;
 			
 			if (!this.worldObj.isRemote) {
@@ -89,13 +101,16 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 					}
 				}
 				
-				if (wasBurning != this.burnTime > 0) {
+				if (wasBurning != this.isBurning()) {
 					needToMarkAsDirty = true;
-					
+					this.updateBlockStateFlag = true;
+					if (!this.isPaused() && !this.isClogged()) {
+						if (this.isBurning())
+							this.setState(FortressGeneratorState.ACTIVE);
+						else
+							this.setState(FortressGeneratorState.OFF);
+					}
 					generatorCore.onBurnStateChanged();
-					
-					if (!this.isClogged) //onBurnStateChanged() may have set this.isClogged
-						FortressGenerator.updateBlockState(this.burnTime > 0, this.worldObj, this.xCoord, this.yCoord, this.zCoord);
 				}
 			} // end if (!isRemote)
 			
@@ -104,18 +119,12 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			}
 		} // end if (!isClogged)
 		
+		if (this.updateBlockStateFlag) {
+			this.updateBlockStateFlag = false;
+			FortressGenerator.updateBlockState(this);
+		}
+		
 		this.generatorCore.updateEntity();
-	}
-	
-	/*
-	private void updateGeneratedWalls() {
-		FortressWallUpdater wall = new FortressWallUpdater();
-		wall.update(isBurning(), shouldGenerateBedrock(), this.worldObj, xCoord, yCoord, zCoord);
-	}
-	//*/
-
-	private boolean shouldGenerateBedrock() {
-		return this.itemBurnTime == getItemBurnTime(new ItemStack(Items.glowstone_dust));
 	}
 	
 	private static int getItemBurnTime(ItemStack itemStack) {
@@ -196,7 +205,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		compound.setTag("ItemsFortressGenerator", list);
 		
 		//compound.setInteger("FrontDirectionFortressGenerator", (int)front);
-		compound.setBoolean("isCloggedFortressGenerator", this.isClogged);
+		compound.setString("stateFortressGenerator", this.state.name());
 		compound.setInteger("BurnTimeFortressGenerator", burnTime);
 		
 		this.generatorCore.writeToNBT(compound);
@@ -218,7 +227,9 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		}
 		
 		//front = compound.getInteger("FrontDirectionFortressGenerator");
-		this.isClogged = compound.getBoolean("isCloggedFortressGenerator");
+		
+		String stateStr = compound.getString("stateFortressGenerator");
+		this.state = FortressGeneratorState.valueOf(stateStr);
 		this.burnTime = compound.getInteger("BurnTimeFortressGenerator");
 		this.itemBurnTime = getItemBurnTime(this.inventory[0]);
 		
@@ -271,24 +282,46 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	}
 
 	public boolean isClogged() {
-		return this.isClogged;
+		return this.state == FortressGeneratorState.CLOGGED;
 	}
-
-	public void setIsClogged(boolean isClogged) {
-		this.isClogged = isClogged;
-	}
-
+	
 	public boolean isPaused() {
-		return this.isPaused;
+		return this.state == FortressGeneratorState.PAUSED;
 	}
-
-	public void setIsPaused(boolean isPaused) {
-		this.isPaused = isPaused;
-	}
-
-	/*
+	
 	public boolean isActive() {
-		return this.isActive;
+		return this.state == FortressGeneratorState.ACTIVE;
 	}
-	//*/
+	
+	public void setState(FortressGeneratorState state) {
+		if (this.state != state) {
+			this.state = state;
+			Dbg.print("tile.setState() to " + state.name(), this.getWorldObj().isRemote);
+			
+			this.updateBlockStateFlag = true; //tells updateEntity() to call FortressGenerator.updateBlockState() when next executed
+		}
+	}
+	
+	public FortressGeneratorState getState() {
+		return this.state;
+	}
+
+	public void onNeighborBlockChange(World world, int x, int y, int z) {
+		boolean nowPowered = world.isBlockIndirectlyGettingPowered(x, y, z);
+
+		//if (running and powered) pause
+		if (this.state == FortressGeneratorState.ACTIVE && nowPowered) {
+			this.setState(FortressGeneratorState.PAUSED);
+		}
+		
+		//if (paused and !powered) unpause
+		if (this.state == FortressGeneratorState.PAUSED && !nowPowered) {
+			if (this.isBurning())
+				this.setState(FortressGeneratorState.ACTIVE);
+			else
+				this.setState(FortressGeneratorState.OFF);
+		}
+		
+		this.getGeneratorCore().onPoweredMightHaveChanged();
+	}
 }

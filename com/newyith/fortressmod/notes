@@ -20,6 +20,10 @@ animated generation/degeneration
     //TODO: fix bug where generating structure1, generating structure2, connecting the two structures, regenerating structure2, degenerating structure1 causes crash
     //TODO: fix bug where doesn't clog if oldest is paused
     //TODO: fix bug where generator isn't paused any more after save and reload
+    //TODO: fix bug where place fg connected to off redstone, power redstone, fuel fg, generator starts running but should pause
+    //TODO: figure out bug where right click changes state of tile
+    //TODO: fix bug where oldest generator degenerates wall even when clogged
+    
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add generate/degenerate sounds
 get better textures from someone on forums

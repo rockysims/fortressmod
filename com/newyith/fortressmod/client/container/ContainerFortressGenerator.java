@@ -1,6 +1,9 @@
 package com.newyith.fortressmod.client.container;
 
+import java.util.Date;
+
 import com.newyith.fortressmod.Dbg;
+import com.newyith.fortressmod.FortressGeneratorState;
 import com.newyith.fortressmod.TileEntityFortressGenerator;
 
 import cpw.mods.fml.relauncher.Side;
@@ -18,7 +21,7 @@ public class ContainerFortressGenerator extends Container {
 	private TileEntityFortressGenerator fortressGenerator;
 	private int lastBurnTime;
 	private int lastItemBurnTime;
-	private boolean lastIsClogged;
+	private FortressGeneratorState lastState = FortressGeneratorState.OFF;
 	private boolean lastIsPaused;
 	
 	public ContainerFortressGenerator(InventoryPlayer invPlayer, TileEntityFortressGenerator entity) {
@@ -45,7 +48,7 @@ public class ContainerFortressGenerator extends Container {
 		super.addCraftingToCrafters(crafting);
 		crafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTime);
 		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
-		crafting.sendProgressBarUpdate(this, 2, ((this.fortressGenerator.isClogged())?1:0) );
+		crafting.sendProgressBarUpdate(this, 2, this.fortressGenerator.getState().ordinal());
 	}
 
 	/** Looks for changes made in the container, sends them to every listener. */
@@ -64,14 +67,14 @@ public class ContainerFortressGenerator extends Container {
 				icrafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
 			}
 			
-			if (this.lastIsClogged != this.fortressGenerator.isClogged()) {
-				icrafting.sendProgressBarUpdate(this, 2, ((this.fortressGenerator.isClogged())?1:0) );
+			if (this.lastState != this.fortressGenerator.getState()) {
+				icrafting.sendProgressBarUpdate(this, 2, this.fortressGenerator.getState().ordinal());
 			}
 		}
 
 		this.lastBurnTime = this.fortressGenerator.burnTime;
 		this.lastItemBurnTime = this.fortressGenerator.itemBurnTime;
-		this.lastIsClogged = this.fortressGenerator.isClogged();
+		this.lastState = this.fortressGenerator.getState();
 	}
 
 	@Override
@@ -79,7 +82,9 @@ public class ContainerFortressGenerator extends Container {
 	public void updateProgressBar(int key, int value) {
 		if (key == 0) this.fortressGenerator.burnTime = value;
 		if (key == 1) this.fortressGenerator.itemBurnTime = value;
-		if (key == 2) this.fortressGenerator.setIsClogged(value == 1);
+		if (key == 2) {
+			this.fortressGenerator.setState(FortressGeneratorState.values()[value]);
+		}
 	}
 	
 	@Override

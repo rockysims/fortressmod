@@ -59,8 +59,8 @@ public class FortressMod
 	//*/
 	
 	@EventHandler
-	public void init(FMLInitializationEvent e)
-	{
+	public void init(FMLInitializationEvent e) {
+		
 		//Fortress Wall Blocks
 		
 		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock").setCreativeTab(tabName);
@@ -88,16 +88,16 @@ public class FortressMod
 		
 		//Fortress Generators
 
-        fortressGenerator = new FortressGenerator(false).setBlockName("FortressGenerator").setCreativeTab(tabName);
+        fortressGenerator = new FortressGenerator(FortressGeneratorState.OFF).setBlockName("FortressGenerator").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGenerator, "FortressGenerator");
 		
-		fortressGeneratorOn = new FortressGenerator(true).setBlockName("FortressGeneratorActive");
+		fortressGeneratorOn = new FortressGenerator(FortressGeneratorState.ACTIVE).setBlockName("FortressGeneratorActive");
 		GameRegistry.registerBlock(fortressGeneratorOn, "FortressGeneratorActive");
 		
-		fortressGeneratorPaused = new FortressGenerator(true, false, true).setBlockName("FortressGeneratorOnAndPowered");
+		fortressGeneratorPaused = new FortressGenerator(FortressGeneratorState.PAUSED).setBlockName("FortressGeneratorOnAndPowered");
 		GameRegistry.registerBlock(fortressGeneratorPaused, "FortressGeneratorOnAndPowered");
 		
-        fortressGeneratorClogged = new FortressGenerator(false, true, false).setBlockName("FortressGeneratorClogged").setCreativeTab(tabName);
+        fortressGeneratorClogged = new FortressGenerator(FortressGeneratorState.CLOGGED).setBlockName("FortressGeneratorClogged").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGeneratorClogged, "FortressGeneratorClogged");
 		
 		//Fortress Generator Emergency Key

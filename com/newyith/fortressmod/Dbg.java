@@ -1,25 +1,24 @@
 package com.newyith.fortressmod;
 
+import java.util.Date;
+
 public class Dbg {
-	private static String lastS;
-	private static int count;
+	private static long firstTimestamp = 0;
 	
-	public Dbg() {
-		lastS = "";
-		count = 0;
+	private static String getElapsedTime() {
+		long now = new Date().getTime();
+		if (firstTimestamp == 0)
+			firstTimestamp = now;
+		long elapsed = now - firstTimestamp;
+		return String.valueOf(elapsed) + "ms";
 	}
 	
 	public static void print(String s, boolean isRemote) {
 //		if (s.equals(lastS)) {
 //			count++;
 //		} else {
-			lastS = s;
-			
 			s += "::";
-			if (count > 1) {
-				s = count + " * " + s;
-				count = 0;
-			}
+			s += getElapsedTime() + " ";
 			if (isRemote) {
 				s += "client";
 			} else {
@@ -30,6 +29,7 @@ public class Dbg {
 	}
 
 	public static void print(String s) {
+		s += "::" + getElapsedTime();
 		System.out.println(s);
 	}
 }

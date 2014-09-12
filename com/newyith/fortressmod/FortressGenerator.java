@@ -33,25 +33,16 @@ public class FortressGenerator extends BlockContainer {
     protected IIcon frontIconClogged;
     protected IIcon frontIconPaused;
 
-	private boolean isActive;
-	private boolean isClogged;
-	private boolean isPaused;
+    private final FortressGeneratorState state;
 
 	private static boolean ignoreBreakBlock = false;
 
-	protected FortressGenerator(boolean isActive) {
+	public FortressGenerator(FortressGeneratorState state) {
 		super(Material.rock);
 		setHardness(3.5F);
 		setStepSound(Block.soundTypePiston);
 		setResistance(17.5F);
-		
-		this.isActive = isActive;
-	}
-
-	public FortressGenerator(boolean isActive, boolean isClogged, boolean isPaused) {
-		this(isActive);
-		this.isClogged = isClogged;
-		this.isPaused = isPaused;
+		this.state = state;
 	}
 	
 	@Override
@@ -59,28 +50,12 @@ public class FortressGenerator extends BlockContainer {
 		super.onNeighborBlockChange(world, x, y, z, block);
 		
 		TileEntityFortressGenerator fg = (TileEntityFortressGenerator)world.getTileEntity(x, y, z);
-		boolean nowPowered = world.isBlockIndirectlyGettingPowered(x, y, z);
-		if (this.isPaused != nowPowered) { //powered state changed
-			if (nowPowered) { //powered state changed to on
-				if (world.getBlock(x, y, z) == FortressMod.fortressGeneratorOn) {
-					//running fortress generator just got powered
-					//switch to paused version of this block
-					pause(world, (TileEntityFortressGenerator) world.getTileEntity(x, y, z));
-				}
-			} else { //powered state changed to off
-				if (world.getBlock(x, y, z) == FortressMod.fortressGeneratorPaused) {
-					//powered fortress generator just lost power
-					//switch to not paused version of this block
-					unpause(world, (TileEntityFortressGenerator) world.getTileEntity(x, y, z));
-				}
-			}
-			fg.getGeneratorCore().onPoweredMightHaveChanged();
-		}
+		fg.onNeighborBlockChange(world, x, y, z);
 	}
-	
+
 	@Override
 	public TileEntity createNewTileEntity(World world, int metadata) {
-		return new TileEntityFortressGenerator(this.isClogged, this.isPaused);
+		return new TileEntityFortressGenerator(this.state);
 	}
 	
 	public Item getItemDropped(int par1, Random par2, int par3) {
@@ -182,95 +157,40 @@ public class FortressGenerator extends BlockContainer {
 
     	super.breakBlock(world, x, y, z, oldblock, oldMetadata);
     }
-	
-    //synchronized for this.ignoreBreakBlock
-	public static synchronized void updateBlockState(boolean isActive, World world, int x, int y, int z) {
-		    int meta = world.getBlockMetadata(x, y, z);
-		    TileEntity tileentity = world.getTileEntity(x, y, z);
-		    ignoreBreakBlock = true;
-		    if (isActive) {
-		    	world.setBlock(x, y, z, FortressMod.fortressGeneratorOn);
-			} else {
-		    	world.setBlock(x, y, z, FortressMod.fortressGenerator);
-			}
-		    ignoreBreakBlock = false;
-		    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
-		    if (tileentity != null)
-		    {
-			    tileentity.validate();
-			    world.setTileEntity(x, y, z, tileentity);
-		    }
-	}
-    
-    //synchronized for this.ignoreBreakBlock
-	public static synchronized void clog(World world, TileEntityFortressGenerator fortressGenerator) {
-		int x = fortressGenerator.xCoord;
-		int y = fortressGenerator.yCoord;
-		int z = fortressGenerator.zCoord;
-	    
-	    //save meta and tileentity
-	    int meta = world.getBlockMetadata(x, y, z);
-	    TileEntity tileentity = world.getTileEntity(x, y, z);
-	    //replace block
-	    ignoreBreakBlock = true;
-		world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);
-		ignoreBreakBlock = false;
-	    //put back meta and tileentity
-	    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
-	    if (tileentity != null) {
-		    tileentity.validate();
-		    fortressGenerator.setIsClogged(true);
-		    world.setTileEntity(x, y, z, tileentity);
-	    }
-	}
 
     //synchronized for this.ignoreBreakBlock
-	private static synchronized void pause(World world, TileEntityFortressGenerator fortressGenerator) {
-		int x = fortressGenerator.xCoord;
-		int y = fortressGenerator.yCoord;
-		int z = fortressGenerator.zCoord;
-	    
-	    //save meta and tileentity
+	public static synchronized void updateBlockState(TileEntityFortressGenerator fg) {
+		Dbg.print("updateBlockState(fg)");
+		World world = fg.getWorldObj();
+		int x = fg.xCoord;
+		int y = fg.yCoord;
+		int z = fg.zCoord;
+
 	    int meta = world.getBlockMetadata(x, y, z);
 	    TileEntity tileentity = world.getTileEntity(x, y, z);
-	    //replace block
 	    ignoreBreakBlock = true;
-		world.setBlock(x, y, z, FortressMod.fortressGeneratorPaused);
-		ignoreBreakBlock = false;
-	    //put back meta and tileentity
-	    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
-	    if (tileentity != null) {
-		    tileentity.validate();
-		    fortressGenerator.setIsPaused(true);
-		    world.setTileEntity(x, y, z, tileentity);
-	    }
-	}
-	
-	//synchronized for this.ignoreBreakBlock
-		private static synchronized void unpause(World world, TileEntityFortressGenerator fortressGenerator) {
-			int x = fortressGenerator.xCoord;
-			int y = fortressGenerator.yCoord;
-			int z = fortressGenerator.zCoord;
-		    
-		    //save meta and tileentity
-		    int meta = world.getBlockMetadata(x, y, z);
-		    TileEntity tileentity = world.getTileEntity(x, y, z);
-		    //replace block
-		    ignoreBreakBlock = true;
-		    if (fortressGenerator.isBurning())
-				world.setBlock(x, y, z, FortressMod.fortressGeneratorOn);
-		    else
-		    	world.setBlock(x, y, z, FortressMod.fortressGenerator);
-			ignoreBreakBlock = false;
-		    //put back meta and tileentity
-		    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
-		    if (tileentity != null) {
-			    tileentity.validate();
-			    fortressGenerator.setIsPaused(false);
-			    world.setTileEntity(x, y, z, tileentity);
-		    }
+	    if (fg.isClogged()) {
+	    	world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);
+			Dbg.print("updateBlockState(fg) clog");
+	    } else if (fg.isPaused()) {
+	    	world.setBlock(x, y, z, FortressMod.fortressGeneratorPaused);
+			Dbg.print("updateBlockState(fg) pause");
+	    } else if (fg.isActive()) {
+	    	world.setBlock(x, y, z, FortressMod.fortressGeneratorOn);
+			Dbg.print("updateBlockState(fg) on");
+		} else {
+	    	world.setBlock(x, y, z, FortressMod.fortressGenerator);
+			Dbg.print("updateBlockState(fg) off");
 		}
-
+	    ignoreBreakBlock = false;
+	    world.setBlockMetadataWithNotify(x, y, z, meta, 2);
+	    if (tileentity != null) {
+	    	tileentity.validate();
+		    world.setTileEntity(x, y, z, tileentity);
+	    }
+		fg.markDirty();
+	}
+	
 	/**
      * Gets the block's texture. Args: side, meta
      */
@@ -296,11 +216,11 @@ public class FortressGenerator extends BlockContainer {
         this.topIcon = iconRegister.registerIcon(iconStr + "_top");
         
         String frontSuffix;
-        if (this.isClogged)
+        if (this.state == FortressGeneratorState.CLOGGED)
         	frontSuffix = "_front_clogged";
-        else if (this.isPaused)
+        else if (this.state == FortressGeneratorState.PAUSED)
         	frontSuffix = "_front_paused";
-        else if (this.isActive)
+        else if (this.state == FortressGeneratorState.ACTIVE)
         	frontSuffix = "_front_on";
         else
         	frontSuffix = "_front_off";

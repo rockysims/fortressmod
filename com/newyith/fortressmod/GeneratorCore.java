@@ -200,7 +200,8 @@ public class GeneratorCore {
 						layerIndex = (wallLayers.size()-1) - i;
 					}
 					
-					List<Point> layer = this.wallLayers.get(layerIndex);
+					List<Point> layer = new ArrayList<Point>(this.wallLayers.get(layerIndex)); //make copy to avoid concurrent modification errors
+					//TODO: consider not making copy of wall layer on line above since we really shouldn't need to
 					
 					//set allOfLayerIsGenerated and anyOfLayerIsGenerated
 					boolean allOfLayerIsGenerated = true;
@@ -247,7 +248,9 @@ public class GeneratorCore {
 								//degenerate wallBlock
 								int index = Wall.getEnabledWallBlocks().indexOf(wallBlock);
 								if (index != -1) {
-									this.generatedLayers.get(layerIndex).remove(p);
+									if (layerIndex < this.generatedLayers.size()) {
+										this.generatedLayers.get(layerIndex).remove(p);
+									} //else we are degenerating another generators wall
 									
 									if (wallBlock == FortressMod.fortressWoodenDoor || wallBlock == FortressMod.fortressIronDoor) {
 										degenerateDoor(p, index);
@@ -465,7 +468,7 @@ public class GeneratorCore {
 	 */
 	void clog() {
 		this.degenerateWall(true);
-		FortressGenerator.clog(this.world, this.fortressGenerator);
+		this.fortressGenerator.setState(FortressGeneratorState.CLOGGED);
 	}
 	
 	/**
