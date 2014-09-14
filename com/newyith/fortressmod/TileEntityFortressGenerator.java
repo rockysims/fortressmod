@@ -28,7 +28,11 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
 	public int itemBurnTime;
-	private static final int burnPeriod = 100; //TODO: replace with "(1000*60*60)/50; //1 hour"
+	//* //TODO: switch to other block
+	private static final int burnPeriod = (60*1000)/50;
+	/*/
+	private static final int burnPeriod = (1000*60*60)/50; //1 hour
+	//*/
 	
 	private FortressGeneratorState state;
 	private boolean updateBlockStateFlag;

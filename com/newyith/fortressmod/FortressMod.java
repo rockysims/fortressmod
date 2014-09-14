@@ -107,8 +107,9 @@ public class FortressMod
 		//Recipes
 		
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
+		ItemStack diamondStack = new ItemStack(Items.diamond, 1);
         ItemStack fortressGeneratorStack = new ItemStack(fortressGenerator, 1);
-        GameRegistry.addRecipe(fortressGeneratorStack, "ooo", "o o", "ooo", 'o', obsidianStack);
+        GameRegistry.addRecipe(fortressGeneratorStack, "ooo", "odo", "ooo", 'o', obsidianStack, 'd', diamondStack);
 		
 		ItemStack quartzStack = new ItemStack(Blocks.quartz_block, 1);
         ItemStack emergencyKeyStack = new ItemStack(fortressEmergencyKey, 1);

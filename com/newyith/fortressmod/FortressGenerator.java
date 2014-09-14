@@ -39,7 +39,7 @@ public class FortressGenerator extends BlockContainer {
 
 	public FortressGenerator(FortressGeneratorState state) {
 		super(Material.rock);
-		setHardness(3.5F);
+		setHardness(8.0F);
 		setStepSound(Block.soundTypePiston);
 		setResistance(17.5F);
 		this.state = state;
@@ -197,12 +197,12 @@ public class FortressGenerator extends BlockContainer {
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta)
     {
-    	if (side == 1 || side == 0) { //top or bottom
+    	if (side == 1) { //top
     		return this.topIcon;
     	} else {
     		if (side == meta) { //front
     			return this.frontIcon;
-    		} else { //side
+    		} else { //side or bottom
     			return this.blockIcon;
     		}
     	}
