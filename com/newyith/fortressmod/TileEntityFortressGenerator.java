@@ -6,6 +6,7 @@ import java.util.Random;
 
 import akka.event.Logging.Debug;
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -130,6 +131,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 						else
 							this.setState(FortressGeneratorState.OFF);
 					}
+					
 					generatorCore.onBurnStateChanged();
 				}
 			} // end if (!isRemote)
@@ -330,6 +332,22 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 		//if (running and powered) pause
 		if (this.state == FortressGeneratorState.ACTIVE && nowPowered) {
+			
+			
+			
+			
+			
+			
+			Dbg.print("play sound");
+			this.worldObj.playSoundEffect(this.xCoord, this.yCoord, this.zCoord, "fortressmod:test_sound", 1.0F, 0.6F);
+			this.worldObj.playSoundEffect(this.xCoord, this.yCoord, this.zCoord, "test_sound", 1.0F, 0.6F);
+			
+			
+			
+			
+			
+			
+			
 			this.setState(FortressGeneratorState.PAUSED);
 		}
 		

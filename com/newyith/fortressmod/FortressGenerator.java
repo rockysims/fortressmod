@@ -228,4 +228,38 @@ public class FortressGenerator extends BlockContainer {
     	this.frontIcon = iconRegister.registerIcon(iconStr + frontSuffix);
     }
 
+    /**
+     * A randomly called display update to be able to add particles or other items for display
+     */
+    /*
+    @SideOnly(Side.CLIENT)
+    public void randomDisplayTick(World world, int xParam, int yParam, int zParam, Random random) {
+        if (this.state == FortressGeneratorState.ACTIVE) {
+        	if (random.nextFloat() * 100.0F < 15.0F) {
+                int l = world.getBlockMetadata(xParam, yParam, zParam);
+                float x = (float)xParam + 0.5F;
+                float y = (float)yParam + 0.5F + random.nextFloat() * 2.0F / 16.0F;
+                float z = (float)zParam + 0.5F;
+                float f3 = 0.52F;
+                float f4 = random.nextFloat() * 0.2F - 0.1F;
+
+                if (l == 4) {
+                	spawnGeneratorSpark(world, (double)(x - f3), (double)y, (double)(z + f4), random);
+                } else if (l == 5) {
+                	spawnGeneratorSpark(world, (double)(x - f3), (double)y, (double)(z + f4), random);
+                } else if (l == 2) {
+                	spawnGeneratorSpark(world, (double)(x + f4), (double)y, (double)(z - f3), random);
+                } else if (l == 3) {
+                	spawnGeneratorSpark(world, (double)(x + f4), (double)y, (double)(z - f3), random);
+                }
+        	}
+        }
+    }
+    private void spawnGeneratorSpark(World world, double x, double y, double z, Random random) {
+    	world.spawnParticle("smoke", x, y, z, 0.0D, 0.0D, 0.0D);
+    	if (random.nextFloat() * 100.0F < 35.0F) {
+            world.spawnParticle("flame", x, y, z, 0.0D, 0.0D, 0.0D);
+    	}
+    }
+    //*/
 }
