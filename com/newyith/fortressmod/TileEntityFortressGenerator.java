@@ -29,7 +29,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
 	public int itemBurnTime;
 	//* //TODO: switch to other block
-	private static final int burnPeriod = (60*1000)/50;
+	private static final int burnPeriod = (60*1000)/50; //1 minute
 	/*/
 	private static final int burnPeriod = (1000*60*60)/50; //1 hour
 	//*/
@@ -108,6 +108,17 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 				if (wasBurning != this.isBurning()) {
 					needToMarkAsDirty = true;
 					this.updateBlockStateFlag = true;
+					
+					//just started burning so check if it should be paused
+					if (this.isBurning()) {
+						int x = this.xCoord;
+						int y = this.yCoord;
+						int z = this.zCoord;
+						if (this.worldObj.isBlockIndirectlyGettingPowered(x, y, z)) {
+							this.setState(FortressGeneratorState.PAUSED);
+						}
+					}
+					
 					if (!this.isPaused() && !this.isClogged()) {
 						if (this.isBurning())
 							this.setState(FortressGeneratorState.ACTIVE);
@@ -184,7 +195,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 
 		if (itemstack != null && itemstack.stackSize > getInventoryStackLimit()) {
 			itemstack.stackSize = getInventoryStackLimit();
-			//TODO: consider: it seems like setting itemstack.stackSize = 1 would mean the items that didn't fit would disappear
 		}
 	}
 

@@ -28,6 +28,10 @@ maybe: redstone power with signal strength of 1 applied to generator makes gener
         degenerate only wall it didn't generate (provided its the oldest generator)
    on loses redstone power of 1 strength, do the same thing as losing redstone power in any other case
         generates wall (including enemy fortresses turned off with redstone power of 1 strength)
+TODO: add flames (like furnace has) to fortress generator when its active
+TODO: fix bug: place generator into point powered by redstone already, fuel generator, generator turns on instead of pausing
+    does not happen if generator is touching a wall block
+TODO: fix bug where when fg is placed it started active (even though not fuled)
 
 Done:
 animated generation/degeneration

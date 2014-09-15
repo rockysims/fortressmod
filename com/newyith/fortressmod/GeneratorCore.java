@@ -122,6 +122,7 @@ public class GeneratorCore {
 			placedCore.timePlaced = System.currentTimeMillis();
 			placedCore.placedByPlayerName = placingPlayerName;
 			
+			//TODO: delete next 2 lines?
 			//pretend redstone state just changed in case it is already powered
 			placedFortressGenerator.onNeighborBlockChange(world, x, y, z);
 			
