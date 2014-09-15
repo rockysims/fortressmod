@@ -31,6 +31,9 @@ public class GuiFortressGenerator extends GuiContainer {
 		if (this.fortressGenerator.isClogged()) {
 			name = "Clogged Fortress Generator";
 			fontRendererObj.drawString(StatCollector.translateToLocal(name), 17, 4, 0x404040);
+		} else if (this.fortressGenerator.isPaused()) {
+			name = "Paused Fortress Generator";
+			fontRendererObj.drawString(StatCollector.translateToLocal(name), 18, 4, 0x404040);
 		} else {
 			name = "Fortress Generator";
 			fontRendererObj.drawString(StatCollector.translateToLocal(name), 40, 4, 0x404040);

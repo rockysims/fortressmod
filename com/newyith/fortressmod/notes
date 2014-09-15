@@ -15,23 +15,18 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
+TODO: add flames (like furnace has) to fortress generator when its active
 add generating of user selected blocks (via placing block types to be generated in slots in fortress generator)
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add generate/degenerate sounds
 get better textures from someone on forums
 manual book
-TODO: consider giving the role of obsidian in fortress doors to glass instead
-TODO: make fortress generator GUI say paused if generator is paused
 https://www.freesound.org/people/PhreaKsAccount/sounds/46489/
 https://www.freesound.org/people/MiceHead/sounds/13294/
 maybe: redstone power with signal strength of 1 applied to generator makes generator:
         degenerate only wall it didn't generate (provided its the oldest generator)
    on loses redstone power of 1 strength, do the same thing as losing redstone power in any other case
         generates wall (including enemy fortresses turned off with redstone power of 1 strength)
-TODO: add flames (like furnace has) to fortress generator when its active
-TODO: fix bug: place generator into point powered by redstone already, fuel generator, generator turns on instead of pausing
-    does not happen if generator is touching a wall block
-TODO: fix bug where when fg is placed it started active (even though not fuled)
 
 Done:
 animated generation/degeneration

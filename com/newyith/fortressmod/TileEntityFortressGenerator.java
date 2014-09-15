@@ -29,7 +29,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
 	public int itemBurnTime;
 	//* //TODO: switch to other block
-	private static final int burnPeriod = (60*1000)/50; //1 minute
+	private static final int burnPeriod = (20*1000)/50; //20 seconds
 	/*/
 	private static final int burnPeriod = (1000*60*60)/50; //1 hour
 	//*/
@@ -46,6 +46,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	
 	//-----------------------
 	
+	//must have a no arguments constructor (or we get runtime exceptions)
 	public TileEntityFortressGenerator() {
 		this.uniqueId = this.nextUniqueId++;
 		//Dbg.print("new TileEntityFortressGenerator() uniqueId: " + this.uniqueId);
@@ -60,6 +61,10 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	public TileEntityFortressGenerator(FortressGeneratorState state) {
 		this();
 		this.state = state;
+		if (this.getWorldObj() != null)
+			Dbg.print("TileEntityFortressGenerator(state): this.state = " + this.state.toString(), this.getWorldObj().isRemote);
+		else
+			Dbg.print("TileEntityFortressGenerator(state): this.state = " + this.state.toString());
 	}
 
 	@Override
