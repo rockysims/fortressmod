@@ -16,6 +16,7 @@ Maybe:
 
 Still Need:
 TODO: add flames (like furnace has) to fortress generator when its active
+TODO: add mod config file (allow editing of how long glowstone burns for at least)
 add generating of user selected blocks (via placing block types to be generated in slots in fortress generator)
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add generate/degenerate sounds
