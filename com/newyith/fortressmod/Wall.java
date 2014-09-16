@@ -3,11 +3,14 @@ package com.newyith.fortressmod;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 import com.google.common.collect.ImmutableList;
 import com.newyith.fortressmod.Wall.ConnectedThreshold;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
@@ -233,6 +236,82 @@ public class Wall {
 			
 			blockTypesCreated = true;
 		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void randomDisplayTick(World world, int xParam, int yParam, int zParam, Random random) {
+		/*
+		if (random.nextFloat() * 100.0F < 5.0F) {
+			int meta = world.getBlockMetadata(xParam, yParam, zParam);
+			float x = (float)xParam + 0.5F;
+			float y = (float)yParam + -0.10F;
+			float z = (float)zParam + 0.5F;
+			float f3 = 0.52F;
+			float f4 = random.nextFloat() * 1.0F - 0.5F;
+
+			y += (random.nextFloat() * 16.0F / 16.0F) - 0.5F;
+			
+			//all 4 sides
+			float side = random.nextFloat() * 4.0F;
+			if (side <= 1) {
+				spawnWallParticle(world, (double)(x - f3), (double)y, (double)(z + f4), random);
+			} else if (side <= 2) {
+				spawnWallParticle(world, (double)(x + f3), (double)y, (double)(z - f4), random);
+			} else if (side <= 3) {
+				spawnWallParticle(world, (double)(x + f4), (double)y, (double)(z - f3), random);
+			} else if (side <= 4) {
+				spawnWallParticle(world, (double)(x - f4), (double)y, (double)(z + f3), random);
+			} 
+			//TODO: delete next line
+			else { Dbg.print("error: side == " + String.valueOf(side)); }
+		}
+		//*/
+	}
+	private static void spawnWallParticle(World world, double x, double y, double z, Random random) {
+		world.spawnParticle("portal", x, y, z, 0.0D, 0.0D, 0.0D);
+		
+		/*
+		List<String> particleNames = new ArrayList<String>(Arrays.asList(
+//				"hugeexplosion",
+//				"largeexplode",
+				"bubble",
+//				"suspended",
+//				"depthsuspend",
+//				"townaura",
+//				"crit",
+//				"magicCrit", //green diamonds
+//				"smoke",
+//				"mobSpell",
+//				"spell",
+				"instantSpell",
+//				"note",
+//				"portal", //nether portal particle
+//				"enchantmenttable",
+//				"explode",
+//				"flame",
+//				"lava",
+//				"footstep",
+//				"splash",
+//				"largesmoke",
+//				"cloud",
+//				"reddust",
+//				"snowballpoof",
+//				"dripWater",
+//				"dripLava",
+//				"snowshovel",
+//				"slime"
+//				"heart"
+//				"iconcrack_",
+//				"tilecrack_"
+				""
+				));
+				
+		int particleIndex = Math.floor(random.nextFloat() * (particleNames.size()-1));
+		Dbg.print(String.valueOf(particleIndex));
+		world.spawnParticle(particleNames.get(particleIndex), x, y, z, 0.0D, 0.0D, 0.0D);
+		//*/
+		
+		
 	}
 }
 

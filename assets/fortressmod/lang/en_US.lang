@@ -3,4 +3,6 @@ tile.FortressGenerator.name=Fortress Generator
 tile.FortressGeneratorClogged.name=Clogged Fortress Generator
 tile.FortressEmergencyKey.name=Emergency Fortress Key
 tile.FortressGlass.name=Fortress Glass
+tile.FortressObsidian.name=Fortress Obsidian
+tile.FortressBedrock.name=Fortress Bedrock
 item.FortressDoor.name=Fortress Door

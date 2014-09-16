@@ -131,7 +131,7 @@ public class GeneratorCore {
 			if (!isOldest) {
 				placedCore.clog();
 			} else {
-				placedCore.degenerateWall(true);
+				placedCore.degenerateWall(false);
 			}
 		}
 	}

@@ -1,5 +1,8 @@
 package com.newyith.fortressmod;
 
+
+import java.util.Random;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -8,6 +11,7 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.World;
 
 public class FortressBedrock extends Block {
 	protected FortressBedrock() {
@@ -19,7 +23,22 @@ public class FortressBedrock extends Block {
 	}
 
 	@SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side, int meta) {
+	public IIcon getIcon(int side, int meta) {
 		return Blocks.bedrock.getIcon(side, meta);
-    }
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void registerBlockIcons(IIconRegister iconRegister) {
+		//if we don't override this method, we get an exception
+		//don't need to register any textures because we're re-using bedrock texture
+	}
+	
+	/**
+	 * A randomly called display update to be able to add particles or other items for display
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void randomDisplayTick(World world, int xParam, int yParam, int zParam, Random random) {
+		Wall.randomDisplayTick(world, xParam, yParam, zParam, random);
+	}	
 }

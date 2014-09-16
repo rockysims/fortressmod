@@ -1,10 +1,13 @@
 package com.newyith.fortressmod;
 
+import java.util.Random;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.BlockObsidian;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.World;
 
 public class FortressObsidian extends BlockObsidian {
 	public FortressObsidian() {
@@ -31,4 +34,13 @@ public class FortressObsidian extends BlockObsidian {
     	String iconStr = ModInfo.MODID.toLowerCase() + ":" + "fortress_obsidian";
         this.blockIcon = iconRegister.registerIcon(iconStr);
     }
+
+	/**
+	 * A randomly called display update to be able to add particles or other items for display
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void randomDisplayTick(World world, int xParam, int yParam, int zParam, Random random) {
+		Wall.randomDisplayTick(world, xParam, yParam, zParam, random);
+	}	
 }

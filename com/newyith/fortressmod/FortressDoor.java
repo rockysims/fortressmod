@@ -127,4 +127,13 @@ public class FortressDoor extends BlockDoor {
 		Item item = (this.origMaterial == Material.wood)?FortressMod.itemFortressWoodenDoor:FortressMod.itemFortressIronDoor;
 		return (par1 & 8) != 0 ? null : item;
 	}
+
+	/**
+	 * A randomly called display update to be able to add particles or other items for display
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void randomDisplayTick(World world, int xParam, int yParam, int zParam, Random random) {
+		Wall.randomDisplayTick(world, xParam, yParam, zParam, random);
+	}	
 }
