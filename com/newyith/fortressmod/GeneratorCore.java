@@ -221,6 +221,11 @@ public class GeneratorCore {
 					if (!this.isGeneratingWall && anyOfLayerIsGenerated) {
 						updateLayer = true;
 					}
+					
+//					String s = "";
+//					s += "GeneratorCore::updateEntity() updateLayer == " + String.valueOf(updateLayer);
+//					s += String.valueOf(layerIndex);
+//					Dbg.print(s, this.world.isRemote);
 
 					//update layer if needed
 					if (updateLayer) {
@@ -281,13 +286,13 @@ public class GeneratorCore {
 	// --------- Internal Methods ---------
 
 	private void generateDoor(Point p, int index) {
-		//assumes p is a door block
+		//assumes p is a door block (2 block tall doors)
 		Point top = getDoorTop(p);
-		Point bottom = new Point(top.x, top.y - 1, top.z);
-		Block topBlock = world.getBlock(top.x, top.y, top.z);
-		Block bottomBlock = world.getBlock(bottom.x, bottom.y, bottom.z);
+		if (top != null) {
+			Point bottom = new Point(top.x, top.y - 1, top.z);
+			Block topBlock = world.getBlock(top.x, top.y, top.z);
+			Block bottomBlock = world.getBlock(bottom.x, bottom.y, bottom.z);
 		
-		if (topBlock == bottomBlock) {
 			int topMeta = world.getBlockMetadata(top.x, top.y, top.z);
 			int bottomMeta = world.getBlockMetadata(bottom.x, bottom.y, bottom.z);
 
@@ -302,48 +307,61 @@ public class GeneratorCore {
 			//create top of door
 			world.setBlock(top.x, top.y, top.z, Wall.getEnabledWallBlocks().get(index));
 			world.setBlockMetadataWithNotify(top.x, top.y, top.z, topMeta, 2);
-		} //else the world is in an invalid state?
+		} else { //can't find a matching (door) block above or below (should never happen if door is working correctly)
+			int meta = world.getBlockMetadata(p.x, p.y, p.z);
+			world.setBlockToAir(p.x, p.y, p.z);
+			world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(p.x, p.y, p.z, meta, 2);
+		}
 	}
 	
 	private void degenerateDoor(Point p, int index) {
 		//assumes p is a door block
 		Point top = getDoorTop(p);
-		Point bottom = new Point(top.x, top.y - 1, top.z);
-		Block topBlock = world.getBlock(top.x, top.y, top.z);
-		Block bottomBlock = world.getBlock(bottom.x, bottom.y, bottom.z);
-		
-		if (topBlock == bottomBlock) {
-			int topMeta = world.getBlockMetadata(top.x, top.y, top.z);
-			int bottomMeta = world.getBlockMetadata(bottom.x, bottom.y, bottom.z);
+		if (top != null) {
+			Point bottom = new Point(top.x, top.y - 1, top.z);
+			Block topBlock = world.getBlock(top.x, top.y, top.z);
+			Block bottomBlock = world.getBlock(bottom.x, bottom.y, bottom.z);
+			
+			if (topBlock == bottomBlock) {
+				int topMeta = world.getBlockMetadata(top.x, top.y, top.z);
+				int bottomMeta = world.getBlockMetadata(bottom.x, bottom.y, bottom.z);
 
-			//remove old door
-			world.setBlockToAir(bottom.x, bottom.y, bottom.z);
-			world.setBlockToAir(top.x, top.y, top.z);
+				//remove old door
+				world.setBlockToAir(bottom.x, bottom.y, bottom.z);
+				world.setBlockToAir(top.x, top.y, top.z);
 
-			//create bottom of door
-			world.setBlock(bottom.x, bottom.y, bottom.z, Wall.getDisabledWallBlocks().get(index));
-			world.setBlockMetadataWithNotify(bottom.x, bottom.y, bottom.z, bottomMeta, 2);
+				//create bottom of door
+				world.setBlock(bottom.x, bottom.y, bottom.z, Wall.getDisabledWallBlocks().get(index));
+				world.setBlockMetadataWithNotify(bottom.x, bottom.y, bottom.z, bottomMeta, 2);
 
-			//create top of door
-			world.setBlock(top.x, top.y, top.z, Wall.getDisabledWallBlocks().get(index));
-			world.setBlockMetadataWithNotify(top.x, top.y, top.z, topMeta, 2);
-		} //else the world is in an invalid state?
+				//create top of door
+				world.setBlock(top.x, top.y, top.z, Wall.getDisabledWallBlocks().get(index));
+				world.setBlockMetadataWithNotify(top.x, top.y, top.z, topMeta, 2);
+			} //else the world is in an invalid state?
+		} else { //can't find a matching (door) block above or below (should never happen if door is working correctly)
+			int meta = world.getBlockMetadata(p.x, p.y, p.z);
+			world.setBlockToAir(p.x, p.y, p.z);
+			world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+			world.setBlockMetadataWithNotify(p.x, p.y, p.z, meta, 2);
+		}
 	}
 	
 	private Point getDoorTop(Point p) {
 		//assumes p is a door block
-		int meta = world.getBlockMetadata(p.x, p.y, p.z);
+		Point a = new Point(p.x, p.y + 1, p.z);
+		Point b = new Point(p.x, p.y - 1, p.z);
+		Block above = world.getBlock(a.x, a.y, a.z);
+		Block below = world.getBlock(b.x, b.y, b.z);
+		Block middle = world.getBlock(p.x, p.y, p.z);
 		
-		Point top;
-		if ((meta & 2) == 0) { //2 = 0*8 + 0*4 + 1*2 + 0*1
-			//p is door top
-			top = p;
+		if (above == middle) {
+			return a;
+		} else if (below == middle) {
+			return p;
 		} else {
-			//p is door bottom
-			top = new Point(p.x, p.y + 1, p.z);
+			return null;
 		}
-		
-		return top;
 	}
 
 	/**
@@ -351,6 +369,7 @@ public class GeneratorCore {
 	 * Assumes checking for permission to generate walls is already done.
 	 */
 	private void generateWall() {
+		//Dbg.print("generateWall()");
 		this.wallLayers = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
 		this.isGeneratingWall = true;
 		this.isChangingGenerated = true;
@@ -361,6 +380,7 @@ public class GeneratorCore {
 	 * Also degenerates wall touching this generator provided this is the oldest generator.
 	 */
 	private void degenerateWall(boolean animate) {
+		//Dbg.print("degenerateWall("+String.valueOf(animate)+")");
 		this.wallLayers.clear();
 		this.wallLayers.addAll(this.generatedLayers);
 		if (!this.isClogged() && isOldestNotCloggedGeneratorConnectedTo(this)) {

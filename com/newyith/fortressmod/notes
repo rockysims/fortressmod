@@ -3,32 +3,26 @@ onActivated, if (!oldestGenerator) clog else generate walls
 onDeactivated, degenerate the walls it generated
 onBroken, if (oldestGenerator) clog the others
 
-issues:
-fixed: want to indicate immediately when a generator is placed such that it would clog if activated
-fixed: could place generator near enemy wall, turn it on, connect it, turn it off: issue is wall updater would turn off enemy wall
-fixed: what if a player is stuck in an enemy fortress?
-fixed: could place generator near outside of fortress then connect it to wall to be new oldest if inside generator broken (moved)
-
 Maybe:
 1) Fortress disruptors are crafted with 8 dark stone blocks around an emerald ore block
     darkstone dust is produced by fortress generators at a rate determined by the number of wall blocks generated
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-DONE: fixed bug where you could clog generator with emergency key then destroy generator while degenerating to create permanent fortress
-TODO: add mod config file (allow editing of how long glowstone burns for at least)
-add generating of user selected blocks (via placing block types to be generated in slots in fortress generator)
+mod config file (allow editing of how long glowstone burns for at least)
 manual book
-/stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
+/stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby) (maybe look to see if this already exists as a mod?)
+
+Maybe:
 add generate/degenerate sounds
     https://www.freesound.org/people/PhreaKsAccount/sounds/46489/
     https://www.freesound.org/people/MiceHead/sounds/13294/
-get better textures?
+add generating of user selected blocks (via placing block types to be generated in slots in fortress generator)
+    add black and white pic of glowstone in fg fuel slot
+    add 16 custom wall (generates into bedrock) block slots with b&w pic of fortress bedrock
+    add 16 custom wall (generates into glass) block slots with b&w pic of fortress glass
 TODO: make redstone on == generator on (and not be paused if no potential redstone power adjacent) (if possible)
 
-add black and white pic of glowstone in fg fuel slot
-add 16 custom wall (generates into bedrock) block slots with pic of bedrock
-add 16 custom wall (generates into glass) block slots with pic of glass
 
 DONE: test what if while degenerating wall, long section is disconnected, then generate again. does the unconnected part stop half generated?
     yes but it still remembers it needs to degenerate the now disconnected part when next paused
