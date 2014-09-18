@@ -15,7 +15,7 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-TODO: fix bug where you can clog generator with emergency key then destroy generator while degenerating to create permanent fortress
+DONE: fixed bug where you could clog generator with emergency key then destroy generator while degenerating to create permanent fortress
 TODO: add mod config file (allow editing of how long glowstone burns for at least)
 add generating of user selected blocks (via placing block types to be generated in slots in fortress generator)
 manual book
@@ -26,6 +26,12 @@ add generate/degenerate sounds
 get better textures?
 TODO: make redstone on == generator on (and not be paused if no potential redstone power adjacent) (if possible)
 
+add black and white pic of glowstone in fg fuel slot
+add 16 custom wall (generates into bedrock) block slots with pic of bedrock
+add 16 custom wall (generates into glass) block slots with pic of glass
+
+DONE: test what if while degenerating wall, long section is disconnected, then generate again. does the unconnected part stop half generated?
+    yes but it still remembers it needs to degenerate the now disconnected part when next paused
 
 Done:
 add flames (like furnace has) to fortress generator when its active

@@ -140,19 +140,16 @@ public class GeneratorCore {
 	public static void onBroken(World world, int x, int y, int z) {
 		if (!world.isRemote) {
 			TileEntityFortressGenerator brokenFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
+			GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
+
+			//degenerate generated wall (and connected wall if oldest and !clogged) without animation
+			brokenCore.degenerateWall(false);
 			
-			if (!brokenFortressGenerator.isClogged()) {
-				GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
-
-				//degenerate generated wall (and connected wall if oldest)
-				brokenCore.degenerateWall(false);
-
-				//if (oldestGenerator) clog the others
-				if (isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
-					List<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
-					for (TileEntityFortressGenerator fg : fgs) {
-						fg.getGeneratorCore().clog();
-					}
+			//if (!clogged && oldest)
+			if (!brokenFortressGenerator.isClogged() && isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
+				List<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
+				for (TileEntityFortressGenerator fg : fgs) {
+					fg.getGeneratorCore().clog();
 				}
 			}
 		}
@@ -366,7 +363,7 @@ public class GeneratorCore {
 	private void degenerateWall(boolean animate) {
 		this.wallLayers.clear();
 		this.wallLayers.addAll(this.generatedLayers);
-		if (isOldestNotCloggedGeneratorConnectedTo(this)) {
+		if (!this.isClogged() && isOldestNotCloggedGeneratorConnectedTo(this)) {
 			List<List<Point>> connectedPoints = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
 			this.wallLayers = merge(this.wallLayers, connectedPoints);
 		}
@@ -380,7 +377,6 @@ public class GeneratorCore {
 			this.animateGeneration = true;
 		}
 	}
-
 	private List<List<Point>> merge(List<List<Point>> layers1, List<List<Point>> layers2) {
 		List<List<Point>> layers = new ArrayList<List<Point>>();
 		
