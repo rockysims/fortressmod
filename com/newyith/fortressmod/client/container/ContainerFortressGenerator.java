@@ -20,7 +20,6 @@ public class ContainerFortressGenerator extends Container {
 
 	private TileEntityFortressGenerator fortressGenerator;
 	private int lastBurnTicksRemaining;
-	private int lastItemBurnTicks;
 	private FortressGeneratorState lastState = FortressGeneratorState.OFF;
 	private boolean lastIsPaused;
 	
@@ -47,8 +46,7 @@ public class ContainerFortressGenerator extends Container {
 	public void addCraftingToCrafters(ICrafting crafting) {
 		super.addCraftingToCrafters(crafting);
 		crafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTicksRemaining);
-		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTicks);
-		crafting.sendProgressBarUpdate(this, 2, this.fortressGenerator.getState().ordinal());
+		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.getState().ordinal());
 	}
 
 	/** Looks for changes made in the container, sends them to every listener. */
@@ -63,17 +61,12 @@ public class ContainerFortressGenerator extends Container {
 				icrafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTicksRemaining);
 			}
 
-			if (this.lastItemBurnTicks != this.fortressGenerator.itemBurnTicks) {
-				icrafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTicks);
-			}
-			
 			if (this.lastState != this.fortressGenerator.getState()) {
-				icrafting.sendProgressBarUpdate(this, 2, this.fortressGenerator.getState().ordinal());
+				icrafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.getState().ordinal());
 			}
 		}
 
 		this.lastBurnTicksRemaining = this.fortressGenerator.burnTicksRemaining;
-		this.lastItemBurnTicks = this.fortressGenerator.itemBurnTicks;
 		this.lastState = this.fortressGenerator.getState();
 	}
 
@@ -81,8 +74,7 @@ public class ContainerFortressGenerator extends Container {
 	@SideOnly(Side.CLIENT)
 	public void updateProgressBar(int key, int value) {
 		if (key == 0) this.fortressGenerator.burnTicksRemaining = value;
-		if (key == 1) this.fortressGenerator.itemBurnTicks = value;
-		if (key == 2) {
+		if (key == 1) {
 			Dbg.print("updateProgressBar(): setState to " + (FortressGeneratorState.values()[value]).name());
 			this.fortressGenerator.setState(FortressGeneratorState.values()[value]);
 		}

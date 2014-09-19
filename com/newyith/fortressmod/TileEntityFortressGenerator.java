@@ -27,8 +27,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	/** The number of ticks (50ms each) that the fortress generator will keep burning */
 	public int burnTicksRemaining;
 
-	/** The number of ticks that a fresh copy of the currently-burning item would keep the fortress generator burning for */
-	public int itemBurnTicks;
 	private static int glowstoneDustBurnTicks = (FortressMod.config_glowstoneBurnTimeMs)/50; //50 ms per updateEntity() call (tick)
 	
 	private FortressGeneratorState state;
@@ -50,7 +48,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		this.inventory = new ItemStack[1];
 		this.burnTicksRemaining = 0;
-		this.itemBurnTicks = 0;
 		this.state = FortressGeneratorState.OFF;
 		this.generatorCore = new GeneratorCore(this);
 	}
@@ -93,8 +90,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			if (!this.worldObj.isRemote) {
 				//consider starting to burn another fuel item
 				if (this.burnTicksRemaining == 0) {
-					this.itemBurnTicks = getItemBurnTicks(this.inventory[0]);
-					this.burnTicksRemaining = this.itemBurnTicks;
+					this.burnTicksRemaining = getItemBurnTicks(this.inventory[0]);
 					if (this.burnTicksRemaining > 0) {
 						needToMarkAsDirty = true;
 						if (this.inventory[0] != null) {
@@ -246,12 +242,10 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		String stateStr = compound.getString("state");
 		this.state = FortressGeneratorState.valueOf(stateStr);
 		this.burnTicksRemaining = compound.getInteger("burnTicksRemaining");
-		this.itemBurnTicks = getItemBurnTicks(this.inventory[0]);
 		
 		//in case config_glowstoneBurnTimeMs has changed, make sure remainingTicks <= maxTicks
 		if (this.burnTicksRemaining > this.glowstoneDustBurnTicks) {
-			this.itemBurnTicks = this.glowstoneDustBurnTicks;
-			this.burnTicksRemaining = this.itemBurnTicks;
+			this.burnTicksRemaining = this.glowstoneDustBurnTicks;
 		}
 		
 		this.generatorCore.readFromNBT(compound);
@@ -296,10 +290,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	}
 
 	public int getBurnTimeRemainingScaled(int max) {
-		if (this.itemBurnTicks == 0) {
-			this.itemBurnTicks = glowstoneDustBurnTicks;
-		}
-		return (this.burnTicksRemaining * max) / this.itemBurnTicks;
+		return (this.burnTicksRemaining * max) / this.glowstoneDustBurnTicks;
 	}
 
 	public boolean isClogged() {
