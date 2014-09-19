@@ -24,16 +24,12 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	private static Random rand = new Random();
 	private ItemStack[] inventory;
 
-	/** The number of ticks that the fortress generator will keep burning */
-	public int burnTime; //remaining burn time
+	/** The number of ticks (50ms each) that the fortress generator will keep burning */
+	public int burnTicksRemaining;
 
-	/** The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for */
-	public int itemBurnTime;
-	//* //TODO: switch to other block
-	private static final int burnPeriod = (20*1000)/50; //20 seconds
-	/*/
-	private static final int burnPeriod = (1000*60*60)/50; //1 hour
-	//*/
+	/** The number of ticks that a fresh copy of the currently-burning item would keep the fortress generator burning for */
+	public int itemBurnTicks;
+	private static int glowstoneDustBurnTicks = (FortressMod.config_glowstoneBurnTimeMs)/50; //50 ms per updateEntity() call (tick)
 	
 	private FortressGeneratorState state;
 	private boolean updateBlockStateFlag;
@@ -53,8 +49,8 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		//Dbg.print("new TileEntityFortressGenerator() uniqueId: " + this.uniqueId);
 		
 		this.inventory = new ItemStack[1];
-		this.burnTime = 0;
-		this.itemBurnTime = 0;
+		this.burnTicksRemaining = 0;
+		this.itemBurnTicks = 0;
 		this.state = FortressGeneratorState.OFF;
 		this.generatorCore = new GeneratorCore(this);
 	}
@@ -80,15 +76,15 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	
 	@Override
 	public void updateEntity() {
-		boolean wasBurning = this.burnTime > 0;
+		boolean wasBurning = this.burnTicksRemaining > 0;
 		
 		long now = new Date().getTime();
 		long duration = now - this.lastUpdateEntity;
 		this.lastUpdateEntity = now;
 		//Dbg.print("burnTime--; " + String.valueOf(this.uniqueId) + " duration: " + String.valueOf(duration), this.worldObj.isRemote);
 		
-		if (this.burnTime > 0 && !this.isPaused()) {
-			this.burnTime--;
+		if (this.burnTicksRemaining > 0 && !this.isPaused()) {
+			this.burnTicksRemaining--;
 		}
 		
 		if (!this.isClogged()) {
@@ -96,10 +92,10 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			
 			if (!this.worldObj.isRemote) {
 				//consider starting to burn another fuel item
-				if (this.burnTime == 0) {
-					this.itemBurnTime = getItemBurnTime(this.inventory[0]);
-					this.burnTime = this.itemBurnTime;
-					if (this.burnTime > 0) {
+				if (this.burnTicksRemaining == 0) {
+					this.itemBurnTicks = getItemBurnTicks(this.inventory[0]);
+					this.burnTicksRemaining = this.itemBurnTicks;
+					if (this.burnTicksRemaining > 0) {
 						needToMarkAsDirty = true;
 						if (this.inventory[0] != null) {
 							this.inventory[0].stackSize--;
@@ -149,14 +145,12 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		this.generatorCore.updateEntity();
 	}
 	
-	private static int getItemBurnTime(ItemStack itemStack) {
+	private static int getItemBurnTicks(ItemStack itemStack) {
 		if (itemStack != null) {
 			int itemId = Item.getIdFromItem(itemStack.getItem());
 
 			if (itemId == Item.getIdFromItem(Items.glowstone_dust)) {
-				return burnPeriod;
-			} else {
-				return TileEntityFurnace.getItemBurnTime(itemStack);
+				return glowstoneDustBurnTicks;
 			}
 		}
 		
@@ -226,8 +220,8 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		compound.setTag("ItemsFortressGenerator", list);
 		
 		//compound.setInteger("FrontDirectionFortressGenerator", (int)front);
-		compound.setString("stateFortressGenerator", this.state.name());
-		compound.setInteger("BurnTimeFortressGenerator", burnTime);
+		compound.setString("state", this.state.name());
+		compound.setInteger("burnTicksRemaining", burnTicksRemaining);
 		
 		this.generatorCore.writeToNBT(compound);
 	}
@@ -249,10 +243,16 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		
 		//front = compound.getInteger("FrontDirectionFortressGenerator");
 		
-		String stateStr = compound.getString("stateFortressGenerator");
+		String stateStr = compound.getString("state");
 		this.state = FortressGeneratorState.valueOf(stateStr);
-		this.burnTime = compound.getInteger("BurnTimeFortressGenerator");
-		this.itemBurnTime = getItemBurnTime(this.inventory[0]);
+		this.burnTicksRemaining = compound.getInteger("burnTicksRemaining");
+		this.itemBurnTicks = getItemBurnTicks(this.inventory[0]);
+		
+		//in case config_glowstoneBurnTimeMs has changed, make sure remainingTicks <= maxTicks
+		if (this.burnTicksRemaining > this.glowstoneDustBurnTicks) {
+			this.itemBurnTicks = this.glowstoneDustBurnTicks;
+			this.burnTicksRemaining = this.itemBurnTicks;
+		}
 		
 		this.generatorCore.readFromNBT(compound);
 	}
@@ -292,14 +292,14 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	}
 
 	public boolean isBurning() {
-		return this.burnTime > 0;
+		return this.burnTicksRemaining > 0;
 	}
 
 	public int getBurnTimeRemainingScaled(int max) {
-		if (this.itemBurnTime == 0) {
-			this.itemBurnTime = burnPeriod;
+		if (this.itemBurnTicks == 0) {
+			this.itemBurnTicks = glowstoneDustBurnTicks;
 		}
-		return (this.burnTime * max) / this.itemBurnTime;
+		return (this.burnTicksRemaining * max) / this.itemBurnTicks;
 	}
 
 	public boolean isClogged() {

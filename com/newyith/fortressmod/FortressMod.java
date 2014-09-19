@@ -18,12 +18,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 @Mod(modid = ModInfo.MODID, name = ModInfo.NAME, version = ModInfo.VERSION)
@@ -45,6 +47,9 @@ public class FortressMod
 	public static Block fortressIronDoor;
 	public static Item itemFortressWoodenDoor;
 	public static Item itemFortressIronDoor;
+	
+	//config
+	public static int config_glowstoneBurnTimeMs;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
@@ -57,6 +62,25 @@ public class FortressMod
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e) {}
 	//*/
+	
+	@EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+            // you will be able to find the config file in .minecraft/config/ and it will be named fortressmod.cfg
+            Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+            config.load();
+
+            //load config_glowstoneBurnTimeMs
+            int msPerHour = 1000*60*60;
+            String name = "glowstone_burn_time_ms";
+            String category = "fortressmod";
+            int defaultValue = msPerHour;
+            int minValue = 50; //0.05 seconds
+            int maxValue = Integer.MAX_VALUE; //~1.6 years
+            String comment = "How many milliseconds 1 glowstone dust will fuel a fortress generator. 3600000 is 1 hour.";
+            this.config_glowstoneBurnTimeMs = config.getInt(name, category, defaultValue, minValue, maxValue, comment);
+            
+            config.save();
+    }
 	
 	@EventHandler
 	public void init(FMLInitializationEvent e) {

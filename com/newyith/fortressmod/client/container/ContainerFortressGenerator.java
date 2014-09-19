@@ -19,8 +19,8 @@ import net.minecraft.item.ItemStack;
 public class ContainerFortressGenerator extends Container {
 
 	private TileEntityFortressGenerator fortressGenerator;
-	private int lastBurnTime;
-	private int lastItemBurnTime;
+	private int lastBurnTicksRemaining;
+	private int lastItemBurnTicks;
 	private FortressGeneratorState lastState = FortressGeneratorState.OFF;
 	private boolean lastIsPaused;
 	
@@ -46,8 +46,8 @@ public class ContainerFortressGenerator extends Container {
 	@Override
 	public void addCraftingToCrafters(ICrafting crafting) {
 		super.addCraftingToCrafters(crafting);
-		crafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTime);
-		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
+		crafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTicksRemaining);
+		crafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTicks);
 		crafting.sendProgressBarUpdate(this, 2, this.fortressGenerator.getState().ordinal());
 	}
 
@@ -59,12 +59,12 @@ public class ContainerFortressGenerator extends Container {
 		for (int i = 0; i < this.crafters.size(); ++i) {
 			ICrafting icrafting = (ICrafting)this.crafters.get(i);
 
-			if (this.lastBurnTime != this.fortressGenerator.burnTime) {
-				icrafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTime);
+			if (this.lastBurnTicksRemaining != this.fortressGenerator.burnTicksRemaining) {
+				icrafting.sendProgressBarUpdate(this, 0, this.fortressGenerator.burnTicksRemaining);
 			}
 
-			if (this.lastItemBurnTime != this.fortressGenerator.itemBurnTime) {
-				icrafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTime);
+			if (this.lastItemBurnTicks != this.fortressGenerator.itemBurnTicks) {
+				icrafting.sendProgressBarUpdate(this, 1, this.fortressGenerator.itemBurnTicks);
 			}
 			
 			if (this.lastState != this.fortressGenerator.getState()) {
@@ -72,16 +72,16 @@ public class ContainerFortressGenerator extends Container {
 			}
 		}
 
-		this.lastBurnTime = this.fortressGenerator.burnTime;
-		this.lastItemBurnTime = this.fortressGenerator.itemBurnTime;
+		this.lastBurnTicksRemaining = this.fortressGenerator.burnTicksRemaining;
+		this.lastItemBurnTicks = this.fortressGenerator.itemBurnTicks;
 		this.lastState = this.fortressGenerator.getState();
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void updateProgressBar(int key, int value) {
-		if (key == 0) this.fortressGenerator.burnTime = value;
-		if (key == 1) this.fortressGenerator.itemBurnTime = value;
+		if (key == 0) this.fortressGenerator.burnTicksRemaining = value;
+		if (key == 1) this.fortressGenerator.itemBurnTicks = value;
 		if (key == 2) {
 			Dbg.print("updateProgressBar(): setState to " + (FortressGeneratorState.values()[value]).name());
 			this.fortressGenerator.setState(FortressGeneratorState.values()[value]);
