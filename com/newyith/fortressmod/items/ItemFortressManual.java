@@ -22,10 +22,25 @@ public class ItemFortressManual extends ItemEditableBook {
 		setTextureName(ModInfo.MODID.toLowerCase() + ":" + "fortress_manual");
 	}
 	
+	/*
+	@Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack itemStack, EntityPlayer par2, List list, boolean par4)
+    {
+        String s = "the string s here";
+    	list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted("book.byAuthor", new Object[] {s}));
+    }
+	//*/
+	
+	
+	
 	@Override
 	public ItemStack onItemRightClick(ItemStack itemStack, World world, EntityPlayer player) {
-		Dbg.print("onManualRightClicked");
-		player.displayGUIBook(new ItemStack(Items.written_book));
+		ItemStack book = new ItemStack(Items.written_book);
+		
+		//this.bookPages = nbttagcompound.getTagList("pages", 8);
+		
+		player.displayGUIBook(book);
 		/*
 		public void displayGUIBook(ItemStack p_71048_1_)
 	    {
