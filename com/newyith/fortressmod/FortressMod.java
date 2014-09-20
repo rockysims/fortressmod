@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.newyith.fortressmod.client.GuiHandler;
 import com.newyith.fortressmod.items.ItemFortressDoor;
+import com.newyith.fortressmod.items.ItemFortressManual;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -47,6 +48,7 @@ public class FortressMod
 	public static Block fortressIronDoor;
 	public static Item itemFortressWoodenDoor;
 	public static Item itemFortressIronDoor;
+	public static Item itemFortressManual;
 	
 	//config
 	public static int config_glowstoneBurnTimeMs;
@@ -110,6 +112,9 @@ public class FortressMod
 		itemFortressIronDoor = new ItemFortressDoor(Material.iron).setCreativeTab(tabName);
 		GameRegistry.registerItem(itemFortressIronDoor, "ItemFortressIronDoor");
 		
+		itemFortressManual = new ItemFortressManual().setCreativeTab(tabName);
+		GameRegistry.registerItem(itemFortressManual, "FortressManual");
+		
 		//Fortress Generators
 
         fortressGenerator = new FortressGenerator(FortressGeneratorState.OFF).setBlockName("FortressGenerator").setCreativeTab(tabName);
@@ -130,16 +135,20 @@ public class FortressMod
 		
 		//Recipes
 		
+		//fortressGenerator
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
 		ItemStack diamondStack = new ItemStack(Items.diamond, 1);
         ItemStack fortressGeneratorStack = new ItemStack(fortressGenerator, 1);
         GameRegistry.addRecipe(fortressGeneratorStack, "ooo", "odo", "ooo", 'o', obsidianStack, 'd', diamondStack);
 		
-        //*
+        //fortressEmergencyKey
 		ItemStack quartzStack = new ItemStack(Blocks.quartz_block, 1);
         ItemStack emergencyKeyStack = new ItemStack(fortressEmergencyKey, 1);
         GameRegistry.addRecipe(emergencyKeyStack, "qqq", "q q", "qqq", 'q', quartzStack);
-        //*/
+
+        //itemFortressManual
+        ItemStack fortressManualStack = new ItemStack(itemFortressManual, 1); 
+        GameRegistry.addShapelessRecipe(fortressManualStack, fortressGeneratorStack);
         
         //* debug recipes
         ItemStack dirtStack = new ItemStack(Blocks.dirt, 1);

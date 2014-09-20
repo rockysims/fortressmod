@@ -241,7 +241,7 @@ public class Wall {
 	@SideOnly(Side.CLIENT)
 	public static void randomDisplayTick(World world, int xParam, int yParam, int zParam, Random random) {
 		/*
-		if (random.nextFloat() * 100.0F < 5.0F) {
+		if (random.nextFloat() * 100.0F < 2.5F) {
 			int meta = world.getBlockMetadata(xParam, yParam, zParam);
 			float x = (float)xParam + 0.5F;
 			float y = (float)yParam + -0.10F;

@@ -9,11 +9,9 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-mod config file (allow editing of how long glowstone burns for at least)
 manual book (crafted with (1 fortress generator) or (1 fortress generator (preserved) and 1 book))
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby) (maybe look to see if this already exists as a mod?)
 TODO: consider having fortress generator tell player how many other generator are in range (128) when its placed (so you can be sure yours is oldest)
- //TODO: implement this //-1 glowstoneBurnTimeMs from config means fortress generator doesn't need fuel
 add black and white pic of glowstone in fg fuel slot
 
 Maybe:
