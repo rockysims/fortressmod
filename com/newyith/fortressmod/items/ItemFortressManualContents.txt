@@ -1,0 +1,55 @@
+Table of contents
+
+1) Table of contents
+2) Generators
+3) Doors
+4) Doors (2)
+5) Redstone
+6) Clogging
+7) Emergency key
+8) Stuck
+=======
+Fortress Generator
+O O O
+O D O
+O O O
+O=obsidian, D=diamond
+
+Changes cobblestone, glass, obsidian, and doors (wood/iron) to a bedrock version while fueled by glowstone dust.
+=======
+Fortress Doors
+
+Doors open for white-listed players only (on right click).
+
+Place an obsidian block directly above the door and on that obsidian place a sign with player name(s) to white-list.
+=======
+Fortress Doors (2)
+
+The white-list sign(s) can also be on any obsidian block connected (by obsidian) to the obsidian block directly above the door.
+
+Sign format: One name on each line or comma separated list.
+=======
+Redstone
+
+While powered by redstone, it stops generating and pauses fuel consumption.
+=======
+Clogging
+
+If more than one fortress generator tries to control the same fortress, the newer generator will clog.
+
+Pick up generator (with pickaxe) to unclog.
+=======
+Emergency Key
+Q Q Q
+Q - Q
+Q Q Q
+Q=quartz block
+-=empty
+
+When placed against a fortress wall, all generators also touching the wall will be clogged (if they were placed by you).
+=======
+Stuck
+
+If you get stuck inside a fortress, type /stuck to teleport to nearby after a delay.
+
+THIS FEATURE NOT IMPLEMENTED YET.
