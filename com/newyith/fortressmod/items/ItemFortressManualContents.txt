@@ -1,11 +1,13 @@
+Fortress Manual
+
 Table of contents
 
 1) Table of contents
 2) Generators
 3) Doors
 4) Doors (2)
-5) Redstone
-6) Clogging
+5) Clogging
+6) Redstone
 7) Emergency key
 8) Stuck
 =======
@@ -29,15 +31,15 @@ The white-list sign(s) can also be on any obsidian block connected (by obsidian)
 
 Sign format: One name on each line or comma separated list.
 =======
-Redstone
-
-While powered by redstone, it stops generating and pauses fuel consumption.
-=======
 Clogging
 
 If more than one fortress generator tries to control the same fortress, the newer generator will clog.
 
 Pick up generator (with pickaxe) to unclog.
+=======
+Redstone
+
+While powered by redstone, the fortress generator stops generating and pauses fuel consumption.
 =======
 Emergency Key
 Q Q Q
