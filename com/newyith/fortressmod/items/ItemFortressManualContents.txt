@@ -1,7 +1,5 @@
 Fortress Manual
 
-Table of contents
-
 1) Table of contents
 2) Generators
 3) Doors

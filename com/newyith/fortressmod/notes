@@ -9,12 +9,14 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-manual book (crafted with (1 fortress generator) or (1 fortress generator (preserved) and 1 book))
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby) (maybe look to see if this already exists as a mod?)
-TODO: consider having fortress generator tell player how many other generator are in range (128) when its placed (so you can be sure yours is oldest)
-add black and white pic of glowstone in fg fuel slot
+    TODO: write StuckCommand::getValidTeleportDest()
+TODO: consider making generators produce teleport home tokens from molten glowstone
+TODO: look at water bucket in cake recipe to see how to preserve items (fg in manual recipe)
+    
 
 Maybe:
+have fortress generator tell player how many other generator are in range (128) when its placed (so you can be sure yours is oldest)
 add generate/degenerate sounds
     https://www.freesound.org/people/PhreaKsAccount/sounds/46489/
     https://www.freesound.org/people/MiceHead/sounds/13294/
@@ -28,6 +30,8 @@ DONE: test what if while degenerating wall, long section is disconnected, then g
     yes but it still remembers it needs to degenerate the now disconnected part when next paused
 
 Done:
+add black and white pic of glowstone in fg fuel slot
+manual book (crafted with 1 fortress generator)
 add flames (like furnace has) to fortress generator when its active
 animated generation/degeneration
 add redstone power pauses generator feature
