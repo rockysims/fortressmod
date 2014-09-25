@@ -9,11 +9,12 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-/stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby) (maybe look to see if this already exists as a mod?)
-    TODO: write StuckCommand::getValidTeleportDest()
+/stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
+    TODO: add 5 minute delay before teleport. cancelled by damage or moving more than 8 blocks from original location
+    TODO: improve messages and cancel /stuck if player is damaged or gets too far from original location
+TODO: review expansion of generators section in fortress manual (write it better? or good enough)
 TODO: consider making generators produce teleport home tokens from molten glowstone
-TODO: look at water bucket in cake recipe to see how to preserve items (fg in manual recipe)
-    
+TODO: maybe: give the role of obsidian in fortress doors to nether brick (or just plain nether rack?)
 
 Maybe:
 have fortress generator tell player how many other generator are in range (128) when its placed (so you can be sure yours is oldest)

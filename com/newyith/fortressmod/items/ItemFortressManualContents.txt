@@ -2,12 +2,13 @@ Fortress Manual
 
 1) Table of contents
 2) Generators
-3) Doors
-4) Doors (2)
-5) Clogging
-6) Redstone
-7) Emergency key
-8) Stuck
+3) Generators 2
+4) Doors
+5) Doors 2
+6) Clogging
+7) Redstone
+8) Emergency key
+9) Stuck
 =======
 Fortress Generator
 O O O
@@ -16,6 +17,12 @@ O O O
 O=obsidian, D=diamond
 
 Changes cobblestone, glass, obsidian, and doors (wood/iron) to a bedrock version while fueled by glowstone dust.
+=======
+Fortress Generator 2
+
+Place the generator against a structure built of cobblestone, glass, obsidian, and/or doors (wood/iron).
+
+While fueled, the generator will make the structure invulnerable (GLOWSTONE_BURN_TIME_HOURS hourGLOWSTONE_BURN_TIME_HOURS_S per glowstone dust).
 =======
 Fortress Doors
 

@@ -25,6 +25,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import cpw.mods.fml.client.registry.RenderingRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -64,13 +65,16 @@ public class FortressMod
 		}
 	};
 
+
 	@EventHandler
 	public void serverStart(FMLServerStartingEvent event) {
 	     MinecraftServer server = MinecraftServer.getServer();
 	     
 	     ICommandManager command = server.getCommandManager();
 	     ServerCommandManager manager = (ServerCommandManager) command;
-	     manager.registerCommand(new StuckCommand());
+	     StuckCommand stuckCommand = new StuckCommand();
+	     FMLCommonHandler.instance().bus().register(stuckCommand); //listen for ticks
+	     manager.registerCommand(stuckCommand);
 	}
 	
 	/*
@@ -161,7 +165,7 @@ public class FortressMod
 
         //itemFortressManual
         ItemStack fortressManualStack = new ItemStack(itemFortressManual, 1); 
-        GameRegistry.addShapelessRecipe(fortressManualStack, fortressGeneratorStack);
+        GameRegistry.addShapelessRecipe(fortressManualStack, obsidianStack);
         
         //* debug recipes
         ItemStack dirtStack = new ItemStack(Blocks.dirt, 1);

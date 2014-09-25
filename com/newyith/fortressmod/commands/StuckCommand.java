@@ -1,18 +1,59 @@
 package com.newyith.fortressmod.commands;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.newyith.fortressmod.Dbg;
+import com.newyith.fortressmod.FortressMod;
 import com.newyith.fortressmod.Point;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockBush;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class StuckCommand extends CommandBase {
 	Random random = new Random();
+	private int quadrantSize = 64;
+	private Map<EntityPlayer, Integer> stuckList = new HashMap<EntityPlayer, Integer>();
+	private int stuckDelayMs = 5*60/60*1000; //TODO: change back to 5*60*1000
+
+	
+	
+	//Called when the server ticks. Usually 20 ticks a second.
+	@SubscribeEvent
+	public void onServerTick(TickEvent.ServerTickEvent event) {
+		if (event.phase == TickEvent.Phase.END) {
+			for (EntityPlayer player : stuckList.keySet()) {
+				int waitTicks = stuckList.get(player);
+				
+				if (waitTicks > 0) {
+					if (waitTicks % (60*1000/50) == 0) { //every 60 seconds
+						int minutesRemaining = (waitTicks * 50) / (1000*60);
+						player.addChatMessage(new ChatComponentText("/stuck teleport in " + String.valueOf(minutesRemaining) + " minutes"));
+					}
+					
+					waitTicks--;
+					stuckList.put(player, waitTicks);
+				} else {
+					stuckList.remove(player);
+					stuckTeleport(player);
+				}
+			}
+		}
+	}
 	
 	@Override
 	public String getCommandName() {
@@ -31,40 +72,65 @@ public class StuckCommand extends CommandBase {
 	public void processCommand(ICommandSender icommandsender, String[] astring) {
 		if (icommandsender instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer) icommandsender;
+			stuckList.put(player, (int) ((this.stuckDelayMs )/50));
+			//stuckTeleport(player);
+		}
+	}
+	
+	private void stuckTeleport(EntityPlayer player) {
+		int x = (int)player.posX;
+		int y = (int)player.posY;
+		int z = (int)player.posZ;
+
+		//TODO: make message on next line true
+		player.addChatMessage(new ChatComponentText("Moving 8 blocks from here or taking damage will cancel /stuck."));
+
+		Point p;
+		boolean teleported = false;
+		int attemptLimit = 20;
+		while (!teleported && attemptLimit > 0) {
+			attemptLimit--;
 			
-			int x = (int)player.posX;
-			int y = (int)player.posY;
-			int z = (int)player.posZ;
-			
-			Point p;
-			boolean teleported = false;
-			int attemptLimit = 20;
-			while (attemptLimit > 0) {
-				attemptLimit--;
-				
-				p = getRandomNearbyPoint(x, y, z);
-				p = getValidTeleportDest(p);
-				if (p != null) {
-					player.setPositionAndUpdate(p.x, p.y, p.z);
-					teleported = true;
-				}
+			p = getRandomNearbyPoint(x, y, z);
+			p = getValidTeleportDest(p, player.worldObj);
+			if (p != null) {
+				player.setPositionAndUpdate(p.x + 0.5F, p.y, p.z + 0.5F);
+				teleported = true;
 			}
-			if (!teleported) {
-				player.addChatMessage(new ChatComponentText("Failed to teleport you with /stuck. No suitable destination found."));
+		}
+		if (!teleported) {
+			player.addChatMessage(new ChatComponentText("/stuck failed because no suitable destination was found."));
+		}
+	}
+
+	private Point getValidTeleportDest(Point p, World world) {
+		Point validDest = null;
+		
+		int maxHeight = world.getActualHeight();
+		for (int y = maxHeight-2; y >= 0; y--) {
+			Block b = world.getBlock(p.x, y, p.z);
+			if (b != Blocks.air) {
+				//first non air block
+				
+				//check if valid teleport destination
+				Block b1 = world.getBlock(p.x, y+1, p.z);
+				Block b2 = world.getBlock(p.x, y+2, p.z);
+				if (b.isSideSolid(world, p.x, y, p.z, ForgeDirection.UP)) {
+					boolean canSpawn1 = (b1 == Blocks.air) || b1 instanceof BlockBush;
+					boolean canSpawn2 = (b2 == Blocks.air) || b2 instanceof BlockBush;
+					if (canSpawn1 && canSpawn2) {
+						validDest = new Point(p.x, y+1, p.z);
+					}
+					break;
+				}
 			}
 		}
 		
-		Dbg.print("I'm /stuck!");
-	}
-
-	private Point getValidTeleportDest(Point p) {
-		//TODO: write this
-		return p;
+		return validDest;
 	}
 
 	private Point getRandomNearbyPoint(int x, int y, int z) {
-		int quadrantSize = 2;
-		int dist = quadrantSize + quadrantSize / 2 + (int)(random.nextFloat() * quadrantSize);
+		int dist = quadrantSize  + quadrantSize / 2 + (int)(random.nextFloat() * quadrantSize);
 		
 		//move left, right, forward, or backward by dist
 		float f = random.nextFloat() * 100;
