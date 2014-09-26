@@ -73,11 +73,21 @@ public class StuckCommand extends CommandBase {
 	public void processCommand(ICommandSender icommandsender, String[] astring) {
 		if (icommandsender instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer) icommandsender;
-			stuckList.add(new StuckPlayer(player));
-			player.addChatMessage(new ChatComponentText("/stuck will cancel if you move 8+ blocks away or taking damage."));
+			
+			StuckPlayer alreadyStuckPlayer = null;
+			for (StuckPlayer stuckPlayer : stuckList) {
+				if (stuckPlayer.isPlayer(player)) {
+					alreadyStuckPlayer = stuckPlayer;
+				}
+			}
+			
+			if (alreadyStuckPlayer == null) {
+				StuckPlayer stuckPlayer = new StuckPlayer(player);
+				stuckPlayer.sendStartMessage();
+				stuckList.add(stuckPlayer);
+			} else {
+				alreadyStuckPlayer.sendBePatientMessage();
+			}
 		}
 	}
-	
-	
-
 }

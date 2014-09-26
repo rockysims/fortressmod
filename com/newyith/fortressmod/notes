@@ -9,10 +9,6 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-/stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
-    TODO: add check to make sure each player can only be /stuck once at a time
-    TODO: change back to 5 minute delay
-    TODO: add color to /stuck messages
 TODO: review expansion of generators section in fortress manual (write it better? or good enough)
 TODO: consider making generators produce teleport home tokens from molten glowstone
 TODO: maybe: give the role of obsidian in fortress doors to nether brick (or just plain nether rack?)
@@ -32,6 +28,7 @@ DONE: test what if while degenerating wall, long section is disconnected, then g
     yes but it still remembers it needs to degenerate the now disconnected part when next paused
 
 Done:
+/stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add black and white pic of glowstone in fg fuel slot
 manual book (crafted with 1 fortress generator)
 add flames (like furnace has) to fortress generator when its active

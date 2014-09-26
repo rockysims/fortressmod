@@ -17,6 +17,7 @@ import net.minecraft.block.BlockBush;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -30,7 +31,7 @@ public class StuckPlayer {
 
 	Random random = new Random();
 	private int quadrantSize = 64;
-	private final int stuckDelayMs = 20*1000; //TODO: change back to 5*60*1000
+	private final int stuckDelayMs = 5*60*1000;
 
 	public StuckPlayer(EntityPlayer player) {
 		this.player = player;
@@ -41,24 +42,24 @@ public class StuckPlayer {
 		this.messages = new HashMap<Integer, String>();
 		int ms;
 		ms = 1*1000;
-		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds");
+		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 2*1000;
-		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds");
+		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 3*1000;
-		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds");
+		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 5*1000;
-		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds");
+		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 10*1000;
-		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds");
+		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 15*1000;
-		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds");
+		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 30*1000;
-		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds");
+		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 1*60*1000;
-		this.messages.put(ms, "/stuck teleport in 1 minute");
+		this.messages.put(ms, "/stuck teleport in 1 minute.");
 		for (int i = 2; i*60*1000 < this.stuckDelayMs; i++) {
 			ms = i*60*1000;
-			this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/(1000*60)) + " minutes");
+			this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/(1000*60)) + " minutes.");
 		}
 		
 		//remove messages that would be shown earlier than stuckDelayMs
@@ -71,10 +72,9 @@ public class StuckPlayer {
 	}
 	
 	public void considerSendingMessage() {
-		Dbg.print("considerSendingMessage()");
+		Dbg.print("considerSendingMessage()"); //TODO: delete this line
 		
-		int elapsed = this.getElapsedMs();
-		int remaining = this.stuckDelayMs - elapsed;
+		int remaining = this.getRemainingMs();
 		
 		List<Integer> displayTimes = new ArrayList<Integer>(this.messages.keySet());
 		Collections.sort(displayTimes);
@@ -88,10 +88,6 @@ public class StuckPlayer {
 				break;
 			}
 		}
-	}
-	
-	private void sendMessage(String msg) {
-		this.player.addChatMessage(new ChatComponentText(msg));
 	}
 	
 	public boolean considerCancelling() {
@@ -126,6 +122,40 @@ public class StuckPlayer {
 		return cancel;
 	}
 
+	public void sendStartMessage() {
+		String msgLine1 = "/stuck will cancel if you move 8+ blocks away or take damage.";
+		
+		String msgLine2 = "";
+		int ms = this.stuckDelayMs;
+		if (ms <= 5*1000) {
+			//first natural message will be soon enough
+		} else if (ms < 60*1000) { //less than a minute delay
+			msgLine2 = "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.";
+		} else {
+			msgLine2 = "/stuck teleport in " + String.valueOf(ms/(1000*60)) + " minutes.";
+		}
+		
+		this.sendMessage(msgLine1);
+		if (msgLine2.length() > 0) {
+			this.sendMessage(msgLine2);
+		}
+	}
+
+	public void sendBePatientMessage() {
+		int remainingSeconds = this.getRemainingMs() / 1000;
+		String msg = "/stuck teleport in " + String.valueOf(remainingSeconds) + " seconds... be patient.";
+		this.sendMessage(msg);
+	}
+	
+	private void sendMessage(String msg) {
+		msg = EnumChatFormatting.AQUA + msg;
+		this.player.addChatMessage(new ChatComponentText(msg));
+	}
+
+	public boolean isPlayer(EntityPlayer otherPlayer) {
+		return this.player.getGameProfile().getName() == otherPlayer.getGameProfile().getName();
+	}
+
 	public boolean isDoneWaiting() {
 		return this.getElapsedMs() > this.stuckDelayMs;
 	}
@@ -134,6 +164,10 @@ public class StuckPlayer {
 		long now = new Date().getTime();
 		int elapsed = (int) (now - this.startTimestamp);
 		return elapsed;
+	}
+	
+	private int getRemainingMs() {
+		return this.stuckDelayMs - this.getElapsedMs();
 	}
 
 	public void stuckTeleport() {
@@ -155,7 +189,7 @@ public class StuckPlayer {
 			}
 		}
 		if (!teleported) {
-			player.addChatMessage(new ChatComponentText("/stuck failed because no suitable destination was found."));
+			this.sendMessage("/stuck failed because no suitable destination was found.");
 		}
 	}
 
@@ -165,14 +199,15 @@ public class StuckPlayer {
 		int maxHeight = world.getActualHeight();
 		for (int y = maxHeight-2; y >= 0; y--) {
 			Block b = world.getBlock(p.x, y, p.z);
-			if (b != Blocks.air) {
+			if (!b.isAir(world, p.x, y, p.z)) {
 				//first non air block
 				
 				//check if valid teleport destination
 				if (b.isSideSolid(world, p.x, y, p.z, ForgeDirection.UP)) {
 					validDest = new Point(p.x, y+1, p.z);
-					break;
 				}
+				
+				break;
 			}
 		}
 		
@@ -215,5 +250,4 @@ public class StuckPlayer {
 		
 		return new Point(x, y, z);
 	}
-
 }
