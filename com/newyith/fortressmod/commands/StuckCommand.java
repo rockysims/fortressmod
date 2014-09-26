@@ -44,7 +44,12 @@ public class StuckCommand extends CommandBase {
 						player.stuckTeleport();
 						stuckList.remove(player);
 					} else {
-						player.considerSendingMessage();
+						boolean cancelled = player.considerCancelling();
+						if (cancelled) {
+							stuckList.remove(player);
+						} else {
+							player.considerSendingMessage();
+						}
 					}
 				}
 			}
@@ -69,7 +74,7 @@ public class StuckCommand extends CommandBase {
 		if (icommandsender instanceof EntityPlayer) {
 			EntityPlayer player = (EntityPlayer) icommandsender;
 			stuckList.add(new StuckPlayer(player));
-			player.addChatMessage(new ChatComponentText("//TODO: /stuck cancelled by moving 8 blocks or taking damage."));
+			player.addChatMessage(new ChatComponentText("/stuck will cancel if you move 8+ blocks away or taking damage."));
 		}
 	}
 	

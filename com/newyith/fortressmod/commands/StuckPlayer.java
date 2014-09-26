@@ -22,7 +22,8 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 public class StuckPlayer {
 	private EntityPlayer player;
-	private float initialHealth;
+	private Point startPoint;
+	private float maxHealthOnRecord;
 	private long startTimestamp;
 
 	private Map<Integer, String> messages;
@@ -33,8 +34,9 @@ public class StuckPlayer {
 
 	public StuckPlayer(EntityPlayer player) {
 		this.player = player;
+		this.startPoint = new Point(player.getPlayerCoordinates().posX, player.getPlayerCoordinates().posY, player.getPlayerCoordinates().posZ);
+		this.maxHealthOnRecord = player.getHealth();
 		this.startTimestamp = new Date().getTime();
-		this.initialHealth = player.getHealth();
 		
 		this.messages = new HashMap<Integer, String>();
 		int ms;
@@ -82,10 +84,46 @@ public class StuckPlayer {
 				//time to display the message
 				String msg = this.messages.get(displayTime);
 				this.messages.remove(displayTime);
-				player.addChatMessage(new ChatComponentText(msg));
+				sendMessage(msg);
 				break;
 			}
 		}
+	}
+	
+	private void sendMessage(String msg) {
+		this.player.addChatMessage(new ChatComponentText(msg));
+	}
+	
+	public boolean considerCancelling() {
+		boolean cancel = false;
+		
+		int x = this.player.getPlayerCoordinates().posX;
+		int y = this.player.getPlayerCoordinates().posY;
+		int z = this.player.getPlayerCoordinates().posZ;
+		int changeInX = Math.abs(x - this.startPoint.x);
+		int changeInY = Math.abs(y - this.startPoint.y);
+		int changeInZ = Math.abs(z - this.startPoint.z);
+		
+		int maxChange = 8;
+		if (changeInX > maxChange || changeInY > maxChange || changeInZ > maxChange) {
+			//player moved too far away
+			cancel = true;
+			String msg = "/stuck cancelled because you moved too far away.";
+			sendMessage(msg);
+		}
+		
+		float health = this.player.getHealth();
+		if (health < this.maxHealthOnRecord) {
+			//player took damage
+			cancel = true;
+			String msg = "/stuck cancelled because you took damage.";
+			sendMessage(msg);
+		} else if (health > this.maxHealthOnRecord) {
+			//player healed
+			this.maxHealthOnRecord = this.player.getHealth();
+		}
+		
+		return cancel;
 	}
 
 	public boolean isDoneWaiting() {
@@ -131,14 +169,8 @@ public class StuckPlayer {
 				//first non air block
 				
 				//check if valid teleport destination
-				Block b1 = world.getBlock(p.x, y+1, p.z);
-				Block b2 = world.getBlock(p.x, y+2, p.z);
 				if (b.isSideSolid(world, p.x, y, p.z, ForgeDirection.UP)) {
-					boolean canSpawn1 = (b1 == Blocks.air) || b1 instanceof BlockBush;
-					boolean canSpawn2 = (b2 == Blocks.air) || b2 instanceof BlockBush;
-					if (canSpawn1 && canSpawn2) {
-						validDest = new Point(p.x, y+1, p.z);
-					}
+					validDest = new Point(p.x, y+1, p.z);
 					break;
 				}
 			}
