@@ -30,7 +30,6 @@ public class GeneratorCore {
 	private long timePlaced = 0;
 	private String placedByPlayerName = "none"; //set in onPlaced
 	
-	private static Set<Point> allGeneratorCorePoints = new HashSet<Point>();
 	private TileEntityFortressGenerator fortressGenerator;
 	private World world;
 	private boolean animateGeneration = true;
@@ -137,18 +136,14 @@ public class GeneratorCore {
 			}
 
 			//add to list of all cores
-			allGeneratorCorePoints.add(new Point(x, y, z));
-			Dbg.print("testStr before: " + ModWorldData.forWorld(world).testStr);
-			ModWorldData.forWorld(world).testStr = String.valueOf(allGeneratorCorePoints.size());
-			Dbg.print("testStr after: " + ModWorldData.forWorld(world).testStr);
+			Dbg.print("A addGeneratorCorePoint.size(): " + String.valueOf(ModWorldData.forWorld(world).getGeneratorCorePoints().size()));
+			ModWorldData.forWorld(world).addGeneratorCorePoint(new Point(x, y, z));
+			Dbg.print("B addGeneratorCorePoint.size(): " + String.valueOf(ModWorldData.forWorld(world).getGeneratorCorePoints().size()));
 		}
 	}
 
 	//Not called when broken and then replaced by different version of fortress generator (on, off, clogged)
 	public static void onBroken(World world, int x, int y, int z) {
-		allGeneratorCorePoints.remove(new Point(x, y, z));
-		ModWorldData.forWorld(world).testStr = String.valueOf(allGeneratorCorePoints.size());
-
 		if (!world.isRemote) {
 			TileEntityFortressGenerator brokenFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
 			GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
@@ -163,6 +158,9 @@ public class GeneratorCore {
 					fg.getGeneratorCore().clog();
 				}
 			}
+			
+			//remove from list of all cores
+			ModWorldData.forWorld(world).removeGeneratorCorePoint(new Point(x, y, z));
 		}
 	}
 

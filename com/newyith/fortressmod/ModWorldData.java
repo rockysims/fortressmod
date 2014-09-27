@@ -1,30 +1,37 @@
 package com.newyith.fortressmod;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.storage.MapStorage;
+import net.minecraftforge.common.util.Constants.NBT;
 
 public class ModWorldData extends WorldSavedData {
 	final static String key = "fortressmod.world.data";
 
-	// Fields containing your data here
-	public String testStr = "testStr original value";
+	//data to store
+	private Set<Point> allGeneratorCorePoints = new HashSet<Point>();
 
 	public ModWorldData(String mapName) {
 		super(mapName);
-		Dbg.print("ModWorldData(String) constructor called. mapName == " + mapName);
 	}
 	
-	public ModWorldData(World world) {
-		super(key);
-		Dbg.print("key: " + String.valueOf(key));
+	public Set<Point> getGeneratorCorePoints() {
+		return this.allGeneratorCorePoints;
 	}
 	
-	@Override
-	public boolean isDirty() {
-		//TODO: keep track of if its actually dirty?
-		return true;
+	public void addGeneratorCorePoint(Point p) {
+		this.allGeneratorCorePoints.add(p);
+		this.setDirty(true);
+	}
+	
+	public void removeGeneratorCorePoint(Point p) {
+		this.allGeneratorCorePoints.remove(p);
+		this.setDirty(true);
 	}
 	
 	public static ModWorldData forWorld(World world) {
@@ -32,25 +39,37 @@ public class ModWorldData extends WorldSavedData {
 		MapStorage storage = world.perWorldStorage;
 		ModWorldData result = (ModWorldData)storage.loadData(ModWorldData.class, key);
 		if (result == null) {
-			result = new ModWorldData(world);
-			Dbg.print("storage.setData()");
+			result = new ModWorldData(key);
 			storage.setData(key, result);
 		}
 		return result;
 	}
 
 	@Override
-	public void readFromNBT(NBTTagCompound nbt) {
-		// Get your data from the nbt here
-		this.testStr = nbt.getString("testStr");
-		Dbg.print("readFromNBT testStr == " + testStr);
+	public void readFromNBT(NBTTagCompound compound) {
+		//read allGeneratorCorePoints
+		NBTTagList list = compound.getTagList("allGeneratorCorePoints", NBT.TAG_COMPOUND);
+		for (int i = 0; i < list.tagCount(); i++) {
+			NBTTagCompound item = list.getCompoundTagAt(i);
+			int x = item.getInteger("x");
+			int y = item.getInteger("y");
+			int z = item.getInteger("z");
+			this.allGeneratorCorePoints.add(new Point(x, y, z));
+		}
 	}
 	
 	@Override
-	public void writeToNBT(NBTTagCompound nbt) {
-		// Put your data in the nbt here
-		Dbg.print("writeToNBT testStr == " + this.testStr);
-		nbt.setString("testStr", this.testStr);
+	public void writeToNBT(NBTTagCompound compound) {
+		//write allGeneratorCorePoints
+		NBTTagList list = new NBTTagList();
+		for (Point p : this.allGeneratorCorePoints) {
+			NBTTagCompound item = new NBTTagCompound();
+			item.setInteger("x", p.x);
+			item.setInteger("y", p.y);
+			item.setInteger("z", p.z);
+			list.appendTag(item);
+		}
+		compound.setTag("allGeneratorCorePoints", list);
 	}
 
 }
