@@ -1,16 +1,5 @@
 package com.newyith.fortressmod;
 
-import java.util.Arrays;
-
-import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.newyith.fortressmod.client.GuiHandler;
-import com.newyith.fortressmod.commands.StuckCommand;
-import com.newyith.fortressmod.items.ItemFortressDoor;
-import com.newyith.fortressmod.items.ItemFortressManual;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.command.ICommandManager;
@@ -19,17 +8,19 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemDoor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import cpw.mods.fml.client.registry.RenderingRegistry;
+
+import com.newyith.fortressmod.client.GuiHandler;
+import com.newyith.fortressmod.commands.StuckCommand;
+import com.newyith.fortressmod.items.ItemFortressDoor;
+import com.newyith.fortressmod.items.ItemFortressManual;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;

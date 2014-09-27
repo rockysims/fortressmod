@@ -11,18 +11,18 @@ Fortress Manual
 9) Stuck
 =======
 Fortress Generator
-O O O
-O D O
-O O O
-O=obsidian, D=diamond
+o o o
+o d o
+o o o
+o=obsidian, d=diamond
 
-Changes cobblestone, glass, obsidian, and doors (wood/iron) to a bedrock version while fueled by glowstone dust.
+Changes cobblestone, glass, obsidian, and doors (wood/iron) to an unbreakable version while fueled by glowstone dust.
 =======
 Fortress Generator 2
 
 Place the generator against a structure built of cobblestone, glass, obsidian, and/or doors (wood/iron).
 
-While fueled, the generator will make the structure invulnerable (GLOWSTONE_BURN_TIME_HOURS hourGLOWSTONE_BURN_TIME_HOURS_S per glowstone dust).
+While fueled, the generator will make the structure unbreakable (GLOWSTONE_BURN_TIME_HOURS hourGLOWSTONE_BURN_TIME_HOURS_S per glowstone dust).
 =======
 Fortress Doors
 
@@ -58,5 +58,3 @@ When placed against a fortress wall, all generators also touching the wall will 
 Stuck
 
 If you get stuck inside a fortress, type /stuck to teleport to nearby after a delay.
-
-THIS FEATURE NOT IMPLEMENTED YET.

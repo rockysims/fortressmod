@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.newyith.fortressmod.Dbg;
 import com.newyith.fortressmod.FortressMod;
 import com.newyith.fortressmod.Point;
 

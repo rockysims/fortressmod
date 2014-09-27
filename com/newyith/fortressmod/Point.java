@@ -16,4 +16,18 @@ public class Point {
 	public String toString() {
 		return String.valueOf(x) + "," + String.valueOf(y) + "," + String.valueOf(z);
 	}
+
+	@Override
+	public int hashCode() {
+		Dbg.print("hashCode() for " + this);
+		return this.toString().hashCode();
+    }
+	
+	@Override
+	public boolean equals(Object obj) {
+		Point p = (Point)obj;
+		boolean samePoint = (x == p.x) && (y == p.y) && (z == p.z);
+		Dbg.print("equals(): " + this + " ?= " + p + " (" + String.valueOf(samePoint) + ")");
+		return samePoint;
+	}
 }

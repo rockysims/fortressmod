@@ -31,7 +31,7 @@ public class StuckPlayer {
 
 	Random random = new Random();
 	private int quadrantSize = 64;
-	private final int stuckDelayMs = 5*60*1000;
+	private final int stuckDelayMs = 3*60*1000;
 
 	public StuckPlayer(EntityPlayer player) {
 		this.player = player;
@@ -72,8 +72,6 @@ public class StuckPlayer {
 	}
 	
 	public void considerSendingMessage() {
-		Dbg.print("considerSendingMessage()"); //TODO: delete this line
-		
 		int remaining = this.getRemainingMs();
 		
 		List<Integer> displayTimes = new ArrayList<Integer>(this.messages.keySet());

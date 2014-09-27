@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import com.google.common.collect.Lists;
@@ -29,6 +30,7 @@ public class GeneratorCore {
 	private long timePlaced = 0;
 	private String placedByPlayerName = "none"; //set in onPlaced
 	
+	private static Set<Point> allGeneratorCorePoints = new HashSet<Point>();
 	private TileEntityFortressGenerator fortressGenerator;
 	private World world;
 	private boolean animateGeneration = true;
@@ -42,7 +44,7 @@ public class GeneratorCore {
 	public void setWorldObj(World world) {
 		this.world = world;
 	}
-	
+
 	public void writeToNBT(NBTTagCompound compound) {
 		writeLayersToNBT(compound, "wallLayers", this.wallLayers);
 		writeLayersToNBT(compound, "generatedLayers", this.generatedLayers);
@@ -133,11 +135,20 @@ public class GeneratorCore {
 			} else {
 				placedCore.degenerateWall(false);
 			}
+
+			//add to list of all cores
+			allGeneratorCorePoints.add(new Point(x, y, z));
+			Dbg.print("testStr before: " + ModWorldData.forWorld(world).testStr);
+			ModWorldData.forWorld(world).testStr = String.valueOf(allGeneratorCorePoints.size());
+			Dbg.print("testStr after: " + ModWorldData.forWorld(world).testStr);
 		}
 	}
-	
+
 	//Not called when broken and then replaced by different version of fortress generator (on, off, clogged)
 	public static void onBroken(World world, int x, int y, int z) {
+		allGeneratorCorePoints.remove(new Point(x, y, z));
+		ModWorldData.forWorld(world).testStr = String.valueOf(allGeneratorCorePoints.size());
+
 		if (!world.isRemote) {
 			TileEntityFortressGenerator brokenFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
 			GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
