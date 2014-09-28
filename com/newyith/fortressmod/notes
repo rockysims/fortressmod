@@ -32,6 +32,9 @@ TODO: consider issue of 2 fortresses semi close to each other and built up until
         TODO: set core.claimedPoints when generating wall or onPlaced
         TODO: replace clogging logic with whatever makes sense (usually generating anyway and letting it figure it out)
 
+TODO: remove override that can prevent emergency key from working?
+TODO: onTryToGenerate, if there are wall blocks to generate but all belong to other generators, display message to player who placed fg?
+
 TODO: address issue where turning on a generator then breaking a block before it can be generated prevents animation from finishing
     make animation ignore non wallBlocks when checking if layer needs update?
 

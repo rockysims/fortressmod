@@ -134,7 +134,6 @@ public class GeneratorCore {
 	}
 
 	public static void onPlaced(World world, int x, int y, int z, String placingPlayerName) {
-		//clog unless its the only none clogged generator (in which case degenerated connected wall)
 		if (!world.isRemote) {
 			TileEntityFortressGenerator placedFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
 			GeneratorCore placedCore = placedFortressGenerator.getGeneratorCore();
@@ -143,10 +142,13 @@ public class GeneratorCore {
 			placedCore.timePlaced = System.currentTimeMillis();
 			placedCore.placedByPlayerName = placingPlayerName;
 			
-			//TODO: delete next 2 lines?
+			//TODO: delete next 2 lines? double check
 			//pretend redstone state just changed in case it is already powered
 			placedFortressGenerator.onNeighborBlockChange(world, x, y, z);
 			
+			//*
+			placedCore.degenerateWall(false); //degenerates connected wall if this is the only connected generator
+			/*/
 			//clog or degenerate
 			boolean isOldest = isOldestNotCloggedGeneratorConnectedTo(placedCore);
 			if (!isOldest) {
@@ -154,14 +156,10 @@ public class GeneratorCore {
 			} else {
 				placedCore.degenerateWall(false);
 			}
+			//*/
 			
 			//claim wall + 1 layer
 			placedCore.updateClaimedPoints(placedCore.getGeneratableWallLayers());
-
-			//add to list of all cores
-			Dbg.print("A addGeneratorCorePoint.size(): " + String.valueOf(ModWorldData.forWorld(world).getGeneratorCorePoints().size()));
-			ModWorldData.forWorld(world).addGeneratorCorePoint(new Point(x, y, z));
-			Dbg.print("B addGeneratorCorePoint.size(): " + String.valueOf(ModWorldData.forWorld(world).getGeneratorCorePoints().size()));
 		}
 	}
 
@@ -171,9 +169,10 @@ public class GeneratorCore {
 			TileEntityFortressGenerator brokenFortressGenerator = (TileEntityFortressGenerator) world.getTileEntity(x, y, z);
 			GeneratorCore brokenCore = brokenFortressGenerator.getGeneratorCore();
 
-			//degenerate generated wall (and connected wall if oldest and !clogged) without animation
+			//degenerate generated wall (and connected wall if only generator connected and !clogged) without animation
 			brokenCore.degenerateWall(false);
 			
+			/*
 			//if (!clogged && oldest)
 			if (!brokenFortressGenerator.isClogged() && isOldestNotCloggedGeneratorConnectedTo(brokenCore)) {
 				List<TileEntityFortressGenerator> fgs = brokenCore.getConnectedFortressGeneratorsNotClogged();
@@ -181,9 +180,7 @@ public class GeneratorCore {
 					fg.getGeneratorCore().clog();
 				}
 			}
-			
-			//remove from list of all cores
-			ModWorldData.forWorld(world).removeGeneratorCorePoint(new Point(x, y, z));
+			//*/
 		}
 	}
 
@@ -191,11 +188,15 @@ public class GeneratorCore {
 		if (this.fortressGenerator.isBurning()) {
 			if (!this.fortressGenerator.isClogged() && !this.isPaused()) {
 				//fortress generator was just turned on
+				//*
+				this.generateWall();
+				/*/
 				if (isOldestNotCloggedGeneratorConnectedTo(this)) {
 					this.generateWall();
 				} else {
 					this.clog();
 				}
+				//*/
 			}
 		} else {
 			this.degenerateWall(true);
