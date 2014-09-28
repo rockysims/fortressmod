@@ -60,7 +60,7 @@ public class FortressEmergencyKey extends BlockQuartz {
 		int clogCount = 0;
 		for (TileEntityFortressGenerator fg : fgs) {
 			if (fg.getGeneratorCore().getPlacedByPlayerName().contentEquals(keyPlacingPlayerName)) {
-				keyPreventingBlocksPoints = Wall.getPointsConnected(world, new Point(fg.xCoord, fg.yCoord, fg.zCoord), new ArrayList<Block>(), keyPreventingBlocks);
+				keyPreventingBlocksPoints = Wall.getPointsConnected(world, new Point(fg.xCoord, fg.yCoord, fg.zCoord), new ArrayList<Block>(), keyPreventingBlocks, Wall.ConnectedThreshold.POINTS);
 
 				//if (fg not touching quartz block)
 				if (keyPreventingBlocksPoints.size() == 0) {
@@ -77,7 +77,7 @@ public class FortressEmergencyKey extends BlockQuartz {
 		ArrayList<TileEntityFortressGenerator> matches = new ArrayList<TileEntityFortressGenerator>();
 		
 		Set<Point> connectedFgPoints;
-		connectedFgPoints = Wall.getPointsConnected(world, origin, Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks());
+		connectedFgPoints = Wall.getPointsConnected(world, origin, Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks(), Wall.ConnectedThreshold.POINTS);
 		for (Point p : connectedFgPoints) {
 			TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(p.x, p.y, p.z);
 			matches.add(fg);

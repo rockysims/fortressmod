@@ -39,6 +39,7 @@ public class GeneratorCore {
 	}
 
 	public void writeToNBT(NBTTagCompound compound) {
+		writePointsToNBT(compound, "claimedPoints", this.claimedPoints);
 		writeLayersToNBT(compound, "wallLayers", this.wallLayers);
 		writeLayersToNBT(compound, "generatedLayers", this.generatedLayers);
 		
@@ -47,6 +48,17 @@ public class GeneratorCore {
 		compound.setString("placedByPlayerName", this.placedByPlayerName);
 		compound.setBoolean("isChangingGenerated", this.isChangingGenerated);
 		compound.setBoolean("isGeneratingWall", this.isGeneratingWall);
+	}
+	private void writePointsToNBT(NBTTagCompound compound, String id, Set<Point> points) {
+		NBTTagList list = new NBTTagList();
+		for (Point p : points) {
+			NBTTagCompound item = new NBTTagCompound();
+			item.setInteger("x", p.x);
+			item.setInteger("y", p.y);
+			item.setInteger("z", p.z);
+			list.appendTag(item);
+		}
+		compound.setTag(id, list);
 	}
 	private void writeLayersToNBT(NBTTagCompound compound, String id, List<List<Point>> layers) {
 		NBTTagList layersList = new NBTTagList();
@@ -72,6 +84,7 @@ public class GeneratorCore {
 	}
 	
 	public void readFromNBT(NBTTagCompound compound) {
+		this.claimedPoints = readPointsFromNBT(compound, "claimedPoints");
 		this.wallLayers = readLayersFromNBT(compound, "wallLayers");
 		this.generatedLayers = readLayersFromNBT(compound, "generatedLayers");
 		
@@ -81,7 +94,20 @@ public class GeneratorCore {
 		this.isChangingGenerated = compound.getBoolean("isChangingGenerated");
 		this.isGeneratingWall = compound.getBoolean("isGeneratingWall");
 	}
-	
+	private Set<Point> readPointsFromNBT(NBTTagCompound compound, String id) {
+		Set<Point> points = new HashSet<Point>();
+		
+		NBTTagList list = compound.getTagList(id, NBT.TAG_COMPOUND);
+		for (int i = 0; i < list.tagCount(); i++) {
+			NBTTagCompound item = list.getCompoundTagAt(i);
+			int x = item.getInteger("x");
+			int y = item.getInteger("y");
+			int z = item.getInteger("z");
+			points.add(new Point(x, y, z));
+		}
+		
+		return points;
+	}
 	private List<List<Point>> readLayersFromNBT(NBTTagCompound compound, String id) {
 		NBTTagList layersList = compound.getTagList(id, NBT.TAG_COMPOUND);
 		
@@ -512,21 +538,9 @@ public class GeneratorCore {
 		this.degenerateWall(true);
 		this.fortressGenerator.setState(FortressGeneratorState.CLOGGED);
 	}
-	
-	/**
-	 * Looks at all blocks connected to the generator by wallBlocks (directly or recursively).
-	 * Connected means within 3x3x3.
-	 * 
-	 * @param wallBlocks List of connecting block types.
-	 * @param returnBlocks List of block types to look for and return when connected to the wall.
-	 * @return List of all points (x,y,z) with a block of a type in returnBlocks that is connected to the generator by wallBlocks.
-	 */
+
 	private Set<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
-		int x = this.fortressGenerator.xCoord;
-		int y = this.fortressGenerator.yCoord;
-		int z = this.fortressGenerator.zCoord;
-		Point p = new Point(x, y, z);
-		return Wall.getPointsConnected(this.world, p, wallBlocks, returnBlocks);
+		return this.getPointsConnected(wallBlocks, returnBlocks, 64, null);
 	}
 	
 	private Set<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
@@ -536,18 +550,9 @@ public class GeneratorCore {
 		Point p = new Point(x, y, z);
 		return Wall.getPointsConnected(this.world, p, wallBlocks, returnBlocks, rangeLimit, ignorePoints);
 	}
-	
-	private Set<Point> getLayerAround(Set<Point> wallPoints) {
-		int x = this.fortressGenerator.xCoord;
-		int y = this.fortressGenerator.yCoord;
-		int z = this.fortressGenerator.zCoord;
-		Point p = new Point(x, y, z);
-		
-		List<Block> wallBlocks = new ArrayList<Block>(); //no wall blocks
-		List<Block> returnBlocks = null; //all blocks are return blocks
-		int rangeLimit = 64 + 1;
-		Set<Point> ignorePoints = new HashSet<Point>();
-		return Wall.getPointsConnected(this.world, p, wallPoints, wallBlocks, returnBlocks, rangeLimit, ignorePoints);
+
+	private List<List<Point>> getPointsConnectedAsLayers(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+		return this.getPointsConnectedAsLayers(wallBlocks, returnBlocks, 64, null);
 	}
 	
 	private List<List<Point>> getPointsConnectedAsLayers(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
@@ -558,14 +563,19 @@ public class GeneratorCore {
 		return Wall.getPointsConnectedAsLayers(this.world, p, wallBlocks, returnBlocks, rangeLimit, ignorePoints);
 	}
 
-	private List<List<Point>> getPointsConnectedAsLayers(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+	private Set<Point> getLayerAround(Set<Point> wallPoints) {
 		int x = this.fortressGenerator.xCoord;
 		int y = this.fortressGenerator.yCoord;
 		int z = this.fortressGenerator.zCoord;
 		Point p = new Point(x, y, z);
-		return Wall.getPointsConnectedAsLayers(this.world, p, wallBlocks, returnBlocks);
+		
+		List<Block> wallBlocks = new ArrayList<Block>(); //no wall blocks
+		List<Block> returnBlocks = null; //all blocks are return blocks
+		int rangeLimit = 64 + 1;
+		Set<Point> ignorePoints = null; //no points ignored
+		return Wall.getPointsConnected(this.world, p, wallPoints, wallBlocks, returnBlocks, rangeLimit, ignorePoints);
 	}
-
+	
 	public String getPlacedByPlayerName() {
 		return this.placedByPlayerName;
 	}

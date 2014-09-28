@@ -49,15 +49,6 @@ public class Wall {
 		return flattenLayers(layers);
 	}
 
-	public static Set<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
-		Set<Point> originLayer = new HashSet<Point>();
-		originLayer.add(origin);
-		Set<Point> ignorePoints = new HashSet<Point>();
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, 64, ignorePoints, ConnectedThreshold.POINTS);
-		return flattenLayers(layers);
-
-	}
-
 	public static Set<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
@@ -70,13 +61,6 @@ public class Wall {
 		return flattenLayers(layers);
 	}
 	
-	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
-		Set<Point> originLayer = new HashSet<Point>();
-		originLayer.add(origin);
-		Set<Point> ignorePoints = new HashSet<Point>();
-		return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, 64, ignorePoints, ConnectedThreshold.POINTS);
-	}
-
 	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
@@ -85,11 +69,15 @@ public class Wall {
 	
 	/**
 	 * Looks at all blocks connected to the generator by wallBlocks (directly or recursively).
-	 * Connected means within 3x3x3.
 	 * 
+	 * @param origin The rangeLimit is calculated relative to this point.
+	 * @param originLayer The first point(s) to search outward from.
 	 * @param wallBlocks List of connecting block types.
-	 * @param returnBlocks List of block types to look for and return when connected to the wall.
-	 * @return List of all points (blocks) connected to the generator by wallBlocks and matching a block type in returnBlocks.
+	 * @param returnBlocks List of block types to look for and return when connected to the wall or null to return all block types.
+	 * @param rangeLimit The maximum distance away from origin to search. 
+	 * @param ignorePoints When searching, these points will be ignored (not traversed or returned). If null, no points ignored.
+	 * @param connectedThreshold Whether connected means 3x3x3 area or only the 6 blocks connected by faces.
+	 * @return List of all points (blocks) connected to the originLayer by wallBlocks and matching a block type in returnBlocks.
 	 */
 	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, ConnectedThreshold connectedThreshold) {
 		List<List<Point>> matchesAsLayers = new ArrayList<List<Point>>();
