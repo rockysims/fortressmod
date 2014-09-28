@@ -9,20 +9,33 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-have fortress generator tell player how many other generators are in range (128) when its placed (so you can be sure yours is oldest)
+have fortress generator tell player how many older generators are in range (128) when its placed (so you can be sure yours is oldest)
     TODO: use ModWorldData.forWorld(world).getGeneratorCorePoints() to finish this task
+    TODO: consider making right clicking a generator with cobblestone display the same thing (and add to manual. under clogging?)
+TODO: consider adding generator range to fortress manual
 TODO: fix issue where placing fg 64+1 blocks from another fg but connected to its wall will turn off wall
     maybe fix is: when searching for oldest, double search range
 TODO: review expansion of generators section in fortress manual (write it better? or good enough)
+remove debug recipes
+TODO: consider adding glowstone to emergency key recipe (1 glowstone block in the middle?)
+TODO: consider issue of 2 fortresses semi close to each other and built up until eventually they connect and one fortress is controlled by other
+    Maybe fix is:
+        make generators not degenerate connected wall unless its the only generator connected (128 search range)
+            this fixes major issue of breaking into other fortresses
+                and reintroduces issue of being able to build a fortress around someone else's fortress
+        //when generating, generate all connected wall points (connected without traversing wall points belonging to other generators within 128 (or within 1 layer of wall belonging to other generators))
+        when generating, find points to generate as follows:
+            connectedFGs = all generators connected to this generator (128 search range)
+            claimedPoints = all wall points (+1 layer) belonging to connectedFGs
+            wallPoints = all connected wall points ignoring (and not traversing) claimedPoints (64 search range)
+            generate wallPoints and set core.wallPoints = wallPoints
+        TODO: make placing generator claim wall
+
+
+Maybe:
 TODO: consider making generators produce teleport home tokens from molten glowstone
     maybe??: 8 molten around 1 dust -> X teleport home tokens
     TODO: consider skipping this on the grounds that fortresses aren't supposed to be aware of who lives there
-remove debug recipes
-TODO: consider adding glowstone to emergency key recipe
-TODO: consider issue of 2 fortresses semi close to each other and built up until they eventually connect and one fortress is breached
-    issue is that if both fortresses are long standing it would be better if neither could be breached
-
-Maybe:
 add generate/degenerate sounds
     https://www.freesound.org/people/PhreaKsAccount/sounds/46489/
     https://www.freesound.org/people/MiceHead/sounds/13294/
