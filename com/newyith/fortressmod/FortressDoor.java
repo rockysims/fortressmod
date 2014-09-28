@@ -3,6 +3,7 @@ package com.newyith.fortressmod;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -84,7 +85,7 @@ public class FortressDoor extends BlockDoor {
 			wallBlocks.add(FortressMod.fortressObsidian);
 			returnBlocks.add(Blocks.wall_sign);
 			returnBlocks.add(Blocks.standing_sign);
-			List<Point> signs = Wall.getPointsConnected(world, pointAboveDoor, wallBlocks, returnBlocks, Wall.ConnectedThreshold.FACES);
+			Set<Point> signs = Wall.getPointsConnected(world, pointAboveDoor, wallBlocks, returnBlocks, Wall.ConnectedThreshold.FACES);
 			
 			for (Point p : signs) {
 				names.addAll(getNamesFromSign(world, p));

@@ -2,6 +2,7 @@ package com.newyith.fortressmod;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -52,7 +53,7 @@ public class FortressEmergencyKey extends BlockQuartz {
 	private int clogConnectedGeneratorsPlacedBy(World world, int x, int y, int z, String keyPlacingPlayerName) {
 		Point emergencyKeyPoint = new Point(x, y, z);
 		ArrayList<TileEntityFortressGenerator> fgs = this.getConnectedFortressGeneratorsNotClogged(world, emergencyKeyPoint); 
-		List<Point> keyPreventingBlocksPoints;
+		Set<Point> keyPreventingBlocksPoints;
 		ArrayList<Block> keyPreventingBlocks = new ArrayList<Block>();
 		keyPreventingBlocks.add(Blocks.quartz_block);
 		
@@ -75,7 +76,7 @@ public class FortressEmergencyKey extends BlockQuartz {
 	private ArrayList<TileEntityFortressGenerator> getConnectedFortressGeneratorsNotClogged(World world, Point origin) {
 		ArrayList<TileEntityFortressGenerator> matches = new ArrayList<TileEntityFortressGenerator>();
 		
-		List<Point> connectedFgPoints;
+		Set<Point> connectedFgPoints;
 		connectedFgPoints = Wall.getPointsConnected(world, origin, Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks());
 		for (Point p : connectedFgPoints) {
 			TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(p.x, p.y, p.z);

@@ -1,23 +1,16 @@
 package com.newyith.fortressmod;
 
-
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Stack;
-
-import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 
@@ -25,6 +18,7 @@ public class GeneratorCore {
 	//saved in NBT
 	private List<List<Point>> generatedLayers = new ArrayList<List<Point>>();
 	private List<List<Point>> wallLayers = new ArrayList<List<Point>>();
+	private Set<Point> claimedPoints = new HashSet<Point>();
 	private boolean isChangingGenerated;
 	private boolean isGeneratingWall;
 	private long timePlaced = 0;
@@ -134,6 +128,9 @@ public class GeneratorCore {
 			} else {
 				placedCore.degenerateWall(false);
 			}
+			
+			//claim wall + 1 layer
+			placedCore.updateClaimedPoints(placedCore.getGeneratableWallLayers());
 
 			//add to list of all cores
 			Dbg.print("A addGeneratorCorePoint.size(): " + String.valueOf(ModWorldData.forWorld(world).getGeneratorCorePoints().size()));
@@ -379,9 +376,61 @@ public class GeneratorCore {
 	 */
 	private void generateWall() {
 		//Dbg.print("generateWall()");
-		this.wallLayers = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getDisabledWallBlocks());
+		
+		/*
+		~ make generators not degenerate connected wall unless its the only generator connected (128 search range)
+        ~ when generating, find points to generate as follows:
+            connectedFGs = all generators connected to this generator (128 search range)
+            claimedPoints = merge of claimedPoints of all connectedFGs
+            wallLayers = all connected wall points ignoring (and not traversing) claimedPoints (64 search range)
+            set core.claimedPoints = flattened(wallLayers) + 1 layer
+        	generate wallLayers
+        ~ TODO: set core.claimedPoints when generating wall or onPlaced
+        TODO: replace clogging logic with whatever makes sense (usually generating anyway and letting it figure it out)
+        ~ TODO: add ignorePoints and searchRange parameters to Wall.getPointsConnectedAsLayers()
+        ~ TODO: make Wall.getPointsConnectedAsLayers() accept origin layer as well as origin point
+        TODO: strip out clogging from fortress generator (block, tile, core)
+		//*/
+		
+		//set this.wallLayers = wall layers its allowed to generate
+		this.wallLayers = this.getGeneratableWallLayers();
+		//recalculate this.claimedPoints
+		this.updateClaimedPoints(this.wallLayers);
+		
+		//generate
 		this.isGeneratingWall = true;
 		this.isChangingGenerated = true;
+	}
+	
+	private void updateClaimedPoints(List<List<Point>> wallLayers) {
+		this.claimedPoints .clear();
+		
+		Set<Point> wallPoints = Wall.flattenLayers(wallLayers);
+		this.claimedPoints.addAll(wallPoints);
+		
+		//add layer around wall to claimed points
+		Set<Point> layerAroundWallPoints = getLayerAround(wallPoints);
+		this.claimedPoints.addAll(layerAroundWallPoints);
+	}
+	
+	private List<List<Point>> getGeneratableWallLayers() {
+		//connectedCorePoints = all generators connected to this generator (128 search range)
+		Set<Point> connectedCorePoints = getPointsConnected(Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks(), 128, null);
+
+		//claimedPoints = merge of claimedPoints of all connected generators (connectedCorePoints)
+		Set<Point> claimedPoints = new HashSet();
+		for (Point p : connectedCorePoints) {
+			TileEntityFortressGenerator fg = (TileEntityFortressGenerator)this.world.getTileEntity(p.x, p.y, p.z);
+			GeneratorCore connectedCore = fg.getGeneratorCore();
+			claimedPoints.addAll(connectedCore.getClaimedPoints());
+		}
+		
+		//return all connected wall points ignoring (and not traversing) claimedPoints (64 search range) (returns only disabled wall)
+		return getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getDisabledWallBlocks(), 64, claimedPoints);
+	}
+
+	private Set<Point> getClaimedPoints() {
+		return this.claimedPoints;
 	}
 
 	/**
@@ -392,7 +441,7 @@ public class GeneratorCore {
 		//Dbg.print("degenerateWall("+String.valueOf(animate)+")");
 		this.wallLayers.clear();
 		this.wallLayers.addAll(this.generatedLayers);
-		if (!this.isClogged() && isOldestNotCloggedGeneratorConnectedTo(this)) {
+		if (!this.isClogged() && this.isOnlyGeneratorConnected()) {
 			List<List<Point>> connectedPoints = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
 			this.wallLayers = merge(this.wallLayers, connectedPoints);
 		}
@@ -423,20 +472,10 @@ public class GeneratorCore {
 		
 		return layers;
 	}
-
-	private void degenerateConnectedWall() {
-		Block b;
-		List<Point> wallPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
-		for (Point p : wallPoints) {
-			b = world.getBlock(p.x, p.y, p.z);
-			int index = Wall.getEnabledWallBlocks().indexOf(b);
-			if (index != -1) { //if (b is a generated block)
-				//assume this.generatedLayers is already empty
-
-				//degenerate block
-				world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
-			}
-		}
+	
+	private boolean isOnlyGeneratorConnected() {
+		Set<Point> connectedFgPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks(), 128, null);
+		return connectedFgPoints.size() == 0;
 	}
 
 	private static boolean isOldestNotCloggedGeneratorConnectedTo(GeneratorCore core) {
@@ -456,7 +495,7 @@ public class GeneratorCore {
 	private List<TileEntityFortressGenerator> getConnectedFortressGeneratorsNotClogged() {
 		List<TileEntityFortressGenerator> matches = new ArrayList<TileEntityFortressGenerator>();
 		
-		List<Point> connectFgPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks());
+		Set<Point> connectFgPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks());
 		for (Point p : connectFgPoints) {
 			TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(p.x, p.y, p.z);
 			matches.add(fg);
@@ -482,12 +521,41 @@ public class GeneratorCore {
 	 * @param returnBlocks List of block types to look for and return when connected to the wall.
 	 * @return List of all points (x,y,z) with a block of a type in returnBlocks that is connected to the generator by wallBlocks.
 	 */
-	private List<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+	private Set<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
 		int x = this.fortressGenerator.xCoord;
 		int y = this.fortressGenerator.yCoord;
 		int z = this.fortressGenerator.zCoord;
 		Point p = new Point(x, y, z);
 		return Wall.getPointsConnected(this.world, p, wallBlocks, returnBlocks);
+	}
+	
+	private Set<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
+		int x = this.fortressGenerator.xCoord;
+		int y = this.fortressGenerator.yCoord;
+		int z = this.fortressGenerator.zCoord;
+		Point p = new Point(x, y, z);
+		return Wall.getPointsConnected(this.world, p, wallBlocks, returnBlocks, rangeLimit, ignorePoints);
+	}
+	
+	private Set<Point> getLayerAround(Set<Point> wallPoints) {
+		int x = this.fortressGenerator.xCoord;
+		int y = this.fortressGenerator.yCoord;
+		int z = this.fortressGenerator.zCoord;
+		Point p = new Point(x, y, z);
+		
+		List<Block> wallBlocks = new ArrayList<Block>(); //no wall blocks
+		List<Block> returnBlocks = null; //all blocks are return blocks
+		int rangeLimit = 64 + 1;
+		Set<Point> ignorePoints = new HashSet<Point>();
+		return Wall.getPointsConnected(this.world, p, wallPoints, wallBlocks, returnBlocks, rangeLimit, ignorePoints);
+	}
+	
+	private List<List<Point>> getPointsConnectedAsLayers(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
+		int x = this.fortressGenerator.xCoord;
+		int y = this.fortressGenerator.yCoord;
+		int z = this.fortressGenerator.zCoord;
+		Point p = new Point(x, y, z);
+		return Wall.getPointsConnectedAsLayers(this.world, p, wallBlocks, returnBlocks, rangeLimit, ignorePoints);
 	}
 
 	private List<List<Point>> getPointsConnectedAsLayers(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {

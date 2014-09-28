@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.Stack;
 
 import com.google.common.collect.ImmutableList;
@@ -22,16 +23,14 @@ public class Wall {
 	private static ArrayList<Block> enabledWallBlocks = new ArrayList<Block>();
 	private static ArrayList<Block> notCloggedGeneratorBlocks = new ArrayList<Block>();
 	
-	private static final int generationRangeLimit = 64; //64 blocks in all directions with the generator as point of origin
-	
 	public static enum ConnectedThreshold {
 		FACES,
 		//LINES,
 		POINTS
 	};
 
-	private static List<Point> flattenLayers(List<List<Point>> layers) {
-		List<Point> points = new ArrayList<Point>();
+	public static Set<Point> flattenLayers(List<List<Point>> layers) {
+		Set<Point> points = new HashSet<Point>();
 		
 		for (List<Point> layer : layers) {
 			for (Point p : layer) {
@@ -42,20 +41,48 @@ public class Wall {
 		return points;
 	}
 	
-	public static List<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, wallBlocks, returnBlocks, connectedThreshold);
+	public static Set<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
+		Set<Point> originLayer = new HashSet<Point>();
+		originLayer.add(origin);
+		Set<Point> ignorePoints = new HashSet<Point>();
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, 64, ignorePoints, connectedThreshold);
 		return flattenLayers(layers);
 	}
 
-	public static List<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, wallBlocks, returnBlocks, ConnectedThreshold.POINTS);
+	public static Set<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
+		Set<Point> originLayer = new HashSet<Point>();
+		originLayer.add(origin);
+		Set<Point> ignorePoints = new HashSet<Point>();
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, 64, ignorePoints, ConnectedThreshold.POINTS);
+		return flattenLayers(layers);
+
+	}
+
+	public static Set<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
+		Set<Point> originLayer = new HashSet<Point>();
+		originLayer.add(origin);
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+		return flattenLayers(layers);
+	}
+
+	public static Set<Point> getPointsConnected(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
 		return flattenLayers(layers);
 	}
 	
 	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
-		return getPointsConnectedAsLayers(world, origin, wallBlocks, returnBlocks, ConnectedThreshold.POINTS);
+		Set<Point> originLayer = new HashSet<Point>();
+		originLayer.add(origin);
+		Set<Point> ignorePoints = new HashSet<Point>();
+		return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, 64, ignorePoints, ConnectedThreshold.POINTS);
 	}
 
+	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
+		Set<Point> originLayer = new HashSet<Point>();
+		originLayer.add(origin);
+		return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+	}
+	
 	/**
 	 * Looks at all blocks connected to the generator by wallBlocks (directly or recursively).
 	 * Connected means within 3x3x3.
@@ -64,11 +91,11 @@ public class Wall {
 	 * @param returnBlocks List of block types to look for and return when connected to the wall.
 	 * @return List of all points (blocks) connected to the generator by wallBlocks and matching a block type in returnBlocks.
 	 */
-	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
+	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, ConnectedThreshold connectedThreshold) {
 		List<List<Point>> matchesAsLayers = new ArrayList<List<Point>>();
 		ArrayList<Point> connected = new ArrayList<Point>();
 		
-		HashSet<String> visited = new HashSet<String>();
+		Set<String> visited = new HashSet<String>();
 		Stack<Point> layer = new Stack<Point>();
 		Stack<Point> nextLayer = new Stack<Point>();
 		//Deque<Point> layer = new ArrayDeque<Point>(); //TODO: switch to using Deque
@@ -78,10 +105,17 @@ public class Wall {
 		String key;
 		Point center;
 		
-		nextLayer.push(origin);
-		visited.add(makeKey(origin));
+		//fill nextLayer from originLayer
+		for (Point p : originLayer) {
+			nextLayer.push(p);
+			visited.add(makeKey(p));
+		}
 		
-		int recursionLimit = (int)Math.pow(generationRangeLimit/2, 3);
+		//make ignorePoints default to empty
+		if (ignorePoints == null)
+			ignorePoints = new HashSet<Point>();
+		
+		int recursionLimit = (int)Math.pow(rangeLimit/2, 3);
 		while (!nextLayer.isEmpty()) {
 			if (recursionLimit-- <= 0) {
 				Dbg.print("FortressWallUpdater.update(): recursionLimit exhausted");
@@ -94,7 +128,7 @@ public class Wall {
 			//nextLayer = new ArrayDeque<Point>();
 			
 			//process layer
-			int recursionLimit2 = 6*(int)Math.pow(generationRangeLimit*2, 2);
+			int recursionLimit2 = 6*(int)Math.pow(rangeLimit*2, 2);
 			while (!layer.isEmpty()) {
 				if (recursionLimit2-- <= 0) {
 					Dbg.print("FortressWallUpdater.update(): recursionLimit2 exhausted");
@@ -132,17 +166,22 @@ public class Wall {
 				
 				//process connected points
 				for (Point p : connected) {
-					if (!isInRange(p, origin))
-						continue;
-					
 					key = makeKey(p);
 					if (!visited.contains(key)) {
 						visited.add(key);
 
+						//ignore ignorePoints
+						if (ignorePoints.contains(p))
+							continue;
+						
+						//ignore out of range points
+						if (!isInRange(p, origin, rangeLimit))
+							continue;
+						
 						b = world.getBlock(p.x, p.y, p.z); //b is one of the blocks connected to the center block
 						
 						//add to matchesAsLayers if it matches a returnBlocks type
-						if (returnBlocks.contains(b)) {
+						if (returnBlocks == null || returnBlocks.contains(b)) {
 							//"while" not "if" because maybe only matching blocks are far away but connected by wall
 							while (layerIndex >= matchesAsLayers.size()) {
 								matchesAsLayers.add(new ArrayList<Point>());
@@ -165,12 +204,12 @@ public class Wall {
 		return matchesAsLayers;
 	}
 	
-	private static boolean isInRange(Point p, Point origin) {
+	private static boolean isInRange(Point p, Point origin, int rangeLimit) {
 		boolean inRange = true;
 		
-		inRange = inRange && (Math.abs(p.x - origin.x)) <= generationRangeLimit;
-		inRange = inRange && (Math.abs(p.y - origin.y)) <= generationRangeLimit;
-		inRange = inRange && (Math.abs(p.z - origin.z)) <= generationRangeLimit;
+		inRange = inRange && (Math.abs(p.x - origin.x)) <= rangeLimit;
+		inRange = inRange && (Math.abs(p.y - origin.y)) <= rangeLimit;
+		inRange = inRange && (Math.abs(p.z - origin.z)) <= rangeLimit;
 		
 		return inRange;
 	}
