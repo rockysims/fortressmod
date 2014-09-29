@@ -19,15 +19,18 @@ public class Point {
 
 	@Override
 	public int hashCode() {
-		Dbg.print("hashCode() for " + this);
-		return this.toString().hashCode();
+		int hash = (int) (x ^ (x >>> 16));
+		hash = 15 * hash + (int) (y ^ (y >>> 16));
+        hash = 15 * hash + (int) (z ^ (z >>> 16));
+		//Dbg.print("hashCode() for " + this + ": " + String.valueOf(hash));
+        return hash;
     }
 	
 	@Override
 	public boolean equals(Object obj) {
 		Point p = (Point)obj;
 		boolean samePoint = (x == p.x) && (y == p.y) && (z == p.z);
-		Dbg.print("equals(): " + this + " ?= " + p + " (" + String.valueOf(samePoint) + ")");
+		//Dbg.print("equals(): " + this + " ?= " + p + " (" + String.valueOf(samePoint) + ")");
 		return samePoint;
 	}
 }

@@ -9,6 +9,9 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
+TODO: make claimedPoints search use POINTS threshold
+TODO: figure out why it takes so long to generate/degenerate when against a huge wall (smooth stone). figure out how to make it faster
+    TODO: when generating rather than searching for connected generators use allCorePoints saved in ModWorldData (this avoids a range*2 search)
 have fortress generator tell player how many older generators are in range (128) when its placed (so you can be sure yours is oldest)
     TODO: use ModWorldData.forWorld(world).getGeneratorCorePoints() to finish this task
     TODO: consider making right clicking a generator with cobblestone display the same thing (and add to manual. under clogging?)

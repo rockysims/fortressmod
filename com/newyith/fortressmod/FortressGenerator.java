@@ -162,7 +162,7 @@ public class FortressGenerator extends BlockContainer {
 
     //synchronized for this.ignoreBreakBlock
 	public static synchronized void updateBlockState(TileEntityFortressGenerator fg) {
-		Dbg.print("updateBlockState(fg)");
+		//Dbg.print("updateBlockState(fg)");
 		World world = fg.getWorldObj();
 		int x = fg.xCoord;
 		int y = fg.yCoord;

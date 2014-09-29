@@ -10,13 +10,13 @@ import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraftforge.common.util.Constants.NBT;
 
-public class ModWorldData_notUsed extends WorldSavedData {
+public class ModWorldData extends WorldSavedData {
 	final static String key = "fortressmod.world.data";
 
 	//data to store
 	private Set<Point> allGeneratorCorePoints = new HashSet<Point>();
 
-	public ModWorldData_notUsed(String mapName) {
+	public ModWorldData(String mapName) {
 		super(mapName);
 	}
 	
@@ -34,12 +34,12 @@ public class ModWorldData_notUsed extends WorldSavedData {
 		this.setDirty(true);
 	}
 	
-	public static ModWorldData_notUsed forWorld(World world) {
+	public static ModWorldData forWorld(World world) {
 		// Retrieves the MyWorldData instance for the given world, creating it if necessary
 		MapStorage storage = world.perWorldStorage;
-		ModWorldData_notUsed result = (ModWorldData_notUsed)storage.loadData(ModWorldData_notUsed.class, key);
+		ModWorldData result = (ModWorldData)storage.loadData(ModWorldData.class, key);
 		if (result == null) {
-			result = new ModWorldData_notUsed(key);
+			result = new ModWorldData(key);
 			storage.setData(key, result);
 		}
 		return result;

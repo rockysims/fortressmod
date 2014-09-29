@@ -1,6 +1,8 @@
 package com.newyith.fortressmod;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -24,9 +26,9 @@ public class Wall {
 	private static ArrayList<Block> notCloggedGeneratorBlocks = new ArrayList<Block>();
 	
 	public static enum ConnectedThreshold {
-		FACES,
+		POINTS,
 		//LINES,
-		POINTS
+		FACES
 	};
 
 	public static Set<Point> flattenLayers(List<List<Point>> layers) {
@@ -45,26 +47,29 @@ public class Wall {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
 		Set<Point> ignorePoints = new HashSet<Point>();
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, 64, ignorePoints, connectedThreshold);
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, GeneratorCore.generationRangeLimit, ignorePoints, connectedThreshold);
 		return flattenLayers(layers);
 	}
 
 	public static Set<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+		//List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.FACES);
 		return flattenLayers(layers);
 	}
 
 	public static Set<Point> getPointsConnected(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+		//List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.FACES);
 		return flattenLayers(layers);
 	}
 	
 	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
-		return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+		//return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+		return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.FACES);
 	}
 	
 	/**
@@ -80,14 +85,14 @@ public class Wall {
 	 * @return List of all points (blocks) connected to the originLayer by wallBlocks and matching a block type in returnBlocks.
 	 */
 	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, ConnectedThreshold connectedThreshold) {
+		//Dbg.start("getPointsConnectedAsLayers() top to bottom");
+		
 		List<List<Point>> matchesAsLayers = new ArrayList<List<Point>>();
 		ArrayList<Point> connected = new ArrayList<Point>();
 		
 		Set<String> visited = new HashSet<String>();
-		Stack<Point> layer = new Stack<Point>();
-		Stack<Point> nextLayer = new Stack<Point>();
-		//Deque<Point> layer = new ArrayDeque<Point>(); //TODO: switch to using Deque
-		//Deque<Point> nextLayer = new ArrayDeque<Point>();
+		Deque<Point> layer = new ArrayDeque<Point>();
+		Deque<Point> nextLayer = new ArrayDeque<Point>();
 		int layerIndex = -1;
 		Block b;
 		String key;
@@ -112,17 +117,23 @@ public class Wall {
 
 			layerIndex++;
 			layer = nextLayer;
-			nextLayer = new Stack<Point>();
-			//nextLayer = new ArrayDeque<Point>();
+			nextLayer = new ArrayDeque<Point>();
 			
+			//Dbg.start("process layer");
+			//Dbg.print("layer.size(): " + String.valueOf(layer.size()));
+
 			//process layer
 			int recursionLimit2 = 6*(int)Math.pow(rangeLimit*2, 2);
 			while (!layer.isEmpty()) {
+				//Dbg.start("inner loop");
+				
 				if (recursionLimit2-- <= 0) {
 					Dbg.print("FortressWallUpdater.update(): recursionLimit2 exhausted");
 					break;
 				}
 				
+				//Dbg.start("find connected points");
+
 				center = layer.pop();
 				connected.clear();
 				
@@ -151,7 +162,11 @@ public class Wall {
 					connected.add(new Point(x, y, z+1));
 					connected.add(new Point(x, y, z-1));
 				}
+
+				//Dbg.stop("find connected points");
 				
+				//Dbg.start("process connected points");
+
 				//process connected points
 				for (Point p : connected) {
 					key = makeKey(p);
@@ -183,12 +198,22 @@ public class Wall {
 						}
 					}
 				}
+				
+				//Dbg.stop("process connected points");
+				
+				//Dbg.stop("inner loop");
+
 			}
+			
+			//Dbg.stop("process layer");
+
 		}
 		
-		//Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
+		Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
 		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matchesAsLayers.size()) + " matchesAsLayers");
 		
+		//Dbg.stop("getPointsConnectedAsLayers() top to bottom");
+
 		return matchesAsLayers;
 	}
 	
@@ -238,7 +263,15 @@ public class Wall {
 		if (!blockTypesCreated) {
 			//fill degeneratedWallBlocks (must be added in the same order as generated)
 			disabledWallBlocks.add(Blocks.cobblestone);
-			disabledWallBlocks.add(Blocks.glass);
+			
+			
+			
+			//disabledWallBlocks.add(Blocks.glass); //TODO: change back to this line
+			disabledWallBlocks.add(Blocks.stone);
+			
+			
+			
+			
 			disabledWallBlocks.add(Blocks.obsidian);
 			disabledWallBlocks.add(Blocks.wooden_door);
 			disabledWallBlocks.add(Blocks.iron_door);
