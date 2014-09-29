@@ -173,16 +173,16 @@ public class FortressGenerator extends BlockContainer {
 	    ignoreBreakBlock = true;
 	    if (fg.isClogged()) {
 	    	world.setBlock(x, y, z, FortressMod.fortressGeneratorClogged);
-			Dbg.print("updateBlockState(fg) clog");
+			//Dbg.print("updateBlockState(fg) clog");
 	    } else if (fg.isPaused()) {
 	    	world.setBlock(x, y, z, FortressMod.fortressGeneratorPaused);
-			Dbg.print("updateBlockState(fg) pause");
+			//Dbg.print("updateBlockState(fg) pause");
 	    } else if (fg.isActive()) {
 	    	world.setBlock(x, y, z, FortressMod.fortressGeneratorOn);
-			Dbg.print("updateBlockState(fg) on");
+			//Dbg.print("updateBlockState(fg) on");
 		} else {
 	    	world.setBlock(x, y, z, FortressMod.fortressGenerator);
-			Dbg.print("updateBlockState(fg) off");
+			//Dbg.print("updateBlockState(fg) off");
 		}
 	    ignoreBreakBlock = false;
 	    world.setBlockMetadataWithNotify(x, y, z, meta, 2);

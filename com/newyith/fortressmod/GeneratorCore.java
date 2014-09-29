@@ -31,7 +31,7 @@ public class GeneratorCore {
 	private long lastFrameTimestamp = 0;
 	private long msPerFrame = 150;
 
-	public static final int generationRangeLimit = 24; //TODO: change this back to 64
+	public static final int generationRangeLimit = 32; //TODO: change this back to 64?
 	
 	public GeneratorCore(TileEntityFortressGenerator fortressGenerator) {
 		this.fortressGenerator = fortressGenerator;
@@ -247,11 +247,15 @@ public class GeneratorCore {
 					boolean allOfLayerIsGenerated = true;
 					boolean anyOfLayerIsGenerated = false;
 					for (Point p : layer) {
-						boolean isGeneratedBlock = Wall.getEnabledWallBlocks().contains(world.getBlock(p.x, p.y, p.z));
-						if (isGeneratedBlock) {
-							anyOfLayerIsGenerated = true;
-						} else {
-							allOfLayerIsGenerated = false;
+						Block b = world.getBlock(p.x, p.y, p.z);
+						boolean isWallBlock = Wall.getWallBlocks().contains(b);
+						if (isWallBlock) {
+							boolean isGeneratedBlock = Wall.getEnabledWallBlocks().contains(b);
+							if (isGeneratedBlock) {
+								anyOfLayerIsGenerated = true;
+							} else {
+								allOfLayerIsGenerated = false;
+							}
 						}
 					}
 
@@ -435,15 +439,13 @@ public class GeneratorCore {
 		//add layer around wall to claimed points
 		Set<Point> layerAroundWallPoints = getLayerAround(wallPoints);
 		this.claimedPoints.addAll(layerAroundWallPoints);
-		
-		Dbg.print("from wallLayers.size(): " + String.valueOf(wallLayers.size())); 
 	}
 	
 	private List<List<Point>> getGeneratableWallLayers() {
 		//claimedPoints = merge of claimedPoints of all nearby generators (nearbyCores)
 		Set<Point> claimedPoints = new HashSet();
 		Set<GeneratorCore> nearbyCores = this.getOtherCoresInRange(generationRangeLimit*2);
-		Dbg.print("getGeneratableWallLayers(): nearbyCores.size(): " + String.valueOf(nearbyCores.size()));
+		//Dbg.print("getGeneratableWallLayers(): nearbyCores.size(): " + String.valueOf(nearbyCores.size()));
 		for (GeneratorCore core : nearbyCores) {
 			claimedPoints.addAll(core.getClaimedPoints());
 		}
@@ -475,9 +477,8 @@ public class GeneratorCore {
 				if (tile instanceof TileEntityFortressGenerator) {
 					TileEntityFortressGenerator fg = (TileEntityFortressGenerator)tile;
 					nearbyCores.add(fg.getGeneratorCore());
-				} else { //ModWorldData's allGeneratorCorePoints list is wrong?
+				} else { //ModWorldData's allGeneratorCorePoints list is wrong
 					ModWorldData.forWorld(this.world).removeGeneratorCorePoint(p);
-					Chat.sendGlobal("Error: getCoresInRange() allCorePoints had non core point.");
 				}
 			}
 		}
@@ -497,10 +498,13 @@ public class GeneratorCore {
 		//Dbg.print("degenerateWall("+String.valueOf(animate)+")");
 		this.wallLayers.clear();
 		this.wallLayers.addAll(this.generatedLayers);
+		
+		/* //TODO: consider: do i want to leave this out to help with lag?
 		if (!this.isClogged() && this.isOnlyGeneratorConnected()) {
 			List<List<Point>> connectedPoints = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
 			this.wallLayers = merge(this.wallLayers, connectedPoints);
 		}
+		//*/
 		
 		this.isGeneratingWall = false;
 		this.isChangingGenerated = true;
@@ -603,7 +607,7 @@ public class GeneratorCore {
 		List<Block> returnBlocks = null; //all blocks are return blocks
 		int rangeLimit = generationRangeLimit + 1;
 		Set<Point> ignorePoints = null; //no points ignored
-		return Wall.getPointsConnected(this.world, p, wallPoints, wallBlocks, returnBlocks, rangeLimit, ignorePoints);
+		return Wall.getPointsConnected(this.world, p, wallPoints, wallBlocks, returnBlocks, rangeLimit, ignorePoints, Wall.ConnectedThreshold.POINTS);
 	}
 	
 	public String getPlacedByPlayerName() {

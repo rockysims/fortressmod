@@ -54,17 +54,20 @@ public class Dbg {
 	
 	public static void stop(String key) {
 		long now = System.currentTimeMillis();
-		long stamp = timestamps.get(key);
-		timestamps.remove(key);
-		int durationMs = (int)(now - stamp);
-		
-		if (!durations.containsKey(key)) {
-			durations.put(key, 0);
+		if (timestamps.containsKey(key)) {
+			long stamp = timestamps.get(key);
+			timestamps.remove(key);
+			int durationMs = (int)(now - stamp);
+			
+			if (!durations.containsKey(key)) {
+				durations.put(key, 0);
+			}
+			durations.put(key, durations.get(key) + durationMs);
+			
+			Dbg.print("Timer \"" + key + "\" stopped after " + String.valueOf(durationMs) + "ms.");
+		} else {
+			Dbg.print("Timer \"" + key + "\" stopped WITHOUT HAVING BEEN STARTED");
 		}
-		durations.put(key, durations.get(key) + durationMs);
-		
-		Dbg.print("Timer \"" + key + "\" stopped after " + String.valueOf(durationMs) + "ms.");
-		
 	}
 	
 	public static void duration(String key) {

@@ -59,12 +59,11 @@ public class Wall {
 		return flattenLayers(layers);
 	}
 
-	public static Set<Point> getPointsConnected(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
-		//List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.FACES);
+	public static Set<Point> getPointsConnected(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, ConnectedThreshold connectedThreshold) {
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, connectedThreshold);
 		return flattenLayers(layers);
 	}
-	
+
 	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
@@ -85,7 +84,7 @@ public class Wall {
 	 * @return List of all points (blocks) connected to the originLayer by wallBlocks and matching a block type in returnBlocks.
 	 */
 	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, ConnectedThreshold connectedThreshold) {
-		//Dbg.start("getPointsConnectedAsLayers() top to bottom");
+		Dbg.start("getPointsConnectedAsLayers() all");
 		
 		List<List<Point>> matchesAsLayers = new ArrayList<List<Point>>();
 		ArrayList<Point> connected = new ArrayList<Point>();
@@ -123,7 +122,7 @@ public class Wall {
 			//Dbg.print("layer.size(): " + String.valueOf(layer.size()));
 
 			//process layer
-			int recursionLimit2 = 6*(int)Math.pow(rangeLimit*2, 2);
+			int recursionLimit2 = 10 * 6*(int)Math.pow(rangeLimit*2, 2);
 			while (!layer.isEmpty()) {
 				//Dbg.start("inner loop");
 				
@@ -212,7 +211,7 @@ public class Wall {
 		Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
 		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matchesAsLayers.size()) + " matchesAsLayers");
 		
-		//Dbg.stop("getPointsConnectedAsLayers() top to bottom");
+		Dbg.stop("getPointsConnectedAsLayers() all");
 
 		return matchesAsLayers;
 	}
@@ -267,6 +266,8 @@ public class Wall {
 			
 			
 			//disabledWallBlocks.add(Blocks.glass); //TODO: change back to this line
+			disabledWallBlocks.add(Blocks.dirt);
+			disabledWallBlocks.add(Blocks.grass);
 			disabledWallBlocks.add(Blocks.stone);
 			
 			
@@ -278,7 +279,16 @@ public class Wall {
 			
 			//fill generatedWallBlocks (must be added in the same order as degenerated)
 			enabledWallBlocks.add(FortressMod.fortressBedrock);
+			
+			
+			
 			enabledWallBlocks.add(FortressMod.fortressGlass);
+			enabledWallBlocks.add(FortressMod.fortressGlass); //TODO: delete this line
+			enabledWallBlocks.add(FortressMod.fortressGlass); //TODO: delete this line
+
+			
+			
+			
 			enabledWallBlocks.add(FortressMod.fortressObsidian);
 			enabledWallBlocks.add(FortressMod.fortressWoodenDoor);
 			enabledWallBlocks.add(FortressMod.fortressIronDoor);

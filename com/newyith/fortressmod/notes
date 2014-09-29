@@ -9,6 +9,9 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
+TODO: address issue where turning on a generator then breaking a block before it can be generated prevents animation from finishing
+    make animation ignore non wallBlocks when checking if layer needs update?
+TODO: fix: animation gets stuck if a wall block is destroyed during generation (before its generated or after)
 TODO: make claimedPoints search use POINTS threshold
 TODO: figure out why it takes so long to generate/degenerate when against a huge wall (smooth stone). figure out how to make it faster
     TODO: when generating rather than searching for connected generators use allCorePoints saved in ModWorldData (this avoids a range*2 search)
@@ -34,12 +37,13 @@ TODO: consider issue of 2 fortresses semi close to each other and built up until
             generate wallPoints and set core.wallPoints = wallPoints
         TODO: set core.claimedPoints when generating wall or onPlaced
         TODO: replace clogging logic with whatever makes sense (usually generating anyway and letting it figure it out)
+TODO: make generator emit light when burning (active)
+TODO: maybe change claimedPoints search to LINES instead of POINTS (to reduce lag)
+TODO: maybe on degenerate, if no generated blocks to degenerate, degenerate connected...?
 
 TODO: remove override that can prevent emergency key from working?
 TODO: onTryToGenerate, if there are wall blocks to generate but all belong to other generators, display message to player who placed fg?
 
-TODO: address issue where turning on a generator then breaking a block before it can be generated prevents animation from finishing
-    make animation ignore non wallBlocks when checking if layer needs update?
 
 
 Maybe:

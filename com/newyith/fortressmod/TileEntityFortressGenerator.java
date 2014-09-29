@@ -55,10 +55,10 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	public TileEntityFortressGenerator(FortressGeneratorState state) {
 		this();
 		this.state = state;
-		if (this.getWorldObj() != null)
-			Dbg.print("TileEntityFortressGenerator(state): this.state = " + this.state.toString(), this.getWorldObj().isRemote);
-		else
-			Dbg.print("TileEntityFortressGenerator(state): this.state = " + this.state.toString());
+//		if (this.getWorldObj() != null)
+//			Dbg.print("TileEntityFortressGenerator(state): this.state = " + this.state.toString(), this.getWorldObj().isRemote);
+//		else
+//			Dbg.print("TileEntityFortressGenerator(state): this.state = " + this.state.toString());
 	}
 
 	@Override
@@ -329,7 +329,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 			
 			
 			//TODO: finish or comment out this sounds stuff
-			Dbg.print("play sound");
+			//Dbg.print("play sound");
 			/*
 			this.worldObj.playSoundEffect(this.xCoord, this.yCoord, this.zCoord, "fortressmod:test_sound", 1.0F, 0.6F);
 			this.worldObj.playSoundEffect(this.xCoord, this.yCoord, this.zCoord, "test_sound", 1.0F, 0.6F);
