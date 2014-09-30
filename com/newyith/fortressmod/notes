@@ -14,10 +14,6 @@ Done? (double check):
         TODO: when generating rather than searching for connected generators use allCorePoints saved in ModWorldData (this avoids a range*2 search)
     TODO: fix issue where placing fg 64+1 blocks from another fg but connected to its wall will turn off wall
         maybe fix is: when searching for oldest, double search range
-Skip?:
-    have fortress generator tell player how many older generators are in range (128) when its placed (so you can be sure yours is oldest)
-        TODO: use ModWorldData.forWorld(world).getGeneratorCorePoints() to finish this task
-        TODO: consider making right clicking a generator with cobblestone display the same thing (and add to manual. under clogging?)
 TODO: consider adding generator range to fortress manual
 TODO: review expansion of generators section in fortress manual (write it better? or good enough)
 remove debug recipes
@@ -36,11 +32,10 @@ TODO: consider issue of 2 fortresses semi close to each other and built up until
             generate wallPoints and set core.wallPoints = wallPoints
         TODO: set core.claimedPoints when generating wall or onPlaced
         TODO: replace clogging logic with whatever makes sense (usually generating anyway and letting it figure it out)
-TODO: maybe change claimedPoints search to LINES instead of POINTS (to reduce lag)
-    probably no. POINTS is better
-TODO: maybe on degenerate, if no generated blocks to degenerate, degenerate connected...?
 TODO: remove override that can prevent emergency key from working?
 TODO: onTryToGenerate, if there are wall blocks to generate but all belong to other generators, display message to player who placed fg?
+    onGenerate, if (no allowed wall to generate && (get 1 layer of connected degenerated wall ignoring claimedPoints).size() > 0) display message
+        message: "Cannot generate this wall because it is already claimed by another fortress generator."
 TODO: consider making generator clog if generateWall called too many times (5?) within last 5 seconds or something
     this protects against rapid cycling of redstone power causing lag
 TODO: finish writing GeneratorCore's sendMessage()
