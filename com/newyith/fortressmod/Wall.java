@@ -89,7 +89,7 @@ public class Wall {
 		List<List<Point>> matchesAsLayers = new ArrayList<List<Point>>();
 		ArrayList<Point> connected = new ArrayList<Point>();
 		
-		Set<String> visited = new HashSet<String>();
+		Set<Point> visited = new HashSet<Point>();
 		Deque<Point> layer = new ArrayDeque<Point>();
 		Deque<Point> nextLayer = new ArrayDeque<Point>();
 		int layerIndex = -1;
@@ -100,7 +100,7 @@ public class Wall {
 		//fill nextLayer from originLayer
 		for (Point p : originLayer) {
 			nextLayer.push(p);
-			visited.add(makeKey(p));
+			visited.add(p);
 		}
 		
 		//make ignorePoints default to empty
@@ -168,9 +168,8 @@ public class Wall {
 
 				//process connected points
 				for (Point p : connected) {
-					key = makeKey(p);
-					if (!visited.contains(key)) {
-						visited.add(key);
+					if (!visited.contains(p)) {
+						visited.add(p);
 
 						//ignore ignorePoints
 						if (ignorePoints.contains(p))
@@ -226,16 +225,6 @@ public class Wall {
 		return inRange;
 	}
 
-	private static String makeKey(Point p) {
-		return makeKey(p.x, p.y, p.z);
-	}
-	
-	private static String makeKey(int x, int y, int z) {
-		String key;
-		key = Integer.valueOf(x) + "," + Integer.valueOf(y) + "," + Integer.valueOf(z);
-		return key;
-	}
-	
 	//-------------------
 	
 	public static ArrayList<Block> getWallBlocks() {

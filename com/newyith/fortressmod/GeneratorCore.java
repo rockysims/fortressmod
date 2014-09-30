@@ -31,7 +31,7 @@ public class GeneratorCore {
 	private long lastFrameTimestamp = 0;
 	private long msPerFrame = 150;
 
-	public static final int generationRangeLimit = 32; //TODO: change this back to 64?
+	public static final int generationRangeLimit = 32;
 	
 	public GeneratorCore(TileEntityFortressGenerator fortressGenerator) {
 		this.fortressGenerator = fortressGenerator;
@@ -421,7 +421,6 @@ public class GeneratorCore {
 		this.wallLayers = this.getGeneratableWallLayers();
 		//recalculate this.claimedPoints
 		this.updateClaimedPoints(this.wallLayers);
-		
 
 		Dbg.print("claimedPoints.size(): " + String.valueOf(this.claimedPoints.size())); 
 		
