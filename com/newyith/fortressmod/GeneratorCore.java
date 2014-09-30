@@ -149,24 +149,34 @@ public class GeneratorCore {
 			//pretend redstone state just changed in case it is already powered
 			placedFortressGenerator.onNeighborBlockChange(world, x, y, z);
 			
-			//*
-			placedCore.degenerateWall(false); //degenerates connected wall if this is the only connected generator
-			/*/
-			//clog or degenerate
-			boolean isOldest = isOldestNotCloggedGeneratorConnectedTo(placedCore);
-			if (!isOldest) {
-				placedCore.clog();
-			} else {
-				placedCore.degenerateWall(false);
-			}
-			//*/
-			
 			//claim wall + 1 layer
-			placedCore.updateClaimedPoints(placedCore.getGeneratableWallLayers());
+			List<List<Point>> generatableWallLayers = placedCore.getGeneratableWallLayers();
+			placedCore.updateClaimedPoints(generatableWallLayers);
+			int foundWallPointsCount = Wall.flattenLayers(generatableWallLayers).size();
+			
+			//this is to give a way to degenerate fortress wall if it some how gets left behind by some bug
+			if (generatableWallLayers.size() == 0) { //just placed generator and couldn't find any wall to generate
+				List<List<Point>> degeneratableWallLayers = placedCore.getDegeneratableWallLayers();
+				if (degeneratableWallLayers.size() > 0) { //found wall to degenerate
+					//degenerate degeneratbaleWallLayers (make generator pretend it was generating degeneratbaleWallLayers and degenerate it)
+					placedCore.updateClaimedPoints(degeneratableWallLayers);
+					foundWallPointsCount = Wall.flattenLayers(degeneratableWallLayers).size();
+					placedCore.generatedLayers.addAll(degeneratableWallLayers);
+					placedCore.degenerateWall(false);
+				}
+			}
+			
+			//tell player how many wall blocks were found
+			placedCore.sendMessage("Fortress generator found " + String.valueOf(foundWallPointsCount) + " wall blocks.");
 			
 			//add core to list of all cores (saved in NBT)
 			ModWorldData.forWorld(world).addGeneratorCorePoint(new Point(x, y, z));
 		}
+	}
+
+	private void sendMessage(String msg) {
+		//TODO: make this send only to player not global
+		Chat.sendGlobal(msg + " GLOBAL");
 	}
 
 	//Not called when broken and then replaced by different version of fortress generator (on, off, clogged)
@@ -420,7 +430,7 @@ public class GeneratorCore {
 		//set this.wallLayers = wall layers its allowed to generate
 		this.wallLayers = this.getGeneratableWallLayers();
 		//recalculate this.claimedPoints
-		this.updateClaimedPoints(this.wallLayers);
+		this.updateClaimedPoints(merge(this.wallLayers, this.generatedLayers));
 
 		Dbg.print("claimedPoints.size(): " + String.valueOf(this.claimedPoints.size())); 
 		
@@ -440,7 +450,18 @@ public class GeneratorCore {
 		this.claimedPoints.addAll(layerAroundWallPoints);
 	}
 	
+	
+	
+	private List<List<Point>> getDegeneratableWallLayers() {
+		return getAllowedWallLayers(Wall.getEnabledWallBlocks());
+	}
+	
 	private List<List<Point>> getGeneratableWallLayers() {
+		return getAllowedWallLayers(Wall.getDisabledWallBlocks());
+	}
+	
+	
+	private List<List<Point>> getAllowedWallLayers(List<Block> returnBlocks) {
 		//claimedPoints = merge of claimedPoints of all nearby generators (nearbyCores)
 		Set<Point> claimedPoints = new HashSet();
 		Set<GeneratorCore> nearbyCores = this.getOtherCoresInRange(generationRangeLimit*2);
@@ -451,8 +472,8 @@ public class GeneratorCore {
 		
 		Dbg.print("getGeneratableWallLayers(): claimedPoints.size(): " + String.valueOf(claimedPoints.size()));
 				
-		//return all connected wall points ignoring (and not traversing) claimedPoints (generationRangeLimit search range) (returns only disabled wall)
-		List<List<Point>> allowedWallLayers = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getDisabledWallBlocks(), generationRangeLimit, claimedPoints);
+		//return all connected wall points ignoring (and not traversing) claimedPoints (generationRangeLimit search range)
+		List<List<Point>> allowedWallLayers = getPointsConnectedAsLayers(Wall.getWallBlocks(), returnBlocks, generationRangeLimit, claimedPoints);
 		return allowedWallLayers;
 	}
 
@@ -532,11 +553,13 @@ public class GeneratorCore {
 		return layers;
 	}
 	
+	//TODO: delete this method?
 	private boolean isOnlyGeneratorConnected() {
 		Set<Point> connectedFgPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks(), generationRangeLimit*2, null);
 		return connectedFgPoints.size() == 0;
 	}
 
+	//TODO: delete this method?
 	private static boolean isOldestNotCloggedGeneratorConnectedTo(GeneratorCore core) {
 		List<TileEntityFortressGenerator> fgs = core.getConnectedFortressGeneratorsNotClogged(); 
 		boolean foundOlderGenerator = false;
@@ -588,7 +611,7 @@ public class GeneratorCore {
 		return this.getPointsConnectedAsLayers(wallBlocks, returnBlocks, generationRangeLimit, null);
 	}
 	
-	private List<List<Point>> getPointsConnectedAsLayers(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
+	private List<List<Point>> getPointsConnectedAsLayers(List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
 		int x = this.fortressGenerator.xCoord;
 		int y = this.fortressGenerator.yCoord;
 		int z = this.fortressGenerator.zCoord;

@@ -64,7 +64,7 @@ public class Wall {
 		return flattenLayers(layers);
 	}
 
-	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
+	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
 		//return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
@@ -211,6 +211,7 @@ public class Wall {
 		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matchesAsLayers.size()) + " matchesAsLayers");
 		
 		Dbg.stop("getPointsConnectedAsLayers() all");
+		Dbg.duration("getPointsConnectedAsLayers() all");
 
 		return matchesAsLayers;
 	}
@@ -258,6 +259,7 @@ public class Wall {
 			disabledWallBlocks.add(Blocks.dirt);
 			disabledWallBlocks.add(Blocks.grass);
 			disabledWallBlocks.add(Blocks.stone);
+			disabledWallBlocks.add(Blocks.gravel);
 			
 			
 			
@@ -272,6 +274,7 @@ public class Wall {
 			
 			
 			enabledWallBlocks.add(FortressMod.fortressGlass);
+			enabledWallBlocks.add(FortressMod.fortressGlass); //TODO: delete this line
 			enabledWallBlocks.add(FortressMod.fortressGlass); //TODO: delete this line
 			enabledWallBlocks.add(FortressMod.fortressGlass); //TODO: delete this line
 

@@ -41,9 +41,9 @@ TODO: maybe change claimedPoints search to LINES instead of POINTS (to reduce la
 TODO: maybe on degenerate, if no generated blocks to degenerate, degenerate connected...?
 TODO: remove override that can prevent emergency key from working?
 TODO: onTryToGenerate, if there are wall blocks to generate but all belong to other generators, display message to player who placed fg?
-TODO: fix issue where when calculating claimedPoints it looks only at blocks its about to generate (should also look at generated blocks)
-
-
+TODO: consider making generator clog if generateWall called too many times (5?) within last 5 seconds or something
+    this protects against rapid cycling of redstone power causing lag
+TODO: finish writing GeneratorCore's sendMessage()
 
 Maybe:
 TODO: consider making generators produce teleport home tokens from molten glowstone
