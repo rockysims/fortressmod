@@ -43,7 +43,7 @@ public class Wall {
 		return points;
 	}
 	
-	public static Set<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
+	public static Set<Point> getPointsConnected(World world, Point origin, List<Block> wallBlocks, List<Block> returnBlocks, ConnectedThreshold connectedThreshold) {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
 		Set<Point> ignorePoints = new HashSet<Point>();

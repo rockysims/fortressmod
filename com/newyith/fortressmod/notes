@@ -38,9 +38,9 @@ TODO: make generator clog if generateWall called too many times (5?) within last
 TODO: keep track of claimedWallPoints and on getClaimedPoints() if not all claimedWallPoints are fortress wall then update claimed before returning
     this fixes issue where disconnected but still claimed wall couldn't be controlled by another generator
     this also increases lag but probably worth it
-TODO: onPlaced, if generator is touching a claimedPoint, clog (and show message)
+D? TODO: onPlaced, if generator is directly connected to another generator's claimedPoint, clog (and show message)
     message: "Generator is too close to another generator's fortress wall."
-    also make generator claim 3x3x3 around itself
+D   also make generator claim 3x3x3 around itself
     these 2 things (clogging when touching claimed and claiming 3x3x3) should ensure the generator always has visible effect when turned on next to generatable block types
 
 

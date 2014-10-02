@@ -11,10 +11,10 @@ Fortress Manual
 9) Stuck
 =======
 Fortress Generator
-o o o
-o d o
-o o o
-o=obsidian, d=diamond
+O O O
+O d O
+O O O
+O=obsidian, d=diamond
 
 Changes cobblestone, glass, obsidian, and doors (wood/iron) to an unbreakable version while fueled by glowstone dust.
 =======
