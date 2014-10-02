@@ -9,13 +9,7 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-Done? (double check):
-    TODO: figure out why it takes so long to generate/degenerate when against a huge wall (smooth stone). figure out how to make it faster
-        TODO: when generating rather than searching for connected generators use allCorePoints saved in ModWorldData (this avoids a range*2 search)
-    TODO: fix issue where placing fg 64+1 blocks from another fg but connected to its wall will turn off wall
-        maybe fix is: when searching for oldest, double search range
-TODO: consider adding generator range to fortress manual
-TODO: review expansion of generators section in fortress manual (write it better? or good enough)
+TODO: review expansion of generators section in fortress manual (remove it probably (or write it better))
 remove debug recipes
 TODO: consider adding glowstone to emergency key recipe (1 glowstone block in the middle?)
 TODO: make generator emit light when burning (active)
@@ -38,13 +32,16 @@ TODO: make generator clog if generateWall called too many times (5?) within last
 TODO: keep track of claimedWallPoints and on getClaimedPoints() if not all claimedWallPoints are fortress wall then update claimed before returning
     this fixes issue where disconnected but still claimed wall couldn't be controlled by another generator
     this also increases lag but probably worth it
-D? TODO: onPlaced, if generator is directly connected to another generator's claimedPoint, clog (and show message)
-    message: "Generator is too close to another generator's fortress wall."
-D   also make generator claim 3x3x3 around itself
-    these 2 things (clogging when touching claimed and claiming 3x3x3) should ensure the generator always has visible effect when turned on next to generatable block types
+
+Done (current work sub tasks):
+onPlaced, if generator is directly connected to another generator's claimedPoint, clog (and show message)
+make generator claim 3x3x3 around itself
 
 
 Maybe:
+test what if while degenerating wall, long section is disconnected, then generate again. does the unconnected part stop half generated?
+    yes but it still remembers it needs to degenerate the now disconnected part when next paused
+    TODO: retest this?
 TODO: consider making generators produce teleport home tokens from molten glowstone
     maybe??: 8 molten around 1 dust -> X teleport home tokens
     TODO: consider skipping this on the grounds that fortresses aren't supposed to be aware of who lives there
@@ -53,11 +50,7 @@ add generate/degenerate sounds
     https://www.freesound.org/people/MiceHead/sounds/13294/
 TODO: make redstone on == generator on (and not be paused if no potential redstone power adjacent) (if possible)
 
-
-DONE: test what if while degenerating wall, long section is disconnected, then generate again. does the unconnected part stop half generated?
-    yes but it still remembers it needs to degenerate the now disconnected part when next paused
-
-Done:
+Done (overall):
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
 add black and white pic of glowstone in fg fuel slot
 manual book (crafted with 1 fortress generator)
