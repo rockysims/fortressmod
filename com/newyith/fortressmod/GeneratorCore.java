@@ -167,16 +167,12 @@ public class GeneratorCore {
 			}
 			
 			//tell player how many wall blocks were found
-			placedCore.sendMessage("Fortress generator found " + String.valueOf(foundWallPointsCount) + " wall blocks.");
-			
+			String msg = "Fortress generator found " + String.valueOf(foundWallPointsCount) + " wall blocks.";
+			Chat.sendMessageToPlayer(msg, world.getPlayerEntityByName(placingPlayerName));
+
 			//add core to list of all cores (saved in NBT)
 			ModWorldData.forWorld(world).addGeneratorCorePoint(new Point(x, y, z));
 		}
-	}
-
-	private void sendMessage(String msg) {
-		//TODO: make this send only to player not global
-		Chat.sendGlobal(msg + " GLOBAL");
 	}
 
 	//Not called when broken and then replaced by different version of fortress generator (on, off, clogged)
