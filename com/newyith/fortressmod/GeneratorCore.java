@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +32,7 @@ public class GeneratorCore {
 	private boolean animateGeneration = true;
 	private long lastFrameTimestamp = 0;
 	private long msPerFrame = 150;
+	private List<Long> generateWallTimeStamps = new ArrayList<Long>();
 
 	public static final int generationRangeLimit = 32;
 	
@@ -434,22 +436,48 @@ public class GeneratorCore {
 	/**
 	 * Generates (turns on) the wall touching this generator.
 	 * Assumes checking for permission to generate walls is already done.
+	 * Clogs generator if called too often (more than once per second).
 	 */
 	private void generateWall() {
 		//Dbg.print("generateWall()");
 		
-		//set this.wallLayers = wall layers its allowed to generate
-		this.wallLayers = this.getGeneratableWallLayers();
-		//recalculate this.claimedPoints
-		this.updateClaimedPoints(merge(this.wallLayers, this.generatedLayers));
+		//if generateWall is called too often, clog to prevent lag else generate wall
+		if (this.getRecentGenerateWallCallCount() > 10) {
+			this.clog();
+		} else {
+			generateWallTimeStamps.add(System.currentTimeMillis());
+			
+			//generate wall
+			
+			//set this.wallLayers = wall layers its allowed to generate
+			this.wallLayers = this.getGeneratableWallLayers();
+			//recalculate this.claimedPoints
+			this.updateClaimedPoints(merge(this.wallLayers, this.generatedLayers));
 
-		Dbg.print("claimedPoints.size(): " + String.valueOf(this.claimedPoints.size())); 
-		
-		//generate
-		this.isGeneratingWall = true;
-		this.isChangingGenerated = true;
+			Dbg.print("generateWall(): new claimedPoints.size(): " + String.valueOf(this.claimedPoints.size())); 
+			
+			//start generating
+			this.isGeneratingWall = true;
+			this.isChangingGenerated = true;
+		}
 	}
-	
+	private int getRecentGenerateWallCallCount() {
+		//set recentGenerateWallCalls and remove expired stamps
+		long now = System.currentTimeMillis();
+		int stampLifetimeMs = 10*1000;
+		int recentGenerateWallCalls = 0;
+		for (Iterator<Long> itr = generateWallTimeStamps.iterator(); itr.hasNext(); ) {
+		    Long stamp = itr.next();
+		    if (now - stamp < stampLifetimeMs) {
+				recentGenerateWallCalls++;
+			} else {
+				itr.remove();
+			}
+		}
+		
+		return recentGenerateWallCalls;
+	}
+
 	private void updateClaimedPoints(List<List<Point>> wallLayers) {
 		this.claimedPoints .clear();
 		
@@ -606,6 +634,7 @@ public class GeneratorCore {
 	 */
 	void clog() {
 		this.degenerateWall(true);
+		this.claimedPoints.clear();
 		this.fortressGenerator.setState(FortressGeneratorState.CLOGGED);
 	}
 
