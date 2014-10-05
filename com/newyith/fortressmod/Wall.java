@@ -89,7 +89,7 @@ public class Wall {
 		List<List<Point>> matchesAsLayers = new ArrayList<List<Point>>();
 		ArrayList<Point> connected = new ArrayList<Point>();
 		
-		Set<Point> visited = new HashSet<Point>();
+		Set<Point> visited = new HashSet<Point>(1000);
 		Deque<Point> layer = new ArrayDeque<Point>();
 		Deque<Point> nextLayer = new ArrayDeque<Point>();
 		int layerIndex = -1;
@@ -107,6 +107,7 @@ public class Wall {
 		if (ignorePoints == null)
 			ignorePoints = new HashSet<Point>();
 		
+		int recursionLimit2Max = 10 * 6*(int)Math.pow(rangeLimit*2, 2);
 		int recursionLimit = (int)Math.pow(rangeLimit/2, 3);
 		while (!nextLayer.isEmpty()) {
 			if (recursionLimit-- <= 0) {
@@ -122,7 +123,7 @@ public class Wall {
 			//Dbg.print("layer.size(): " + String.valueOf(layer.size()));
 
 			//process layer
-			int recursionLimit2 = 10 * 6*(int)Math.pow(rangeLimit*2, 2);
+			int recursionLimit2 = recursionLimit2Max;
 			while (!layer.isEmpty()) {
 				//Dbg.start("inner loop");
 				

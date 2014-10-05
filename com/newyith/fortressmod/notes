@@ -14,6 +14,7 @@ remove debug recipes
 TODO: consider adding glowstone to emergency key recipe (1 glowstone block in the middle?)
 TODO: make generator emit light when burning (active)
 TODO: remove override that can prevent emergency key from working
+TODO: maybe spawn a new thread to degenerate quickly (without animation) but not instantly (spread it out over 50 ticks (2.5 sec)?)
 TODO: consider issue of 2 fortresses semi close to each other and built up until eventually they connect and one fortress is controlled by other
     Maybe fix is: make generators play nice instead of clogging:
         make generators not degenerate connected wall unless its the only generator connected (128 search range)
@@ -27,8 +28,6 @@ TODO: consider issue of 2 fortresses semi close to each other and built up until
             generate wallPoints and set core.wallPoints = wallPoints
         TODO: set core.claimedPoints when generating wall or onPlaced
         TODO: replace clogging logic with whatever makes sense (usually generating anyway and letting it figure it out)
-TODO: make generator clog if generateWall called too many times (5?) within last 5 seconds or something
-    this protects against rapid cycling of redstone power causing lag
 TODO: keep track of claimedWallPoints and on getClaimedPoints() if not all claimedWallPoints are fortress wall then update claimed before returning
     this fixes issue where disconnected but still claimed wall couldn't be controlled by another generator
     this also increases lag a bit but probably worth it
@@ -36,7 +35,7 @@ TODO: keep track of claimedWallPoints and on getClaimedPoints() if not all claim
 Done (current work sub tasks):
 onPlaced, if generator is directly connected to another generator's claimedPoint, clog (and show message)
 make generator claim 3x3x3 around itself
-
+made generator clog if generateWall() called too often
 
 Maybe:
 test what if while degenerating wall, long section is disconnected, then generate again. does the unconnected part stop half generated?

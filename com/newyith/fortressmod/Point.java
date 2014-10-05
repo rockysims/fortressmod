@@ -19,9 +19,9 @@ public class Point {
 
 	@Override
 	public int hashCode() {
-		int hash = (int) (x ^ (x >>> 16));
-		hash = 15 * hash + (int) (y ^ (y >>> 16));
-        hash = 15 * hash + (int) (z ^ (z >>> 16));
+		int hash = x;
+		hash = 49999 * hash + y;
+        hash = 49999 * hash + z;
 		//Dbg.print("hashCode() for " + this + ": " + String.valueOf(hash));
         return hash;
     }
@@ -29,8 +29,7 @@ public class Point {
 	@Override
 	public boolean equals(Object obj) {
 		Point p = (Point)obj;
-		boolean samePoint = (x == p.x) && (y == p.y) && (z == p.z);
+		return (x == p.x) && (y == p.y) && (z == p.z);
 		//Dbg.print("equals(): " + this + " ?= " + p + " (" + String.valueOf(samePoint) + ")");
-		return samePoint;
 	}
 }

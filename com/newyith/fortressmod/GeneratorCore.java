@@ -166,15 +166,27 @@ public class GeneratorCore {
 				placedCore.updateClaimedPoints(merge(generatableWallLayers, placedCore.getGeneratorPointAsLayers()));
 				int foundWallPointsCount = Wall.flattenLayers(generatableWallLayers).size();
 				
-				//this is to give a way to degenerate fortress wall if it some how gets left behind by some bug
-				if (generatableWallLayers.size() == 0) { //just placed generator and couldn't find any wall to generate
-					List<List<Point>> degeneratableWallLayers = placedCore.getDegeneratableWallLayers();
-					if (degeneratableWallLayers.size() > 0) { //found wall to degenerate
-						//degenerate degeneratbaleWallLayers (make generator pretend it was generating degeneratbaleWallLayers and degenerate it)
-						placedCore.updateClaimedPoints(degeneratableWallLayers);
-						foundWallPointsCount = Wall.flattenLayers(degeneratableWallLayers).size();
-						placedCore.generatedLayers.addAll(degeneratableWallLayers);
-						placedCore.degenerateWall(false);
+				//TODO: consider doing the same each time generator turns on? probably not but maybe
+				//to give a way to degenerate fortress wall if it some how gets left behind by some bug:
+				//search adjacent blocks for enabled wall blocks not claimed by any generator (and if found, degenerate connected unclaimed blocks)
+				Set<Point> claimedPoints = placedCore.getClaimedPointsOfNearbyGenerators();
+				Set<Point> adjacentPoints = placedCore.getTouchingFaces();
+				for (Point p : adjacentPoints) {
+					Block b = world.getBlock(p.x, p.y, p.z);
+					if (Wall.getEnabledWallBlocks().contains(b)) { //found adjacent block that is in its generated form
+						if (!claimedPoints.contains(p)) { //found unclaimed generated adjacent block at p
+							//degenerate
+							List<List<Point>> degeneratableWallLayers = placedCore.getDegeneratableWallLayers();
+							if (degeneratableWallLayers.size() > 0) { //found wall to degenerate
+								//degenerate degeneratbaleWallLayers (make generator pretend it was generating degeneratbaleWallLayers and degenerate)
+								placedCore.updateClaimedPoints(degeneratableWallLayers);
+								foundWallPointsCount += Wall.flattenLayers(degeneratableWallLayers).size();
+								placedCore.generatedLayers.addAll(degeneratableWallLayers);
+								placedCore.degenerateWall(true);
+							}
+							
+							break;
+						}
 					}
 				}
 				
@@ -264,7 +276,6 @@ public class GeneratorCore {
 					}
 					
 					List<Point> layer = new ArrayList<Point>(this.wallLayers.get(layerIndex)); //make copy to avoid concurrent modification errors
-					//TODO: consider not making copy of wall layer on line above since we really shouldn't need to
 					
 					//set allOfLayerIsGenerated and anyOfLayerIsGenerated
 					boolean allOfLayerIsGenerated = true;
@@ -290,11 +301,6 @@ public class GeneratorCore {
 					if (!this.isGeneratingWall && anyOfLayerIsGenerated) {
 						updateLayer = true;
 					}
-					
-//					String s = "";
-//					s += "GeneratorCore::updateEntity() updateLayer == " + String.valueOf(updateLayer);
-//					s += String.valueOf(layerIndex);
-//					Dbg.print(s, this.world.isRemote);
 
 					//update layer if needed
 					if (updateLayer) {
@@ -503,7 +509,6 @@ public class GeneratorCore {
 		//claimedPoints = merge of claimedPoints of all nearby generators (nearbyCores)
 		Set<Point> claimedPoints = new HashSet();
 		Set<GeneratorCore> nearbyCores = this.getOtherCoresInRange(generationRangeLimit*2);
-		//Dbg.print("getGeneratableWallLayers(): nearbyCores.size(): " + String.valueOf(nearbyCores.size()));
 		for (GeneratorCore core : nearbyCores) {
 			claimedPoints.addAll(core.getClaimedPoints());
 		}
@@ -548,7 +553,26 @@ public class GeneratorCore {
 		return nearbyCores;
 	}
 
+	//TODO: consider moving some of GeneratorCore class logic into FortressWall or CoreUtils (new class)?
+	
 	private Set<Point> getClaimedPoints() {
+		
+		
+		//TODO: keep track of claimedWallPoints and on getClaimedPoints() if not all claimedWallPoints are fortress wall then update claimed before returning
+//
+//		Set<Point> claimedWallPoints = new HashSet<Point>(); //TODO: make this a field
+//		
+//		//update claimedPoints if claimedWallPoints are not all wall type blocks
+//		for (Point p : claimedWallPoints) {
+//			Block claimedWallBlock = world.getBlock(p.x, p.y, p.z);
+//			if (!Wall.getWallBlocks().contains(claimedWallBlock)) { //claimedWallBlock isn't a wall type block
+//				//recalculate claimedPoints
+//			}
+//		}
+		
+		
+		
+		
 		return this.claimedPoints;
 	}
 
@@ -662,6 +686,11 @@ public class GeneratorCore {
 		return Wall.getPointsConnected(this.world, this.point(), wallPoints, wallBlocks, returnBlocks, rangeLimit, ignorePoints, Wall.ConnectedThreshold.POINTS);
 	}
 	
+	/**
+	 * Gets the 6 points (blocks) touching the generator (connected by faces).
+	 * 
+	 * @return The 6 points touching the generator.
+	 */
 	private Set<Point> getTouchingFaces() {
 		Point origin = this.point();
 		
