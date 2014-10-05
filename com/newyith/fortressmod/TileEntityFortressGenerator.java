@@ -308,7 +308,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	public void setState(FortressGeneratorState state) {
 		if (this.state != state) {
 			this.state = state;
-			Dbg.print("tile.setState() to " + state.name(), this.getWorldObj().isRemote);
+			//Dbg.print("tile.setState() to " + state.name(), this.getWorldObj().isRemote);
 			
 			this.updateBlockStateFlag = true; //tells updateEntity() to call FortressGenerator.updateBlockState() when next executed
 		}

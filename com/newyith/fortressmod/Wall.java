@@ -47,7 +47,7 @@ public class Wall {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
 		Set<Point> ignorePoints = new HashSet<Point>();
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, GeneratorCore.generationRangeLimit, ignorePoints, connectedThreshold);
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, GeneratorCore.generationRangeLimit, ignorePoints, null, connectedThreshold);
 		return flattenLayers(layers);
 	}
 
@@ -55,12 +55,20 @@ public class Wall {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
 		//List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.FACES);
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, null, ConnectedThreshold.FACES);
+		return flattenLayers(layers);
+	}
+
+	public static Set<Point> getPointsConnected(World world, Point origin, ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, Set<Point> searchablePoints) {
+		Set<Point> originLayer = new HashSet<Point>();
+		originLayer.add(origin);
+		//List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, searchablePoints, ConnectedThreshold.FACES);
 		return flattenLayers(layers);
 	}
 
 	public static Set<Point> getPointsConnected(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, ConnectedThreshold connectedThreshold) {
-		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, connectedThreshold);
+		List<List<Point>> layers = getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, null, connectedThreshold);
 		return flattenLayers(layers);
 	}
 
@@ -68,7 +76,7 @@ public class Wall {
 		Set<Point> originLayer = new HashSet<Point>();
 		originLayer.add(origin);
 		//return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.POINTS);
-		return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, ConnectedThreshold.FACES);
+		return getPointsConnectedAsLayers(world, origin, originLayer, wallBlocks, returnBlocks, rangeLimit, ignorePoints, null, ConnectedThreshold.FACES);
 	}
 	
 	/**
@@ -80,11 +88,12 @@ public class Wall {
 	 * @param returnBlocks List of block types to look for and return when connected to the wall or null to return all block types.
 	 * @param rangeLimit The maximum distance away from origin to search. 
 	 * @param ignorePoints When searching, these points will be ignored (not traversed or returned). If null, no points ignored.
+	 * @param searchablePoints When searching, only these points will be visited (traversed and/or returned). If null, all points searchable.
 	 * @param connectedThreshold Whether connected means 3x3x3 area or only the 6 blocks connected by faces.
 	 * @return List of all points (blocks) connected to the originLayer by wallBlocks and matching a block type in returnBlocks.
 	 */
-	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, ConnectedThreshold connectedThreshold) {
-		Dbg.start("getPointsConnectedAsLayers() all");
+	public static List<List<Point>> getPointsConnectedAsLayers(World world, Point origin, Set<Point> originLayer, List<Block> wallBlocks, List<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, Set<Point> searchablePoints, ConnectedThreshold connectedThreshold) {
+		//Dbg.start("getPointsConnectedAsLayers() all");
 		
 		List<List<Point>> matchesAsLayers = new ArrayList<List<Point>>();
 		ArrayList<Point> connected = new ArrayList<Point>();
@@ -176,6 +185,11 @@ public class Wall {
 						if (ignorePoints.contains(p))
 							continue;
 						
+						//ignore unsearchable points
+						if (searchablePoints != null && !searchablePoints.contains(p)) {
+							continue;
+						}
+						
 						//ignore out of range points
 						if (!isInRange(p, origin, rangeLimit))
 							continue;
@@ -208,11 +222,11 @@ public class Wall {
 
 		}
 		
-		Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
-		Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matchesAsLayers.size()) + " matchesAsLayers");
+		//Dbg.print("Wall.getPointsConnected visited " + String.valueOf(visited.size()));
+		//Dbg.print("Wall.getPointsConnected returning " + String.valueOf(matchesAsLayers.size()) + " matchesAsLayers");
 		
-		Dbg.stop("getPointsConnectedAsLayers() all");
-		Dbg.duration("getPointsConnectedAsLayers() all");
+		//Dbg.stop("getPointsConnectedAsLayers() all");
+		//Dbg.duration("getPointsConnectedAsLayers() all");
 
 		return matchesAsLayers;
 	}

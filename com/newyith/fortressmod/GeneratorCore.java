@@ -22,6 +22,7 @@ public class GeneratorCore {
 	private List<List<Point>> generatedLayers = new ArrayList<List<Point>>();
 	private List<List<Point>> wallLayers = new ArrayList<List<Point>>();
 	private Set<Point> claimedPoints = new HashSet<Point>();
+	private Set<Point> claimedWallPoints = new HashSet<Point>();
 	private boolean isChangingGenerated;
 	private boolean isGeneratingWall;
 	private long timePlaced = 0;
@@ -46,6 +47,7 @@ public class GeneratorCore {
 
 	public void writeToNBT(NBTTagCompound compound) {
 		writePointsToNBT(compound, "claimedPoints", this.claimedPoints);
+		writePointsToNBT(compound, "claimedWallPoints", this.claimedWallPoints);
 		writeLayersToNBT(compound, "wallLayers", this.wallLayers);
 		writeLayersToNBT(compound, "generatedLayers", this.generatedLayers);
 		
@@ -91,6 +93,7 @@ public class GeneratorCore {
 	
 	public void readFromNBT(NBTTagCompound compound) {
 		this.claimedPoints = readPointsFromNBT(compound, "claimedPoints");
+		this.claimedWallPoints = readPointsFromNBT(compound, "claimedWallPoints");
 		this.wallLayers = readLayersFromNBT(compound, "wallLayers");
 		this.generatedLayers = readLayersFromNBT(compound, "generatedLayers");
 		
@@ -163,7 +166,7 @@ public class GeneratorCore {
 			} else {
 				//claim wall + 1 layer (and 1 layer around generator)
 				List<List<Point>> generatableWallLayers = placedCore.getGeneratableWallLayers();
-				placedCore.updateClaimedPoints(merge(generatableWallLayers, placedCore.getGeneratorPointAsLayers()));
+				placedCore.updateClaimedPoints(generatableWallLayers);
 				int foundWallPointsCount = Wall.flattenLayers(generatableWallLayers).size();
 				
 				//TODO: consider doing the same each time generator turns on? probably not but maybe
@@ -485,17 +488,19 @@ public class GeneratorCore {
 	}
 
 	private void updateClaimedPoints(List<List<Point>> wallLayers) {
-		this.claimedPoints .clear();
+		this.claimedPoints.clear();
 		
-		Set<Point> wallPoints = Wall.flattenLayers(wallLayers);
-		this.claimedPoints.addAll(wallPoints);
+		this.claimedWallPoints = Wall.flattenLayers(wallLayers);
+		this.claimedPoints.addAll(this.claimedWallPoints);
 		
 		//add layer around wall to claimed points
-		Set<Point> layerAroundWallPoints = getLayerAround(wallPoints);
+		Set<Point> layerAroundWallPoints = getLayerAround(this.claimedWallPoints);
 		this.claimedPoints.addAll(layerAroundWallPoints);
+		
+		//add layer around generator
+		Set<Point> layerAroundGenerator = getLayerAround(Wall.flattenLayers(this.getGeneratorPointAsLayers()));
+		this.claimedPoints.addAll(layerAroundGenerator);
 	}
-	
-	
 	
 	private List<List<Point>> getDegeneratableWallLayers() {
 		return getAllowedWallLayers(Wall.getEnabledWallBlocks());
@@ -558,22 +563,67 @@ public class GeneratorCore {
 	private Set<Point> getClaimedPoints() {
 		
 		
+		
 		//TODO: keep track of claimedWallPoints and on getClaimedPoints() if not all claimedWallPoints are fortress wall then update claimed before returning
-//
-//		Set<Point> claimedWallPoints = new HashSet<Point>(); //TODO: make this a field
-//		
-//		//update claimedPoints if claimedWallPoints are not all wall type blocks
-//		for (Point p : claimedWallPoints) {
-//			Block claimedWallBlock = world.getBlock(p.x, p.y, p.z);
-//			if (!Wall.getWallBlocks().contains(claimedWallBlock)) { //claimedWallBlock isn't a wall type block
-//				//recalculate claimedPoints
-//			}
-//		}
+
+		Dbg.print("getClaimedPoints() for " + this.point());
 		
-		
-		
+		//update claimedPoints if claimedWallPoints are not all wall type blocks
+		for (Point p : this.claimedWallPoints) {
+			Block claimedWallBlock = world.getBlock(p.x, p.y, p.z);
+			if (!Wall.getWallBlocks().contains(claimedWallBlock)) { //claimedWallBlock isn't a wall type block
+				this.unclaimDisconnect();
+				break;
+			}
+		}
 		
 		return this.claimedPoints;
+	}
+
+	private void unclaimDisconnect() {
+		Dbg.print("unclaimDisconnect()");
+		//fill pointsToUnclaim
+		Set<Point> pointsToUnclaim = new HashSet<Point>();
+		Set<Point> connectedPoints = getPointsConnected(Wall.getWallBlocks(), Wall.getWallBlocks(), generationRangeLimit, null, this.claimedWallPoints);
+		for (Point claimedWallPoint : this.claimedWallPoints) {
+			if (!connectedPoints.contains(claimedWallPoint)) { //found claimed wall point that is now disconnected
+				//add claimedWallPoint to poitnsToUnclaim
+				pointsToUnclaim.add(claimedWallPoint);
+			}
+		}
+		Dbg.print("pointsToUnclaim.size(): " + pointsToUnclaim.size());
+		
+		//TODO: maybe: figure out how/if I can combine this.wallLayers and this.claimedWallPoints
+		
+		Dbg.print("Wall.flattenLayers(this.wallLayers).size() A: " + Wall.flattenLayers(this.wallLayers).size());
+		//remove pointsToUnclaim from this.wallLayers
+		for (int i = 0; i < this.wallLayers.size(); i++) {
+			this.wallLayers.get(i).removeAll(pointsToUnclaim);
+		}
+		Dbg.print("Wall.flattenLayers(this.wallLayers).size() B: " + Wall.flattenLayers(this.wallLayers).size());
+
+		//remove pointsToUnclaim from this.claimedWallPoints
+		this.claimedWallPoints.removeAll(pointsToUnclaim);
+
+		Dbg.print("this.claimedPoints.size() A: " + this.claimedPoints.size());
+		Dbg.print("this.claimedWallPoints.size() A: " + this.claimedWallPoints.size());
+		
+		//update this.claimedPoints
+		this.claimedPoints.clear();
+		this.claimedPoints.addAll(this.claimedWallPoints);
+		//add layer around wall to claimed points
+		Set<Point> layerAroundWallPoints = getLayerAround(this.claimedWallPoints);
+		this.claimedPoints.addAll(layerAroundWallPoints);
+		//add layer around generator
+		Set<Point> layerAroundGenerator = getLayerAround(Wall.flattenLayers(this.getGeneratorPointAsLayers()));
+		this.claimedPoints.addAll(layerAroundGenerator); //TODO: uncomment out this line
+		
+		
+		
+		
+		Dbg.print("this.claimedPoints.size() B: " + this.claimedPoints.size());
+		Dbg.print("this.claimedWallPoints.size() B: " + this.claimedWallPoints.size());
+		
 	}
 
 	/**
@@ -665,9 +715,13 @@ public class GeneratorCore {
 	private Set<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {
 		return this.getPointsConnected(wallBlocks, returnBlocks, generationRangeLimit, null);
 	}
-	
+
 	private Set<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints) {
 		return Wall.getPointsConnected(this.world, this.point(), wallBlocks, returnBlocks, rangeLimit, ignorePoints);
+	}
+
+	private Set<Point> getPointsConnected(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks, int rangeLimit, Set<Point> ignorePoints, Set<Point> searchablePoints) {
+		return Wall.getPointsConnected(this.world, this.point(), wallBlocks, returnBlocks, rangeLimit, ignorePoints, searchablePoints);
 	}
 	
 	private List<List<Point>> getPointsConnectedAsLayers(ArrayList<Block> wallBlocks, ArrayList<Block> returnBlocks) {

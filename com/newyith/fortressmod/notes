@@ -31,6 +31,16 @@ TODO: consider issue of 2 fortresses semi close to each other and built up until
 TODO: keep track of claimedWallPoints and on getClaimedPoints() if not all claimedWallPoints are fortress wall then update claimed before returning
     this fixes issue where disconnected but still claimed wall couldn't be controlled by another generator
     this also increases lag a bit but probably worth it
+TODO: consider adding FortressStructure class to wrap up generating/degenerating wall (actual not attempt) and claimedPoints, claimedWallPoints?
+
+
+TODO: delete next 5 lines
+delivery order
+2557 kincaid
+roni and shrooms (with ranch)
+541-953-4369
+cash
+
 
 Done (current work sub tasks):
 onPlaced, if generator is directly connected to another generator's claimedPoint, clog (and show message)
