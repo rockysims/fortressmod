@@ -20,7 +20,7 @@ import net.minecraftforge.common.util.Constants.NBT;
 public class GeneratorCore {
 	//saved in NBT
 	private List<List<Point>> generatedLayers = new ArrayList<List<Point>>();
-	private List<List<Point>> wallLayers = new ArrayList<List<Point>>();
+	private List<List<Point>> animationWallLayers = new ArrayList<List<Point>>();
 	private Set<Point> claimedPoints = new HashSet<Point>();
 	private Set<Point> claimedWallPoints = new HashSet<Point>();
 	private boolean isChangingGenerated;
@@ -48,7 +48,7 @@ public class GeneratorCore {
 	public void writeToNBT(NBTTagCompound compound) {
 		writePointsToNBT(compound, "claimedPoints", this.claimedPoints);
 		writePointsToNBT(compound, "claimedWallPoints", this.claimedWallPoints);
-		writeLayersToNBT(compound, "wallLayers", this.wallLayers);
+		writeLayersToNBT(compound, "animationWallLayers", this.animationWallLayers);
 		writeLayersToNBT(compound, "generatedLayers", this.generatedLayers);
 		
 		//save the other stuff
@@ -94,7 +94,7 @@ public class GeneratorCore {
 	public void readFromNBT(NBTTagCompound compound) {
 		this.claimedPoints = readPointsFromNBT(compound, "claimedPoints");
 		this.claimedWallPoints = readPointsFromNBT(compound, "claimedWallPoints");
-		this.wallLayers = readLayersFromNBT(compound, "wallLayers");
+		this.animationWallLayers = readLayersFromNBT(compound, "animationWallLayers");
 		this.generatedLayers = readLayersFromNBT(compound, "generatedLayers");
 		
 		//load the other stuff
@@ -271,14 +271,14 @@ public class GeneratorCore {
 				boolean updateLayer = false;
 
 				//update to next frame
-				for (int i = 0; i < this.wallLayers.size(); i++) {
+				for (int i = 0; i < this.animationWallLayers.size(); i++) {
 					int layerIndex = i;
 					//if (degenerating) reverse direction
 					if (!this.isGeneratingWall) {
-						layerIndex = (wallLayers.size()-1) - i;
+						layerIndex = (animationWallLayers.size()-1) - i;
 					}
 					
-					List<Point> layer = new ArrayList<Point>(this.wallLayers.get(layerIndex)); //make copy to avoid concurrent modification errors
+					List<Point> layer = new ArrayList<Point>(this.animationWallLayers.get(layerIndex)); //make copy to avoid concurrent modification errors
 					
 					//set allOfLayerIsGenerated and anyOfLayerIsGenerated
 					boolean allOfLayerIsGenerated = true;
@@ -459,9 +459,9 @@ public class GeneratorCore {
 			//generate wall
 			
 			//set this.wallLayers = wall layers its allowed to generate
-			this.wallLayers = this.getGeneratableWallLayers();
+			this.animationWallLayers = this.getGeneratableWallLayers();
 			//recalculate this.claimedPoints
-			this.updateClaimedPoints(merge(this.wallLayers, this.generatedLayers));
+			this.updateClaimedPoints(merge(this.animationWallLayers, this.generatedLayers));
 
 			Dbg.print("generateWall(): new claimedPoints.size(): " + String.valueOf(this.claimedPoints.size())); 
 			
@@ -591,23 +591,10 @@ public class GeneratorCore {
 				pointsToUnclaim.add(claimedWallPoint);
 			}
 		}
-		Dbg.print("pointsToUnclaim.size(): " + pointsToUnclaim.size());
 		
-		//TODO: maybe: figure out how/if I can combine this.wallLayers and this.claimedWallPoints
-		
-		Dbg.print("Wall.flattenLayers(this.wallLayers).size() A: " + Wall.flattenLayers(this.wallLayers).size());
-		//remove pointsToUnclaim from this.wallLayers
-		for (int i = 0; i < this.wallLayers.size(); i++) {
-			this.wallLayers.get(i).removeAll(pointsToUnclaim);
-		}
-		Dbg.print("Wall.flattenLayers(this.wallLayers).size() B: " + Wall.flattenLayers(this.wallLayers).size());
-
 		//remove pointsToUnclaim from this.claimedWallPoints
 		this.claimedWallPoints.removeAll(pointsToUnclaim);
 
-		Dbg.print("this.claimedPoints.size() A: " + this.claimedPoints.size());
-		Dbg.print("this.claimedWallPoints.size() A: " + this.claimedWallPoints.size());
-		
 		//update this.claimedPoints
 		this.claimedPoints.clear();
 		this.claimedPoints.addAll(this.claimedWallPoints);
@@ -618,12 +605,26 @@ public class GeneratorCore {
 		Set<Point> layerAroundGenerator = getLayerAround(Wall.flattenLayers(this.getGeneratorPointAsLayers()));
 		this.claimedPoints.addAll(layerAroundGenerator); //TODO: uncomment out this line
 		
+		//degenerate overlap between pointsToUnclaim and this.generatedLayers
+		Set<Point> pointsToDegenerate = new HashSet<Point>(pointsToUnclaim);
+		pointsToDegenerate.retainAll(Wall.flattenLayers(this.generatedLayers));
+		this.animationWallLayers.clear();
+		this.animationWallLayers.add(new ArrayList<Point>(pointsToDegenerate));
+		this.isGeneratingWall = false;
+		this.isChangingGenerated = true;
+		this.animateGeneration = false;
+		this.updateEntity();
+		this.animateGeneration = true;
 		
-		
-		
-		Dbg.print("this.claimedPoints.size() B: " + this.claimedPoints.size());
-		Dbg.print("this.claimedWallPoints.size() B: " + this.claimedWallPoints.size());
-		
+		//remove pointsToDegenerate from this.generatedLayers
+		for (Iterator<List<Point>> itr = this.generatedLayers.iterator(); itr.hasNext(); ) {
+			List<Point> layer = itr.next();
+			layer.removeAll(pointsToDegenerate);
+			if (layer.size() == 0) {
+				itr.remove();
+			}
+		}
+		this.isGeneratingWall = this.generatedLayers.size() > 0;
 	}
 
 	/**
@@ -632,15 +633,8 @@ public class GeneratorCore {
 	 */
 	private void degenerateWall(boolean animate) {
 		//Dbg.print("degenerateWall("+String.valueOf(animate)+")");
-		this.wallLayers.clear();
-		this.wallLayers.addAll(this.generatedLayers);
-		
-		/* //TODO: consider: do i want to leave this out to help with lag?
-		if (!this.isClogged() && this.isOnlyGeneratorConnected()) {
-			List<List<Point>> connectedPoints = getPointsConnectedAsLayers(Wall.getWallBlocks(), Wall.getEnabledWallBlocks());
-			this.wallLayers = merge(this.wallLayers, connectedPoints);
-		}
-		//*/
+		this.animationWallLayers.clear();
+		this.animationWallLayers.addAll(this.generatedLayers);
 		
 		this.isGeneratingWall = false;
 		this.isChangingGenerated = true;

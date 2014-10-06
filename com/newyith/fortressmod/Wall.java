@@ -267,35 +267,14 @@ public class Wall {
 		if (!blockTypesCreated) {
 			//fill degeneratedWallBlocks (must be added in the same order as generated)
 			disabledWallBlocks.add(Blocks.cobblestone);
-			
-			
-			
-			//disabledWallBlocks.add(Blocks.glass); //TODO: change back to this line
-			disabledWallBlocks.add(Blocks.dirt);
-			disabledWallBlocks.add(Blocks.grass);
-			disabledWallBlocks.add(Blocks.stone);
-			disabledWallBlocks.add(Blocks.gravel);
-			
-			
-			
-			
+			disabledWallBlocks.add(Blocks.glass);
 			disabledWallBlocks.add(Blocks.obsidian);
 			disabledWallBlocks.add(Blocks.wooden_door);
 			disabledWallBlocks.add(Blocks.iron_door);
 			
 			//fill generatedWallBlocks (must be added in the same order as degenerated)
 			enabledWallBlocks.add(FortressMod.fortressBedrock);
-			
-			
-			
 			enabledWallBlocks.add(FortressMod.fortressGlass);
-			enabledWallBlocks.add(FortressMod.fortressGlass); //TODO: delete this line
-			enabledWallBlocks.add(FortressMod.fortressGlass); //TODO: delete this line
-			enabledWallBlocks.add(FortressMod.fortressGlass); //TODO: delete this line
-
-			
-			
-			
 			enabledWallBlocks.add(FortressMod.fortressObsidian);
 			enabledWallBlocks.add(FortressMod.fortressWoodenDoor);
 			enabledWallBlocks.add(FortressMod.fortressIronDoor);
