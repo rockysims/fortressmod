@@ -9,26 +9,11 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-TODO: review expansion of generators section in fortress manual (remove it probably (or write it better))
+review expansion of generators section in fortress manual (remove it probably (or write it better))
 remove debug recipes
-TODO: consider adding glowstone to emergency key recipe (1 glowstone block in the middle?)
-TODO: make generator emit light when burning (active)
-TODO: remove override that can prevent emergency key from working
-TODO: maybe spawn a new thread to degenerate quickly (without animation) but not instantly (spread it out over 50 ticks (2.5 sec)?)
-TODO: consider issue of 2 fortresses semi close to each other and built up until eventually they connect and one fortress is controlled by other
-    Maybe fix is: make generators play nice instead of clogging:
-        make generators not degenerate connected wall unless its the only generator connected (128 search range)
-            this fixes major issue of breaking into other fortresses
-                and reintroduces issue of being able to build a fortress around someone else's fortress
-        //when generating, generate all connected wall points (connected without traversing wall points belonging to other generators within 128 (or within 1 layer of wall belonging to other generators))
-        when generating, find points to generate as follows:
-            connectedFGs = all generators connected to this generator (128 search range)
-            claimedPoints = merge of claimedPoints of all connectedFGs
-            wallPoints = all connected wall points ignoring (and not traversing) claimedPoints (64 search range)
-            generate wallPoints and set core.wallPoints = wallPoints
-        TODO: set core.claimedPoints when generating wall or onPlaced
-        TODO: replace clogging logic with whatever makes sense (usually generating anyway and letting it figure it out)
-TODO: consider adding FortressStructure class to wrap up generating/degenerating wall (actual not attempt) and claimedPoints, claimedWallPoints?
+consider adding glowstone to emergency key recipe (1 glowstone block in the middle?)
+make generator emit light when burning (active)
+remove override that can prevent emergency key from working
 
 
 
@@ -39,6 +24,8 @@ make generator claim 3x3x3 around itself
 made generator clog if generateWall() called too often
 
 Maybe:
+consider adding FortressStructure class to wrap up generating/degenerating wall (actual not attempt) and claimedPoints, claimedWallPoints?
+spawn a new thread to degenerate quickly (without animation) but not instantly (spread it out over multiple ticks)
 test what if while degenerating wall, long section is disconnected, then generate again. does the unconnected part stop half generated?
     yes but it still remembers it needs to degenerate the now disconnected part when next paused
     TODO: retest this?

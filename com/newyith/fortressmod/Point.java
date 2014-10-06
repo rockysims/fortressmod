@@ -21,15 +21,13 @@ public class Point {
 	public int hashCode() {
 		int hash = x;
 		hash = 49999 * hash + y;
-        hash = 49999 * hash + z;
-		//Dbg.print("hashCode() for " + this + ": " + String.valueOf(hash));
-        return hash;
-    }
+		hash = 49999 * hash + z;
+		return hash;
+	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		Point p = (Point)obj;
 		return (x == p.x) && (y == p.y) && (z == p.z);
-		//Dbg.print("equals(): " + this + " ?= " + p + " (" + String.valueOf(samePoint) + ")");
 	}
 }

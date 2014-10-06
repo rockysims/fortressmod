@@ -55,10 +55,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	public TileEntityFortressGenerator(FortressGeneratorState state) {
 		this();
 		this.state = state;
-//		if (this.getWorldObj() != null)
-//			Dbg.print("TileEntityFortressGenerator(state): this.state = " + this.state.toString(), this.getWorldObj().isRemote);
-//		else
-//			Dbg.print("TileEntityFortressGenerator(state): this.state = " + this.state.toString());
 	}
 
 	@Override
