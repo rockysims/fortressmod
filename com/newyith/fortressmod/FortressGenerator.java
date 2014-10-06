@@ -45,6 +45,13 @@ public class FortressGenerator extends BlockContainer {
 		setStepSound(Block.soundTypePiston);
 		setResistance(17.5F);
 		this.state = state;
+		
+		setLightOpacity(0);
+		if (this.state == FortressGeneratorState.ACTIVE) {
+			setLightLevel(0.875F);
+		} else if (this.state == FortressGeneratorState.PAUSED) {
+			setLightLevel(0.4F);
+		}
 	}
 	
 	@Override
