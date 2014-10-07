@@ -159,7 +159,7 @@ public class FortressMod
         ItemStack fortressManualStack = new ItemStack(itemFortressManual, 1); 
         GameRegistry.addShapelessRecipe(fortressManualStack, obsidianStack);
         
-        //* debug recipes
+        /* debug recipes
         ItemStack dirtStack = new ItemStack(Blocks.dirt, 1);
         ItemStack obsidianStack64 = new ItemStack(Blocks.obsidian, 64);
         GameRegistry.addRecipe(obsidianStack64, "   ", " d ", "   ", 'd', dirtStack);

@@ -9,12 +9,11 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-review expansion of generators section in fortress manual (remove it probably (or write it better))
-remove debug recipes
-
+consider adding hoppers to fortress manual
 
 
 Done (current work sub tasks):
+review expansion of generators section in fortress manual
 add support for hopper to fortress generator
 add glowstone to emergency key recipe (1 glowstone block in the middle)
 remove override that can prevent emergency key from working (quartz block)
