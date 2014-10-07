@@ -1,5 +1,6 @@
 package com.newyith.fortressmod.items;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +22,14 @@ public class ItemFortressManual extends ItemWrittenBook {
 		
 		try {
 			pages.clear();
+
+			String filename = "fortress_manual_book.txt";
+			InputStreamReader inputStreamReader;
+			String path = "/assets/fortressmod/books/" + filename;
+			InputStream inputStream = getClass().getResourceAsStream(path);
+			inputStreamReader = new InputStreamReader(inputStream, "UTF-8");
 			pages.addAll(Arrays.asList(
-				CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("ItemFortressManualContents.txt"), "UTF-8"))
+				CharStreams.toString(inputStreamReader)
 					.split("===+\n"))
 			);
 			
