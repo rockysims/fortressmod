@@ -152,7 +152,8 @@ public class FortressMod
         //fortressEmergencyKey
 		ItemStack quartzStack = new ItemStack(Blocks.quartz_block, 1);
         ItemStack emergencyKeyStack = new ItemStack(fortressEmergencyKey, 1);
-        GameRegistry.addRecipe(emergencyKeyStack, "qqq", "q q", "qqq", 'q', quartzStack);
+        ItemStack glowstoneBlockStack = new ItemStack(Blocks.glowstone, 1);
+        GameRegistry.addRecipe(emergencyKeyStack, "qqq", "qgq", "qqq", 'q', quartzStack, 'g', glowstoneBlockStack);
 
         //itemFortressManual
         ItemStack fortressManualStack = new ItemStack(itemFortressManual, 1); 

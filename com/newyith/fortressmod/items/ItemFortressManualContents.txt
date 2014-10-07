@@ -48,10 +48,10 @@ While powered by redstone, the fortress generator stops generating and pauses fu
 =======
 Emergency Key
 Q Q Q
-Q - Q
+Q G Q
 Q Q Q
 Q=quartz block
--=empty
+G=glowstone block
 
 When placed against a fortress wall, all generators also touching the wall will be clogged (if they were placed by you).
 =======
