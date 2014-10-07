@@ -12,6 +12,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.config.Configuration;
 
+import com.newyith.fortressmod.blocks.FortressBedrock;
+import com.newyith.fortressmod.blocks.FortressDoor;
+import com.newyith.fortressmod.blocks.FortressEmergencyKey;
+import com.newyith.fortressmod.blocks.FortressGenerator;
+import com.newyith.fortressmod.blocks.FortressGlass;
+import com.newyith.fortressmod.blocks.FortressNetherBrick;
 import com.newyith.fortressmod.client.GuiHandler;
 import com.newyith.fortressmod.commands.StuckCommand;
 import com.newyith.fortressmod.items.ItemFortressDoor;

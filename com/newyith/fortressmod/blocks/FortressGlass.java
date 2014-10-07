@@ -1,4 +1,4 @@
-package com.newyith.fortressmod;
+package com.newyith.fortressmod.blocks;
 
 import java.util.Random;
 
@@ -7,12 +7,16 @@ import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
+
+import com.newyith.fortressmod.ModInfo;
+import com.newyith.fortressmod.Wall;
+
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 
 public class FortressGlass extends BlockGlass {
-	protected FortressGlass() {
+	public FortressGlass() {
 		super(Material.rock, false);
 		setBlockUnbreakable();
 		setResistance(6000000.0F);

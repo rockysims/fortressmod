@@ -645,7 +645,7 @@ public class GeneratorCore {
 	 * Clogs the generator after degenerating walls.
 	 * Assumes checking for permission to clog generator and degenerate walls is already done.
 	 */
-	void clog() {
+	public void clog() {
 		this.degenerateWall(true);
 		this.claimedPoints.clear();
 		this.fortressGenerator.setState(FortressGeneratorState.CLOGGED);

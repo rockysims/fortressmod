@@ -1,35 +1,32 @@
-package com.newyith.fortressmod;
+package com.newyith.fortressmod.blocks;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDoor;
-import net.minecraft.block.BlockSign;
-import net.minecraft.block.BlockWall;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.IconFlipped;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemDoor;
 import net.minecraft.tileentity.TileEntitySign;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+
+import com.newyith.fortressmod.FortressMod;
+import com.newyith.fortressmod.ModInfo;
+import com.newyith.fortressmod.Point;
+import com.newyith.fortressmod.Wall;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class FortressDoor extends BlockDoor {
 	//i think meta == (top/bottom)(open/closed)(?)(?)
 	
 	private Material origMaterial;
 
-	protected FortressDoor(Material origMaterial) {
+	public FortressDoor(Material origMaterial) {
 		super(Material.rock); //not Material.iron so that it will open close on right click and not wood so it can't burn
 		setHardness(1.0F);
 		setBlockUnbreakable();

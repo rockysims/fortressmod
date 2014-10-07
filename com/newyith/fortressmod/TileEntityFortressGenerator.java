@@ -1,14 +1,9 @@
 package com.newyith.fortressmod;
 
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Random;
 
-import akka.event.Logging.Debug;
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -16,9 +11,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
+
+import com.newyith.fortressmod.blocks.FortressGenerator;
 
 public class TileEntityFortressGenerator extends TileEntity implements IInventory {
 	private static Random rand = new Random();

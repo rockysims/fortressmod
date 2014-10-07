@@ -1,20 +1,21 @@
-package com.newyith.fortressmod;
-
+package com.newyith.fortressmod.blocks;
 
 import java.util.Random;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-public class FortressBedrock extends Block {
-	protected FortressBedrock() {
+import com.newyith.fortressmod.ModInfo;
+import com.newyith.fortressmod.Wall;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
+public class FortressNetherBrick extends Block {
+	public FortressNetherBrick() {
 		super(Material.rock);
 		setBlockUnbreakable();
 		setResistance(6000000.0F);
@@ -22,17 +23,23 @@ public class FortressBedrock extends Block {
 		disableStats();
 	}
 
+	/**
+	 * Gets the block's texture. Args: side, meta
+	 */
+	@Override
 	@SideOnly(Side.CLIENT)
-	public IIcon getIcon(int side, int meta) {
-		return Blocks.bedrock.getIcon(side, meta);
+	public IIcon getIcon(int side, int meta)
+	{
+		return this.blockIcon;
 	}
-	
+
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void registerBlockIcons(IIconRegister iconRegister) {
-		//if we don't override this method, we get an exception
-		//don't need to register any textures because we're re-using bedrock texture
+		String iconStr = ModInfo.MODID.toLowerCase() + ":" + "fortress_nether_brick";
+		this.blockIcon = iconRegister.registerIcon(iconStr);
 	}
-	
+
 	/**
 	 * A randomly called display update to be able to add particles or other items for display
 	 */
