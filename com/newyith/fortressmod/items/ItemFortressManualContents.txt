@@ -38,9 +38,9 @@ Sign format: One name on each line or comma separated list.
 =======
 Clogging
 
-If more than one fortress generator tries to control the same fortress, the newer generator will clog.
+Generator will clog if placed too close to another fortress, if redstone power is turned off more than once per second, or if an emergency key is used.
 
-Pick up generator (with pickaxe) to unclog.
+Break generator (with pickaxe) to unclog.
 =======
 Redstone
 

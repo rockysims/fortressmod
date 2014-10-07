@@ -15,6 +15,7 @@ remove debug recipes
 
 
 Done (current work sub tasks):
+add support for hopper to fortress generator
 add glowstone to emergency key recipe (1 glowstone block in the middle)
 remove override that can prevent emergency key from working (quartz block)
 make generator emit light when burning (active) and a little light when paused

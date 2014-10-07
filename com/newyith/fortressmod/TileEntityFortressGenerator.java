@@ -270,17 +270,6 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		return player.getDistanceSq(xCoord + 0.5D, yCoord + 0.5D, zCoord + 0.5D) <= 64;
 	}
 
-	@Override
-	public void openInventory() {}
-
-	@Override
-	public void closeInventory() {}
-
-	@Override
-	public boolean isItemValidForSlot(int slot, ItemStack itemstack) {
-		return true;
-	}
-
 	public boolean isBurning() {
 		return this.burnTicksRemaining > 0;
 	}
@@ -320,21 +309,12 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		//if (running and powered) pause
 		if (this.state == FortressGeneratorState.ACTIVE && nowPowered) {
 			
-			
-			
-			
-			
 			//TODO: finish or comment out this sounds stuff
-			//Dbg.print("play sound");
 			/*
+			Dbg.print("play sound");
 			this.worldObj.playSoundEffect(this.xCoord, this.yCoord, this.zCoord, "fortressmod:test_sound", 1.0F, 0.6F);
 			this.worldObj.playSoundEffect(this.xCoord, this.yCoord, this.zCoord, "test_sound", 1.0F, 0.6F);
 			//*/
-			
-			
-			
-			
-			
 			
 			this.setState(FortressGeneratorState.PAUSED);
 		}
@@ -348,5 +328,43 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 		}
 		
 		this.generatorCore.onPoweredMightHaveChanged();
+	}
+	
+	@Override
+	public void openInventory() {}
+
+	@Override
+	public void closeInventory() {}
+
+	/**
+	 * Returns true if automation is allowed to insert the given stack (ignoring stack size) into the given slot.
+	 */
+	@Override
+	public boolean isItemValidForSlot(int slot, ItemStack itemStack) {
+		return getItemBurnTicks(itemStack) > 0;
+	}
+
+	/**
+	 * Returns an array containing the indices of the slots that can be accessed by automation on the given side of this
+	 * block.
+	 */
+	public int[] getAccessibleSlotsFromSide(int side) {
+		return new int[] {0};
+	}
+
+	/**
+	 * Returns true if automation can insert the given item in the given slot from the given side. Args: Slot, item,
+	 * side
+	 */
+	public boolean canInsertItem(int slot, ItemStack itemStack, int side) {
+		return this.isItemValidForSlot(slot, itemStack);
+	}
+
+	/**
+	 * Returns true if automation can extract the given item in the given slot from the given side. Args: Slot, item,
+	 * side
+	 */
+	public boolean canExtractItem(int slot, ItemStack itemStack, int side) {
+		return side == 1; //can only extract from the bottom
 	}
 }
