@@ -14,6 +14,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
@@ -47,26 +48,21 @@ public class FortressEmergencyKey extends BlockQuartz {
 		int clogged = clogConnectedGeneratorsPlacedBy(world, x, y, z, keyPlacingPlayerName);
 		if (clogged > 0) {
 			world.setBlock(x, y, z, Blocks.air);
+			String msg = "Emergency key clogged " + clogged + " fortress generator" + ((clogged > 1)?"s":"") + ".";
+			msg = EnumChatFormatting.AQUA + msg;
+			Chat.sendMessageToPlayer(msg, player);
 		}
 	}
 	
 	private int clogConnectedGeneratorsPlacedBy(World world, int x, int y, int z, String keyPlacingPlayerName) {
 		Point emergencyKeyPoint = new Point(x, y, z);
 		ArrayList<TileEntityFortressGenerator> fgs = this.getConnectedFortressGeneratorsNotClogged(world, emergencyKeyPoint); 
-		Set<Point> keyPreventingBlocksPoints;
-		ArrayList<Block> keyPreventingBlocks = new ArrayList<Block>();
-		keyPreventingBlocks.add(Blocks.quartz_block);
 		
 		int clogCount = 0;
 		for (TileEntityFortressGenerator fg : fgs) {
 			if (fg.getGeneratorCore().getPlacedByPlayerName().contentEquals(keyPlacingPlayerName)) {
-				keyPreventingBlocksPoints = Wall.getPointsConnected(world, new Point(fg.xCoord, fg.yCoord, fg.zCoord), new ArrayList<Block>(), keyPreventingBlocks, Wall.ConnectedThreshold.POINTS);
-
-				//if (fg not touching quartz block)
-				if (keyPreventingBlocksPoints.size() == 0) {
-					fg.getGeneratorCore().clog();
-					clogCount++;
-				}
+				fg.getGeneratorCore().clog();
+				clogCount++;
 			}
 		}
 		
@@ -77,7 +73,7 @@ public class FortressEmergencyKey extends BlockQuartz {
 		ArrayList<TileEntityFortressGenerator> matches = new ArrayList<TileEntityFortressGenerator>();
 		
 		Set<Point> connectedFgPoints;
-		connectedFgPoints = Wall.getPointsConnected(world, origin, Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks(), Wall.ConnectedThreshold.POINTS);
+		connectedFgPoints = Wall.getPointsConnected(world, origin, Wall.getWallBlocks(), Wall.getNotCloggedGeneratorBlocks(), Wall.ConnectedThreshold.FACES);
 		for (Point p : connectedFgPoints) {
 			TileEntityFortressGenerator fg = (TileEntityFortressGenerator) world.getTileEntity(p.x, p.y, p.z);
 			matches.add(fg);

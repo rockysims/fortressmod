@@ -9,7 +9,6 @@ Maybe:
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Still Need:
-remove override that can prevent emergency key from working
 consider adding glowstone to emergency key recipe (1 glowstone block in the middle?)
 review expansion of generators section in fortress manual (remove it probably (or write it better))
 remove debug recipes
@@ -17,6 +16,7 @@ remove debug recipes
 
 
 Done (current work sub tasks):
+remove override that can prevent emergency key from working (quartz block)
 make generator emit light when burning (active) and a little light when paused
 keep track of claimedWallPoints and on getClaimedPoints() if not all claimedWallPoints are fortress wall then update claimed before returning (and degenerate whatever is unclaimed)
 onPlaced, if generator is directly connected to another generator's claimedPoint, clog (and show message)
