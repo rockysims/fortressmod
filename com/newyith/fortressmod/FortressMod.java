@@ -39,7 +39,7 @@ public class FortressMod
 	public static Block fortressEmergencyKey;
 	public static Block fortressBedrock;
 	public static Block fortressGlass;
-	public static Block fortressObsidian;
+	public static Block fortressNetherBrick;
 	//fortress door
 	public static Block fortressWoodenDoor;
 	public static Block fortressIronDoor;
@@ -103,8 +103,8 @@ public class FortressMod
 		fortressGlass = new FortressGlass().setBlockName("FortressGlass").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGlass, "FortressGlass");
 
-		fortressObsidian = new FortressObsidian().setBlockName("FortressObsidian").setCreativeTab(tabName);
-		GameRegistry.registerBlock(fortressObsidian, "FortressObsidian");
+		fortressNetherBrick = new FortressNetherBrick().setBlockName("FortressNetherBrick").setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressNetherBrick, "FortressNetherBrick");
 
 		//fortress wooden door block
 		fortressWoodenDoor = new FortressDoor(Material.wood).setBlockName("FortressWoodenDoor");

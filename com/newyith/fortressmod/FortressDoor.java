@@ -78,11 +78,11 @@ public class FortressDoor extends BlockDoor {
 			pointAboveDoor = new Point(x, y + 2, z);
 		}
 		
-		if (blockAboveDoor == Blocks.obsidian || blockAboveDoor == FortressMod.fortressObsidian) {
+		if (blockAboveDoor == Blocks.nether_brick || blockAboveDoor == FortressMod.fortressNetherBrick) {
 			ArrayList<Block> wallBlocks = new ArrayList<Block>();
 			ArrayList<Block> returnBlocks = new ArrayList<Block>();
-			wallBlocks.add(Blocks.obsidian);
-			wallBlocks.add(FortressMod.fortressObsidian);
+			wallBlocks.add(Blocks.nether_brick);
+			wallBlocks.add(FortressMod.fortressNetherBrick);
 			returnBlocks.add(Blocks.wall_sign);
 			returnBlocks.add(Blocks.standing_sign);
 			Set<Point> signs = Wall.getPointsConnected(world, pointAboveDoor, wallBlocks, returnBlocks, Wall.ConnectedThreshold.FACES);

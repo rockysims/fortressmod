@@ -4,13 +4,17 @@ import java.util.Random;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockObsidian;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 
-public class FortressObsidian extends BlockObsidian {
-	public FortressObsidian() {
+public class FortressNetherBrick extends Block {
+	public FortressNetherBrick() {
+		super(Material.rock);
 		setBlockUnbreakable();
 		setResistance(6000000.0F);
 		setStepSound(soundTypePiston);
@@ -18,22 +22,21 @@ public class FortressObsidian extends BlockObsidian {
 	}
 
 	/**
-     * Gets the block's texture. Args: side, meta
-     */
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side, int meta)
-    {
-    	return this.blockIcon;
-    }
+	 * Gets the block's texture. Args: side, meta
+	 */
+	@Override
+	@SideOnly(Side.CLIENT)
+	public IIcon getIcon(int side, int meta)
+	{
+		return this.blockIcon;
+	}
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void registerBlockIcons(IIconRegister iconRegister)
-    {
-    	String iconStr = ModInfo.MODID.toLowerCase() + ":" + "fortress_obsidian";
-        this.blockIcon = iconRegister.registerIcon(iconStr);
-    }
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void registerBlockIcons(IIconRegister iconRegister) {
+		String iconStr = ModInfo.MODID.toLowerCase() + ":" + "fortress_nether_brick";
+		this.blockIcon = iconRegister.registerIcon(iconStr);
+	}
 
 	/**
 	 * A randomly called display update to be able to add particles or other items for display

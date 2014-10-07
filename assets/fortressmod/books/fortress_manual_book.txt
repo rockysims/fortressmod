@@ -16,7 +16,7 @@ O d O
 O O O
 O=obsidian, d=diamond
 
-Changes cobblestone, glass, obsidian, and doors (wood/iron) to an unbreakable version while fueled by glowstone dust
+Changes cobblestone, glass, nether brick, and doors (wood/iron) to an unbreakable version while fueled by glowstone dust
 (GLOWSTONE_BURN_TIME_HOURS hourGLOWSTONE_BURN_TIME_HOURS_S each).
 =======
 Fortress Generator 2
@@ -29,11 +29,11 @@ Fortress Doors
 
 Doors open for white-listed players only (on right click).
 
-Place an obsidian block directly above the door and on that obsidian place a sign with player name(s) to white-list.
+Place nether brick directly above the door and on that nether brick place a sign with player name(s) to white-list.
 =======
 Fortress Doors (2)
 
-The white-list sign(s) can also be on any obsidian block connected (by obsidian) to the obsidian block directly above the door.
+The white-list sign(s) can also be on any nether brick connected (by nether brick) to the nether brick directly above the door.
 
 Sign format: One name on each line or comma separated list.
 =======

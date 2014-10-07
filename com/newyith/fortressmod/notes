@@ -10,12 +10,12 @@ Maybe:
 
 
 Still Need:
-consider giving role of obsidian in doors to another block (quartz?)
 consider adding hoppers to fortress manual
 compile without notUsed textures
 
 
 Done (current work sub tasks):
+give role of obsidian in doors to nether brick
 review expansion of generators section in fortress manual
 add support for hopper to fortress generator
 add glowstone to emergency key recipe (1 glowstone block in the middle)
