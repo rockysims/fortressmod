@@ -8,9 +8,33 @@ Maybe:
     darkstone dust is produced by fortress generators at a rate determined by the number of wall blocks generated
 2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
+Deployment issues:
+none so far!
 
 Still Need:
-compile without notUsed textures
+figure out why "author" isn't being filled in in minecraft forge display about fortressmod
+figure out why "config" button is diabled for fortressmod in minecraft forge?
+youtube video
+    make world for video and decided what to cover
+github (with readme.md or w/e)
+    provide download for compiled mod (.jar)
+
+
+
+Youtube video outline:
+music?
+intro (hello, my name, mod name)
+summary of what mod does
+"I'm going to show you": list stuff to be covered in remainder of video
+    stuff added by mod (items/blocks)
+        manual, generator, emergency key (and fortress wall blocks?)
+    crafting recipes
+    demonstrate how to use everything
+        generate small cobblestone house with windows and a door
+        
+end video after at most 15 minutes (ideally closer to 5)
+
+
 
 
 Done (current work sub tasks):

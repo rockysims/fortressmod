@@ -3,7 +3,8 @@ package com.newyith.fortressmod.blocks;
 import java.util.ArrayList;
 import java.util.Set;
 
-import net.minecraft.block.BlockQuartz;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,10 +23,10 @@ import com.newyith.fortressmod.Wall;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class FortressEmergencyKey extends BlockQuartz {
+public class FortressEmergencyKey extends Block {
 	
 	public FortressEmergencyKey() {
-		super();
+		super(Material.rock);
 		setHardness(3.5F);
 	}
 	

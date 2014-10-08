@@ -20,9 +20,15 @@ public class ItemFortressDoor extends ItemDoor {
 
 	public ItemFortressDoor(Material origMaterial) {
 		super(Material.rock);
-		setUnlocalizedName("FortressDoor");
-		setTextureName(ModInfo.MODID.toLowerCase() + ":" + "fortress_door");
 		this.origMaterial = origMaterial;
+		
+		if (origMaterial == Material.iron) {
+			setUnlocalizedName("FortressIronDoor");
+			setTextureName(ModInfo.MODID.toLowerCase() + ":" + "fortress_door_iron");
+		} else {
+			setUnlocalizedName("FortressWoodenDoor");
+			setTextureName(ModInfo.MODID.toLowerCase() + ":" + "fortress_door_wood");
+		}
 	}
 
 	@Override

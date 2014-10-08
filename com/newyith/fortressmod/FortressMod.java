@@ -89,79 +89,77 @@ public class FortressMod
             int msPerHour = 1000*60*60;
             String name = "glowstone_burn_time_ms";
             String category = "fortressmod";
-            int defaultValue = msPerHour;
+            int defaultValue = 1 * msPerHour;
             int minValue = 50; //0.05 seconds
             int maxValue = Integer.MAX_VALUE; //~1.6 years
             String comment = "How many milliseconds 1 glowstone dust will fuel a fortress generator. 3600000 is 1 hour.";
-            this.config_glowstoneBurnTimeMs = config.getInt(name, category, defaultValue, minValue, maxValue, comment);
+            FortressMod.config_glowstoneBurnTimeMs = config.getInt(name, category, defaultValue, minValue, maxValue, comment);
             
             config.save();
     }
 	
 	@EventHandler
 	public void init(FMLInitializationEvent e) {
-		
-		//Fortress Wall Blocks
-		
+		//fortress wall (bedrock)
 		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressBedrock, "FortressBedrock");
-
+		//fortress wall (glass)
 		fortressGlass = new FortressGlass().setBlockName("FortressGlass").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGlass, "FortressGlass");
-
+		//fortress wall (nether brick)
 		fortressNetherBrick = new FortressNetherBrick().setBlockName("FortressNetherBrick").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressNetherBrick, "FortressNetherBrick");
 
-		//fortress wooden door block
+		//fortress wall (wooden door (block))
 		fortressWoodenDoor = new FortressDoor(Material.wood).setBlockName("FortressWoodenDoor");
 		GameRegistry.registerBlock(fortressWoodenDoor, "FortressWoodenDoor");
-		//fortress wooden door item
+		//fortress wall (wooden door (item))
 		itemFortressWoodenDoor = new ItemFortressDoor(Material.wood).setCreativeTab(tabName);
 		GameRegistry.registerItem(itemFortressWoodenDoor, "ItemFortressWoodenDoor");
 
-		//fortress iron door block
+		//fortress wall (iron door (block))
 		fortressIronDoor = new FortressDoor(Material.iron).setBlockName("FortressIronDoor");
 		GameRegistry.registerBlock(fortressIronDoor, "FortressIronDoor");
-		//fortress iron door item
+		//fortress wall (iron door (item))
 		itemFortressIronDoor = new ItemFortressDoor(Material.iron).setCreativeTab(tabName);
 		GameRegistry.registerItem(itemFortressIronDoor, "ItemFortressIronDoor");
 		
+		//fortress generator (off)
+        fortressGenerator = new FortressGenerator(FortressGeneratorState.OFF).setBlockName("FortressGenerator").setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressGenerator, "FortressGenerator");
+		//fortress generator (on)
+		fortressGeneratorOn = new FortressGenerator(FortressGeneratorState.ACTIVE).setBlockName("FortressGeneratorActive");
+		GameRegistry.registerBlock(fortressGeneratorOn, "FortressGeneratorActive");
+		//fortress generator (paused)
+		fortressGeneratorPaused = new FortressGenerator(FortressGeneratorState.PAUSED).setBlockName("FortressGeneratorOnAndPowered");
+		GameRegistry.registerBlock(fortressGeneratorPaused, "FortressGeneratorOnAndPowered");
+		//fortress generator (clogged)
+        fortressGeneratorClogged = new FortressGenerator(FortressGeneratorState.CLOGGED).setBlockName("FortressGeneratorClogged"); //.setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressGeneratorClogged, "FortressGeneratorClogged");
+		
+		//emergency key
+		fortressEmergencyKey = new FortressEmergencyKey().setBlockName("FortressEmergencyKey").setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressEmergencyKey, "FortressEmergencyKey");
+
+		//fortress manual
 		itemFortressManual = new ItemFortressManual().setCreativeTab(tabName);
 		GameRegistry.registerItem(itemFortressManual, "FortressManual");
 		
-		//Fortress Generators
-
-        fortressGenerator = new FortressGenerator(FortressGeneratorState.OFF).setBlockName("FortressGenerator").setCreativeTab(tabName);
-		GameRegistry.registerBlock(fortressGenerator, "FortressGenerator");
-		
-		fortressGeneratorOn = new FortressGenerator(FortressGeneratorState.ACTIVE).setBlockName("FortressGeneratorActive");
-		GameRegistry.registerBlock(fortressGeneratorOn, "FortressGeneratorActive");
-		
-		fortressGeneratorPaused = new FortressGenerator(FortressGeneratorState.PAUSED).setBlockName("FortressGeneratorOnAndPowered");
-		GameRegistry.registerBlock(fortressGeneratorPaused, "FortressGeneratorOnAndPowered");
-		
-        fortressGeneratorClogged = new FortressGenerator(FortressGeneratorState.CLOGGED).setBlockName("FortressGeneratorClogged").setCreativeTab(tabName);
-		GameRegistry.registerBlock(fortressGeneratorClogged, "FortressGeneratorClogged");
-		
-		//Fortress Generator Emergency Key
-		fortressEmergencyKey = new FortressEmergencyKey().setBlockName("FortressEmergencyKey").setCreativeTab(tabName);
-		GameRegistry.registerBlock(fortressEmergencyKey, "FortressEmergencyKey");
-		
 		//Recipes
 		
-		//fortressGenerator
+		//fortress generator
 		ItemStack obsidianStack = new ItemStack(Blocks.obsidian, 1);
 		ItemStack diamondStack = new ItemStack(Items.diamond, 1);
         ItemStack fortressGeneratorStack = new ItemStack(fortressGenerator, 1);
         GameRegistry.addRecipe(fortressGeneratorStack, "ooo", "odo", "ooo", 'o', obsidianStack, 'd', diamondStack);
 		
-        //fortressEmergencyKey
+        //emergency key
 		ItemStack quartzStack = new ItemStack(Blocks.quartz_block, 1);
         ItemStack emergencyKeyStack = new ItemStack(fortressEmergencyKey, 1);
         ItemStack glowstoneBlockStack = new ItemStack(Blocks.glowstone, 1);
         GameRegistry.addRecipe(emergencyKeyStack, "qqq", "qgq", "qqq", 'q', quartzStack, 'g', glowstoneBlockStack);
 
-        //itemFortressManual
+        //fortress manual
         ItemStack fortressManualStack = new ItemStack(itemFortressManual, 1); 
         GameRegistry.addShapelessRecipe(fortressManualStack, obsidianStack);
         
