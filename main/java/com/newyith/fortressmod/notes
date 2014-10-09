@@ -1,7 +1,4 @@
-onPlaced, clog unless its the only unclogged generator
-onActivated, if (!oldestGenerator) clog else generate walls
-onDeactivated, degenerate the walls it generated
-onBroken, if (oldestGenerator) clog the others
+
 
 Maybe:
 1) Fortress disruptors are crafted with 8 dark stone blocks around an emerald ore block
@@ -12,14 +9,15 @@ Deployment issues:
 none so far!
 
 Still Need:
-figure out why "author" isn't being filled in in minecraft forge display about fortressmod
-figure out why "config" button is diabled for fortressmod in minecraft forge?
+consider making fortress manual recipe: book + obsidian (instead of just obsidian)
+    leather and 3 obsidian (same as book but replace paper with obsidian)
+add mc.fortress.mod@gmail.com to minecraft forge display about fortressmod
 youtube video
     make world for video and decided what to cover
 github (with readme.md or w/e)
     provide download for compiled mod (.jar)
-
-
+write post for wip mods forum
+    note: see http://www.minecraftexe.com/bigtrees-mod/ for how to install a forge mod instructions
 
 Youtube video outline:
 music?
@@ -76,15 +74,20 @@ make fortress glass block
 emergency key (quarts)
 
 
-TODO: switch to using Deque instead of Stack
 
-TODO: Later: add redstone controls (pause generation if powered) 
-    or maybe redstone makes it regenerate walls (start generating new wall blocks like if you turned it off then on again)
+Info:
 
 
 
 
 
+
+
+
+onPlaced, clog unless its the only unclogged generator
+onActivated, if (!oldestGenerator) clog else generate walls
+onDeactivated, degenerate the walls it generated
+onBroken, if (oldestGenerator) clog the others
 
 onFortressGeneratorPlaced
     placedGenerator.timePlaced = now

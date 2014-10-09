@@ -1,0 +1,10 @@
+itemGroup.tabName=Fortress Mod
+tile.FortressGenerator.name=Fortress Generator
+tile.FortressGeneratorClogged.name=Clogged Fortress Generator
+tile.FortressEmergencyKey.name=Emergency Fortress Key
+tile.FortressGlass.name=Fortress Glass
+tile.FortressNetherBrick.name=Fortress Nether Brick
+tile.FortressBedrock.name=Fortress Bedrock
+item.FortressIronDoor.name=Fortress Iron Door
+item.FortressWoodenDoor.name=Fortress Wooden Door
+item.FortressManual.name=Fortress Manual

@@ -1,0 +1,61 @@
+Fortress Manual
+
+1) Table of contents
+2) Generators
+3) Generators (2)
+4) Doors
+5) Doors (2)
+6) Redstone
+7) Clogging
+8) Emergency key
+9) /stuck
+=======
+Fortress Generator
+O O O
+O d O
+O O O
+O=obsidian, d=diamond
+
+Changes cobblestone, glass, nether brick, and doors (wood/iron) to an unbreakable version while fueled by glowstone dust
+(GLOWSTONE_BURN_TIME_HOURS hourGLOWSTONE_BURN_TIME_HOURS_S each).
+=======
+Fortress Generator 2
+
+Place generator against your structure and fuel with glowstone dust to generator a fortress.
+
+To spread generation to new blocks, power cycle generator with redstone.
+=======
+Fortress Doors
+
+Doors open for white-listed players only (on right click).
+
+Place nether brick directly above the door and on that nether brick place a sign with player name(s) to white-list.
+=======
+Fortress Doors (2)
+
+The white-list sign(s) can also be on any nether brick connected (by nether brick) to the nether brick directly above the door.
+
+Sign format: One name on each line or comma separated list.
+=======
+Redstone
+
+While powered by redstone, the fortress generator stops generating and pauses fuel consumption.
+=======
+Clogging
+
+Generator will clog if placed too close to another fortress, if redstone power is cycled too quickly, or if an emergency key is used.
+
+Break generator (with pickaxe) to unclog.
+=======
+Emergency Key
+Q Q Q
+Q G Q
+Q Q Q
+Q=quartz block
+G=glowstone block
+
+When placed against a fortress wall, all generators also touching the wall will be clogged (if they were placed by you).
+=======
+/stuck
+
+If you get stuck inside a fortress, type /stuck to teleport to nearby after a delay.
