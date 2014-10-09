@@ -30,7 +30,7 @@ summary of what mod does
     demonstrate how to use everything
         generate small cobblestone house with windows and a door
         
-end video after at most 15 minutes (ideally closer to 5)
+end video after at most 15 minutes (ideally closer to 5 or 10)
 
 
 
@@ -52,14 +52,13 @@ consider adding FortressStructure class to wrap up generating/degenerating wall 
 spawn a new thread to degenerate quickly (without animation) but not instantly (spread it out over multiple ticks)
 test what if while degenerating wall, long section is disconnected, then generate again. does the unconnected part stop half generated?
     yes but it still remembers it needs to degenerate the now disconnected part when next paused
-    TODO: retest this?
+    TODO: retest this now?
 TODO: consider making generators produce teleport home tokens from molten glowstone
     maybe??: 8 molten around 1 dust -> X teleport home tokens
     TODO: consider skipping this on the grounds that fortresses aren't supposed to be aware of who lives there
-add generate/degenerate sounds
+add generate/degenerate placeholder sounds
     https://www.freesound.org/people/PhreaKsAccount/sounds/46489/
     https://www.freesound.org/people/MiceHead/sounds/13294/
-TODO: make redstone on == generator on (and not be paused if no potential redstone power adjacent) (if possible)
 
 Done (overall):
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
@@ -72,12 +71,6 @@ generation radius limit
 fortress doors (with signs)
 make fortress glass block
 emergency key (quarts)
-
-
-
-Info:
-
-
 
 
 
