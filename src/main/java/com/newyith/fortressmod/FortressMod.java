@@ -160,8 +160,13 @@ public class FortressMod
         GameRegistry.addRecipe(emergencyKeyStack, "qqq", "qgq", "qqq", 'q', quartzStack, 'g', glowstoneBlockStack);
 
         //fortress manual
-        ItemStack fortressManualStack = new ItemStack(itemFortressManual, 1); 
+        ItemStack fortressManualStack = new ItemStack(itemFortressManual, 1);
+        /*
         GameRegistry.addShapelessRecipe(fortressManualStack, obsidianStack);
+        /*/
+        ItemStack bookStack = new ItemStack(Items.book, 1);
+        GameRegistry.addShapelessRecipe(fortressManualStack, obsidianStack, bookStack);
+        //*/
         
         /* debug recipes
         ItemStack dirtStack = new ItemStack(Blocks.dirt, 1);

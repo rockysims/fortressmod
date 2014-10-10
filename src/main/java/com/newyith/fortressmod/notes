@@ -1,16 +1,7 @@
-
-
-Maybe:
-1) Fortress disruptors are crafted with 8 dark stone blocks around an emerald ore block
-    darkstone dust is produced by fortress generators at a rate determined by the number of wall blocks generated
-2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
-
 Deployment issues:
 none so far!
 
 Still Need:
-consider making fortress manual recipe: book + obsidian (instead of just obsidian)
-    leather and 3 obsidian (same as book but replace paper with obsidian)
 add mc.fortress.mod@gmail.com to minecraft forge display about fortressmod
 youtube video
     make world for video and decided what to cover
@@ -35,7 +26,8 @@ end video after at most 15 minutes (ideally closer to 5 or 10)
 
 
 
-Done (current work sub tasks):
+Done:
+made fortress manual recipe: book + obsidian
 give role of obsidian in doors to nether brick
 review expansion of generators section in fortress manual
 add support for hopper to fortress generator
@@ -59,6 +51,11 @@ TODO: consider making generators produce teleport home tokens from molten glowst
 add generate/degenerate placeholder sounds
     https://www.freesound.org/people/PhreaKsAccount/sounds/46489/
     https://www.freesound.org/people/MiceHead/sounds/13294/
+
+Maybe:
+1) Fortress disruptors are crafted with 8 dark stone blocks around an emerald ore block
+    darkstone dust is produced by fortress generators at a rate determined by the number of wall blocks generated
+2) Fortress disruptors are crafted with 8 fortress generators around an emerald ore block?
 
 Done (overall):
 /stuck command to get you out of an enemy fortress (5 minutes then teleport to nearby)
