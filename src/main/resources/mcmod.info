@@ -1,7 +1,7 @@
 [{
     "modid": "fortressmod",
     "name": "Fortress Mod",
-    "description": "Allows you to turn structures built of cobblestone, glass, nether brick, and/or doors into an unbreakable version while burning glowstone dust in a fortress generator.",
+    "description": "Allows you to turn structures built of cobblestone, glass, nether brick, and/or doors into an unbreakable version while burning glowstone dust in a fortress generator.\n\nmc.fortress.mod@gmail.com",
     "version": "$version",
     "mcversion": "$mcversion",
     "url": "",
