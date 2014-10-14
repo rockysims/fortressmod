@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Set;
 
 import com.newyith.fortressmod.Dbg;
+import com.newyith.fortressmod.FortressMod;
 import com.newyith.fortressmod.Point;
 
 import net.minecraft.block.Block;
@@ -31,7 +32,7 @@ public class StuckPlayer {
 
 	Random random = new Random();
 	private int quadrantSize = 64;
-	private final int stuckDelayMs = 3*60*1000;
+	private final int stuckDelayMs = FortressMod.config_stuckDelayMs;
 
 	public StuckPlayer(EntityPlayer player) {
 		this.player = player;

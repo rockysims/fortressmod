@@ -55,13 +55,13 @@ public class FortressMod
 	
 	//config
 	public static int config_glowstoneBurnTimeMs;
+	public static int config_stuckDelayMs;
 
 	public static CreativeTabs tabName = new CreativeTabs("tabName") {
 		public Item getTabIconItem() {
 			return Items.arrow;
 		}
 	};
-
 
 	@EventHandler
 	public void serverStart(FMLServerStartingEvent event) {
@@ -94,6 +94,15 @@ public class FortressMod
             int maxValue = Integer.MAX_VALUE; //~1.6 years
             String comment = "How many milliseconds 1 glowstone dust will fuel a fortress generator. 3600000 is 1 hour.";
             FortressMod.config_glowstoneBurnTimeMs = config.getInt(name, category, defaultValue, minValue, maxValue, comment);
+            
+            //load config_stuckDelayMs
+            name = "stuck_delay_ms";
+            category = "fortressmod";
+            defaultValue = 3 * 60 * 1000; //3 minutes
+            minValue = 0;
+            maxValue = Integer.MAX_VALUE; //~1.6 years
+            comment = "How many milliseconds /stuck waits before teleport. 180000 is 3 minutes.";
+            FortressMod.config_stuckDelayMs = config.getInt(name, category, defaultValue, minValue, maxValue, comment);
             
             config.save();
     }
