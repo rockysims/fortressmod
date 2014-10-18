@@ -2,12 +2,12 @@ Deployment issues:
 none so far!
 
 Still Need:
-youtube video
-    make world for video and decided what to cover
-github (with readme.md or w/e)
-    provide download for compiled mod (.jar)
-write post for wip mods forum
-    note: see http://www.minecraftexe.com/bigtrees-mod/ for how to install a forge mod instructions
+//TODO: fix: burnTicksRemaining can be as high as 6243 when total is 720 (on server)
+    in TileEntityFortressGenerator
+make stairs (cobblestone and nether brick) generatable
+change license to MIT (GPL says changing it is not allowed)
+better fortress generator gui bar (more granularity)
+add formula to config to allow fuel cost to scale based on number of blocks generated?
 
 Youtube video outline:
 music?

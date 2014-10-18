@@ -2,6 +2,7 @@ package com.newyith.fortressmod.client.gui;
 
 import org.lwjgl.opengl.GL11;
 
+import com.newyith.fortressmod.Dbg;
 import com.newyith.fortressmod.ModInfo;
 import com.newyith.fortressmod.TileEntityFortressGenerator;
 import com.newyith.fortressmod.client.container.ContainerFortressGenerator;
@@ -55,6 +56,7 @@ public class GuiFortressGenerator extends GuiContainer {
         	int xOffset = 24;
         	int yOffset = -12;
             int i1 = this.fortressGenerator.getBurnTimeRemainingScaled(13);
+            Dbg.print("getBurnTimeRemainingScaled(13): " + String.valueOf(i1));
             this.drawTexturedModalRect(
             		xOffset + k + 56, yOffset + l + 36 + 12 - i1,
             		176, 12 - i1, 

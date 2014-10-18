@@ -23,7 +23,7 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	/** The number of ticks (50ms each) that the fortress generator will keep burning */
 	public int burnTicksRemaining;
 
-	private static int glowstoneDustBurnTicks = (FortressMod.config_glowstoneBurnTimeMs)/50; //50 ms per updateEntity() call (tick)
+	private static final int glowstoneDustBurnTicks = (FortressMod.config_glowstoneBurnTimeMs)/50; //50 ms per updateEntity() call (tick)
 	
 	private FortressGeneratorState state;
 	private boolean updateBlockStateFlag;
@@ -271,7 +271,14 @@ public class TileEntityFortressGenerator extends TileEntity implements IInventor
 	}
 
 	public int getBurnTimeRemainingScaled(int max) {
-		return (this.burnTicksRemaining * max) / this.glowstoneDustBurnTicks;
+		//(remaining * max) / total
+		long remaining = this.burnTicksRemaining; //TODO: fix: burnTicksRemaining can be as high as 6243 when total is 720 (on server)
+		long scaleMax = max;
+		long total = this.glowstoneDustBurnTicks;
+		Dbg.print("remaining: " + String.valueOf(remaining));
+		Dbg.print("total: " + String.valueOf(total));
+		return (int) (remaining * scaleMax / total);
+		//return (this.burnTicksRemaining * max) / this.glowstoneDustBurnTicks;
 	}
 
 	public boolean isClogged() {
