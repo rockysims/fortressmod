@@ -2,25 +2,10 @@ Deployment issues:
 none so far!
 
 Still Need:
-//TODO: fix: burnTicksRemaining can be as high as 6243 when total is 720 (on server)
-    in TileEntityFortressGenerator
 make stairs (cobblestone and nether brick) generatable
 change license to MIT (GPL says changing it is not allowed)
 better fortress generator gui bar (more granularity)
 add formula to config to allow fuel cost to scale based on number of blocks generated?
-
-Youtube video outline:
-music?
-intro (hello, my name, mod name)
-summary of what mod does
-"I'm going to show you": list stuff to be covered in remainder of video
-    stuff added by mod (items/blocks)
-        manual, generator, emergency key (and fortress wall blocks?)
-    crafting recipes
-    demonstrate how to use everything
-        generate small cobblestone house with windows and a door
-        
-end video after at most 15 minutes (ideally closer to 5 or 10)
 
 
 

@@ -56,7 +56,6 @@ public class GuiFortressGenerator extends GuiContainer {
         	int xOffset = 24;
         	int yOffset = -12;
             int i1 = this.fortressGenerator.getBurnTimeRemainingScaled(13);
-            Dbg.print("getBurnTimeRemainingScaled(13): " + String.valueOf(i1));
             this.drawTexturedModalRect(
             		xOffset + k + 56, yOffset + l + 36 + 12 - i1,
             		176, 12 - i1, 
