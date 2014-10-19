@@ -2,15 +2,15 @@ Deployment issues:
 none so far!
 
 Still Need:
-make stairs (cobblestone and nether brick) generatable
 change license to MIT (GPL says changing it is not allowed)
-better fortress generator gui bar (more granularity)
+better fortress generator gui bar (more granularity. maybe just digital clock in a frame?)
 add formula to config to allow fuel cost to scale based on number of blocks generated?
 
 
 
 
 Done:
+make stairs (cobblestone and nether brick) generatable
 add mc.fortress.mod@gmail.com to minecraft forge display about fortressmod
 made fortress manual recipe: book + obsidian
 give role of obsidian in doors to nether brick

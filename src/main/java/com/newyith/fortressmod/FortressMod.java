@@ -18,6 +18,7 @@ import com.newyith.fortressmod.blocks.FortressEmergencyKey;
 import com.newyith.fortressmod.blocks.FortressGenerator;
 import com.newyith.fortressmod.blocks.FortressGlass;
 import com.newyith.fortressmod.blocks.FortressNetherBrick;
+import com.newyith.fortressmod.blocks.FortressStairs;
 import com.newyith.fortressmod.client.GuiHandler;
 import com.newyith.fortressmod.commands.StuckCommand;
 import com.newyith.fortressmod.items.ItemFortressDoor;
@@ -44,8 +45,10 @@ public class FortressMod
 	public static Block fortressGeneratorClogged;
 	public static Block fortressEmergencyKey;
 	public static Block fortressBedrock;
+	public static Block fortressCobblestoneStairs;
 	public static Block fortressGlass;
 	public static Block fortressNetherBrick;
+	public static Block fortressNetherBrickStairs;
 	//fortress door
 	public static Block fortressWoodenDoor;
 	public static Block fortressIronDoor;
@@ -107,13 +110,19 @@ public class FortressMod
 		//fortress wall (bedrock)
 		fortressBedrock = new FortressBedrock().setBlockName("FortressBedrock").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressBedrock, "FortressBedrock");
+		//fortress wall (cobblestone stairs)
+		fortressCobblestoneStairs = new FortressStairs(fortressBedrock).setBlockName("FortressCobblestoneStairs").setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressCobblestoneStairs, "FortressCobblestoneStairs");
 		//fortress wall (glass)
 		fortressGlass = new FortressGlass().setBlockName("FortressGlass").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressGlass, "FortressGlass");
 		//fortress wall (nether brick)
 		fortressNetherBrick = new FortressNetherBrick().setBlockName("FortressNetherBrick").setCreativeTab(tabName);
 		GameRegistry.registerBlock(fortressNetherBrick, "FortressNetherBrick");
-
+		//fortress wall (nether brick stairs)
+		fortressNetherBrickStairs = new FortressStairs(fortressNetherBrick).setBlockName("FortressNetherBrickStairs").setCreativeTab(tabName);
+		GameRegistry.registerBlock(fortressNetherBrickStairs, "FortressNetherBrickStairs");
+		
 		//fortress wall (wooden door (block))
 		fortressWoodenDoor = new FortressDoor(Material.wood).setBlockName("FortressWoodenDoor");
 		GameRegistry.registerBlock(fortressWoodenDoor, "FortressWoodenDoor");

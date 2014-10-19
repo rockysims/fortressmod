@@ -301,6 +301,8 @@ public class GeneratorCore {
 									
 									if (wallBlock == Blocks.wooden_door || wallBlock == Blocks.iron_door) {
 										generateDoor(p, index);
+									} else if (wallBlock == Blocks.stone_stairs || wallBlock == Blocks.nether_brick_stairs) {
+										generateAndPreserveMeta(p, index);
 									} else {
 										world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
 									}
@@ -315,6 +317,8 @@ public class GeneratorCore {
 									
 									if (wallBlock == FortressMod.fortressWoodenDoor || wallBlock == FortressMod.fortressIronDoor) {
 										degenerateDoor(p, index);
+									} else if (wallBlock == FortressMod.fortressCobblestoneStairs || wallBlock == FortressMod.fortressNetherBrickStairs) {
+										degenerateAndPreserveMeta(p, index);
 									} else {
 										world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
 									}
@@ -343,6 +347,18 @@ public class GeneratorCore {
 	
 	// --------- Internal Methods ---------
 
+	private void generateAndPreserveMeta(Point p, int index) {
+		int meta = world.getBlockMetadata(p.x, p.y, p.z);
+		world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+		world.setBlockMetadataWithNotify(p.x, p.y, p.z, meta, 2);
+	}
+
+	private void degenerateAndPreserveMeta(Point p, int index) {
+		int meta = world.getBlockMetadata(p.x, p.y, p.z);
+		world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
+		world.setBlockMetadataWithNotify(p.x, p.y, p.z, meta, 2);
+	}
+	
 	private void generateDoor(Point p, int index) {
 		//assumes p is a door block (2 block tall doors)
 		Point top = getDoorTop(p);
@@ -400,7 +416,7 @@ public class GeneratorCore {
 		} else { //can't find a matching (door) block above or below (should never happen if door is working correctly)
 			int meta = world.getBlockMetadata(p.x, p.y, p.z);
 			world.setBlockToAir(p.x, p.y, p.z);
-			world.setBlock(p.x, p.y, p.z, Wall.getEnabledWallBlocks().get(index));
+			world.setBlock(p.x, p.y, p.z, Wall.getDisabledWallBlocks().get(index));
 			world.setBlockMetadataWithNotify(p.x, p.y, p.z, meta, 2);
 		}
 	}
