@@ -1,9 +1,11 @@
 itemGroup.tabName=Fortress Mod
 tile.FortressGenerator.name=Fortress Generator
+tile.FortressGeneratorOnAndPowered.name=Paused Fortress Generator
+tile.FortressGeneratorActive.name=Running Fortress Generator
 tile.FortressGeneratorClogged.name=Clogged Fortress Generator
 tile.FortressEmergencyKey.name=Emergency Fortress Key
 tile.FortressBedrock.name=Fortress Bedrock
-tile.FortressBedrockStairs.name=Fortress Bedrock Stairs
+tile.FortressCobblestoneStairs.name=Fortress Bedrock Stairs
 tile.FortressGlass.name=Fortress Glass
 tile.FortressNetherBrick.name=Fortress Nether Brick
 tile.FortressNetherBrickStairs.name=Fortress Nether Brick Stairs

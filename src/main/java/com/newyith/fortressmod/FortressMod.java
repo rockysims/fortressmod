@@ -96,10 +96,10 @@ public class FortressMod
         //load config_stuckDelayMs
         name = "stuck_delay_ms";
         category = "fortressmod";
-        defaultValue = 3 * 60 * 1000; //3 minutes
+        defaultValue = 30 * 1000; //30 seconds
         minValue = 0;
         maxValue = Integer.MAX_VALUE; //~1.6 years
-        comment = "How many milliseconds /stuck waits before teleport. 180000 is 3 minutes.";
+        comment = "How many milliseconds /stuck waits before teleport. 30000 is 30 seconds.";
         FortressMod.config_stuckDelayMs = config.getInt(name, category, defaultValue, minValue, maxValue, comment);
         
         config.save();

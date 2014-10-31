@@ -2,14 +2,26 @@ Deployment issues:
 none so far!
 
 Still Need:
-change license to MIT (GPL says changing it is not allowed)
+ignore white list signs on outside of fortress
+/stuck changes:
+    make /stuck only work if your within range of a generator
+    make it teleport you to right outside the wall?
+make generator keep the chunk its in loaded (so fuel goes down when no one is around)?
+    maybe only requires chunk to be loaded if its on? (so you can't just place generators with no fuel all over to keep world loaded causing lag)
+
+maybe:
 better fortress generator gui bar (more granularity. maybe just digital clock in a frame?)
+instead of searching connected nether brick for white list signs, search connected signs for whitelist signs?
+remove fortress nether brick block and stairs? (because you'll be able to protect arbitrary block types)
 add formula to config to allow fuel cost to scale based on number of blocks generated?
 
 
-
-
 Done:
+change default /stuck delay to 30 seconds
+reduce /stuck range so you can easily see where you came from
+add 4 seconds to /stuck displayed count down
+change license to MIT (GPL says changing it is not allowed)
+----
 make stairs (cobblestone and nether brick) generatable
 add mc.fortress.mod@gmail.com to minecraft forge display about fortressmod
 made fortress manual recipe: book + obsidian

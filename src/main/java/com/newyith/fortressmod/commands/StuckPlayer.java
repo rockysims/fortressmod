@@ -31,7 +31,7 @@ public class StuckPlayer {
 	private Map<Integer, String> messages;
 
 	Random random = new Random();
-	private int quadrantSize = 64;
+	private int quadrantSize = 32;
 	private final int stuckDelayMs = FortressMod.config_stuckDelayMs;
 
 	public StuckPlayer(EntityPlayer player) {
@@ -48,6 +48,8 @@ public class StuckPlayer {
 		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 3*1000;
 		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
+		ms = 4*1000;
+		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 5*1000;
 		this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/1000) + " seconds.");
 		ms = 10*1000;
@@ -63,10 +65,10 @@ public class StuckPlayer {
 			this.messages.put(ms, "/stuck teleport in " + String.valueOf(ms/(1000*60)) + " minutes.");
 		}
 		
-		//remove messages that would be shown earlier than stuckDelayMs
+		//remove messages that would be shown later than or at stuckDelayMs
 		List<Integer> displayTimes = new ArrayList<Integer>(this.messages.keySet());
 		for (int displayTime : displayTimes) {
-			if (displayTime > this.stuckDelayMs) {
+			if (displayTime >= this.stuckDelayMs) {
 				this.messages.remove(displayTime);
 			}
 		}
@@ -216,6 +218,7 @@ public class StuckPlayer {
 	private Point getRandomNearbyPoint(int x, int y, int z) {
 		int dist = quadrantSize  + quadrantSize / 2 + (int)(random.nextFloat() * quadrantSize);
 		
+		//pick a quadrant
 		//move left, right, forward, or backward by dist
 		float f = random.nextFloat() * 100;
 		if (f < 25) {
@@ -227,7 +230,6 @@ public class StuckPlayer {
 		} else {
 			z -= dist;
 		}
-		
 		//move left or right OR forward or backward by quadrantSize
 		if (f < 50) { //x changed
 			if (random.nextFloat() * 100 < 50) {
